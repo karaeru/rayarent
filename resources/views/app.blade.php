@@ -17,6 +17,11 @@
         .card{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:20px;max-width:440px;margin:0 auto}
         label{display:block;font-size:13px;color:var(--mu);font-weight:600;margin:12px 0 4px}
         input{width:100%;padding:9px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx);font:inherit}
+        .password-field{position:relative}
+        .password-field input{padding-right:44px}
+        .password-toggle{position:absolute;top:50%;right:8px;display:flex;width:32px;height:32px;align-items:center;justify-content:center;padding:4px;transform:translateY(-50%);border:0;border-radius:6px;background:transparent;color:var(--mu);cursor:pointer}
+        .password-toggle:focus-visible{outline:2px solid var(--pl);outline-offset:1px}
+        .password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
         .btn{background:#14181f;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;font:inherit}
         .btn.y{background:var(--pl);color:#111}
         .err{color:var(--rd);font-size:13px;margin:4px 0 0}
@@ -50,5 +55,23 @@
     @if (session('error')) <div class="ok" style="background:#c8372d22;color:var(--rd)">{{ session('error') }}</div> @endif
     @yield('content')
 </main>
+<script>
+    document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const passwordInput = document.getElementById(toggle.getAttribute('aria-controls'));
+
+            if (!(passwordInput instanceof HTMLInputElement)) {
+                return;
+            }
+
+            const isVisible = passwordInput.type === 'password';
+
+            passwordInput.type = isVisible ? 'text' : 'password';
+            toggle.setAttribute('aria-pressed', String(isVisible));
+            toggle.setAttribute('aria-label', isVisible ? 'Sembunyikan password' : 'Tampilkan password');
+            toggle.querySelector('[data-password-slash]').hidden = isVisible;
+        });
+    });
+</script>
 </body>
 </html>
