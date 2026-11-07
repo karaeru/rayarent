@@ -14,6 +14,13 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'phone', 'role', 'password'];
 
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
