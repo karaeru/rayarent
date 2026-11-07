@@ -7,7 +7,14 @@
         @csrf
         @foreach ([['name','Nama','text'],['email','Email','email'],['phone','Nomor telepon','tel'],['password','Password (min. 6 karakter)','password'],['password_confirmation','Ulangi password','password']] as [$f,$l,$t])
             <label for="{{ $f }}">{{ $l }}</label>
-            <input id="{{ $f }}" type="{{ $t }}" name="{{ $f }}" @if(!str_contains($f,'password')) value="{{ old($f) }}" @endif required>
+            @if (str_contains($f, 'password'))
+                <div class="password-field">
+                    <input id="{{ $f }}" type="{{ $t }}" name="{{ $f }}" required>
+                    <x-password-toggle :input-id="$f" />
+                </div>
+            @else
+                <input id="{{ $f }}" type="{{ $t }}" name="{{ $f }}" value="{{ old($f) }}" required>
+            @endif
             @error($f) <p class="err">{{ $message }}</p> @enderror
         @endforeach
         <p><button class="btn y">Buat akun</button></p>
