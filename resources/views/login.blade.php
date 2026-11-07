@@ -10,7 +10,10 @@
         @error('email') <p class="err">{{ $message }}</p> @enderror
 
         <label for="password">Password</label>
-        <input id="password" type="password" name="password" required>
+        <div class="password-field">
+            <input id="password" type="password" name="password" required>
+            <x-password-toggle input-id="password" />
+        </div>
         @error('password') <p class="err">{{ $message }}</p> @enderror
 
         <label style="display:flex;gap:8px;align-items:center;font-weight:400">
