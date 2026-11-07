@@ -45,7 +45,10 @@
         </select>
 
         <div id="sum" style="border:1px dashed var(--ln);border-radius:8px;padding:10px;margin-top:14px"></div>
-        <p><button class="btn y" id="go" disabled>Buat pesanan</button></p>
+        <p style="display:flex;align-items:center;gap:10px">
+            <button class="btn y" id="go" disabled>Buat pesanan</button>
+            <a class="btn" href="{{ route('pelanggan.kendaraan', $vehicle) }}" style="text-decoration:none">Batal</a>
+        </p>
     </form>
 </div>
 
