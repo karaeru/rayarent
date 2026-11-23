@@ -67,8 +67,11 @@ class VehicleSeeder extends Seeder
             foreach ($paket as [$layanan, $jam, $harga]) {
                 $v->packages()->create(['service' => $layanan, 'duration_hours' => $jam, 'price' => $harga]);
             }
-            for ($i = random_int(1, 4); $i > 0; $i--) {
-                $v->units()->create(['plate_number' => $plat(), 'status' => 'tersedia']);
+            // Unit acak hanya untuk pengembangan. Di production, isi plat asli lewat: php artisan armada:impor
+            if (! app()->environment('production')) {
+                for ($i = random_int(1, 4); $i > 0; $i--) {
+                    $v->units()->create(['plate_number' => $plat(), 'status' => 'tersedia']);
+                }
             }
         }
     }

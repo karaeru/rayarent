@@ -60,5 +60,5 @@
     </tbody>
 </table>
 </div>
-@if ($orders->hasPages())<div style="margin-top:14px">{{ $orders->links() }}</div>@endif
+@if ($orders->hasPages())<div style="margin-top:14px">{{ $orders->links('pagination') }}</div>@endif
 @endsection

@@ -127,7 +127,7 @@
 {{-- Pagination --}}
 @if ($orders->hasPages())
 <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-    {{ $orders->links() }}
+    {{ $orders->links('pagination') }}
 </div>
 @endif
 

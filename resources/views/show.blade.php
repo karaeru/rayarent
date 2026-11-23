@@ -99,7 +99,12 @@
 @endif
 
 {{-- Form upload bukti bayar --}}
-@if ($order->due_amount > 0 && $order->status !== 'dibatalkan')
+@php $menungguVerifikasi = $order->hasPendingPayment(); @endphp
+@if ($menungguVerifikasi)
+<p style="color:#854d0e;font-size:13px;background:#fef9c3;padding:10px 14px;border-radius:8px;margin-top:16px">
+    ⏳ Bukti pembayaran Anda sedang menunggu verifikasi admin. Form pembayaran muncul lagi setelah diverifikasi.
+</p>
+@elseif ($order->due_amount > 0 && ! in_array($order->status, ['dibatalkan', 'selesai'], true))
 <h3 style="margin:16px 0 8px">Upload Bukti Transfer</h3>
 <div style="background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:20px">
     <p style="margin:0 0 4px;color:var(--mu);font-size:13px">
@@ -108,12 +113,6 @@
             · Mode DP aktif
         @endif
     </p>
-    @if ($order->payments->where('status', 'menunggu')->isNotEmpty())
-    <p style="color:#854d0e;font-size:13px;background:#fef9c3;padding:8px 12px;border-radius:8px">
-        ⏳ Ada bukti pembayaran yang sedang menunggu verifikasi admin.
-        Kamu tetap bisa kirim bukti baru jika perlu.
-    </p>
-    @endif
     <form method="POST" action="{{ route('pelanggan.pesanan.bayar', $order) }}" enctype="multipart/form-data">
         @csrf
         <label>Jumlah yang ditransfer (Rp)</label>
@@ -136,7 +135,7 @@
 @endif
 
 {{-- Tombol batalkan pesanan --}}
-@if ($order->status === 'menunggu_konfirmasi')
+@if ($order->status === 'menunggu_konfirmasi' && $order->paid_amount === 0 && ! $menungguVerifikasi)
 <div style="margin-top:16px;border-top:1px solid var(--ln);padding-top:16px">
     <form method="POST" action="{{ route('pelanggan.pesanan.batal', $order) }}">
         @csrf
@@ -147,6 +146,8 @@
         </button>
     </form>
 </div>
+@elseif ($order->status === 'menunggu_konfirmasi')
+<p style="margin-top:16px;color:var(--mu);font-size:13px">Pesanan yang sudah ada pembayaran dibatalkan lewat admin. Silakan hubungi kami.</p>
 @endif
 
 <p style="margin-top:20px"><a href="{{ route('pelanggan.pesanan') }}">← Semua pesanan</a></p>

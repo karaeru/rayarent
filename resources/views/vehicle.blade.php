@@ -30,8 +30,8 @@
     </div>
     @endif
     <div class="spec">
-        <div class="val">{{ $vehicle->units->count() }}</div>
-        <div class="lbl">Unit Tersedia</div>
+        <div class="val">{{ $vehicle->units->where('status', '!=', 'perawatan')->count() }}</div>
+        <div class="lbl">Unit Aktif</div>
     </div>
     <div class="spec">
         <div class="val">Rp{{ number_format($vehicle->packages->min('price'), 0, ',', '.') }}</div>

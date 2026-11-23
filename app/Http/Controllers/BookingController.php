@@ -95,7 +95,7 @@ class BookingController extends Controller
         });
 
         return redirect()->route('pelanggan.pesanan.show', $order)
-            ->with('ok', 'Pesanan dibuat. Pembayaran dikerjakan di langkah 5.');
+            ->with('ok', 'Pesanan dibuat. Silakan transfer dan unggah bukti pembayaran di halaman ini.');
     }
 
     /** Validasi paket dan jadwal, lalu hitung waktu selesai dan total harga. */
