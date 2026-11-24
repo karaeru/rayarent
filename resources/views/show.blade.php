@@ -14,14 +14,19 @@
         <h2>{{ $order->code }}</h2>
         <p class="page-sub">{{ $order->unit->vehicle->name }} <span class="plate">{{ $order->unit->plate_number }}</span></p>
     </div>
-    <div class="row"><x-order-status :status="$order->status" /> <x-payment-status :status="$order->payment_status" /></div>
+    <div class="row">
+        <x-order-status :status="$order->status" /> <x-payment-status :status="$order->payment_status" />
+        @if ($order->status !== 'dibatalkan')
+            <a class="btn btn-outline btn-sm" href="{{ route('invoice', $order) }}" target="_blank" rel="noopener">Invoice PDF</a>
+        @endif
+    </div>
 </div>
 
 <div class="two-col">
 <div class="stack">
 
     @if ($order->status === 'dibatalkan')
-        <div class="alert alert-error">Pesanan ini dibatalkan.</div>
+        <div class="alert alert-error">Pesanan ini dibatalkan.{{ $order->cancel_reason ? ' '.$order->cancel_reason.'.' : '' }}</div>
     @else
         <div class="card"><div class="card-body">
             <ol class="steps" aria-label="Progres pesanan">
@@ -62,6 +67,25 @@
             </div>
         @endforeach
     </div></div>
+    @endif
+
+    @if ($order->pay_deadline)
+        <div class="alert alert-warn" role="status">
+            Unggah bukti transfer sebelum <b>{{ $order->pay_deadline->translatedFormat('d M Y H:i') }}</b>
+            (<span data-countdown="{{ $order->pay_deadline->toIso8601String() }}">{{ $order->pay_deadline->diffForHumans() }}</span>).
+            Lewat dari itu, pesanan batal otomatis.
+        </div>
+        <script>
+            (() => {
+                const el = document.querySelector('[data-countdown]'), end = new Date(el.dataset.countdown);
+                const tick = () => {
+                    const s = Math.max(0, Math.floor((end - new Date()) / 1000));
+                    el.textContent = s ? `sisa ${Math.floor(s / 3600)} jam ${String(Math.floor(s % 3600 / 60)).padStart(2, '0')} menit` : 'waktu habis';
+                    if (s) setTimeout(tick, 15000);
+                };
+                tick();
+            })();
+        </script>
     @endif
 
     {{-- Form upload bukti bayar --}}

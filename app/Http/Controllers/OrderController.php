@@ -86,4 +86,16 @@ class OrderController extends Controller
 
         return Storage::disk('local')->response($payment->proof_path);
     }
+
+    /** Invoice siap cetak / simpan PDF. Pemilik pesanan atau admin. */
+    public function invoice(Request $request, Order $order)
+    {
+        $user = $request->user();
+        abort_unless($user->isAdmin() || $order->user_id === $user->id, 404);
+        abort_if($order->status === 'dibatalkan', 404);
+
+        $order->load('user', 'unit.vehicle', 'package', 'payments');
+
+        return view('invoice', compact('order'));
+    }
 }

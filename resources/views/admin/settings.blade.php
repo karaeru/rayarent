@@ -14,6 +14,12 @@
         <input id="late" type="number" name="late_fee_per_hour" min="0" step="1000" value="{{ old('late_fee_per_hour', $lateFee) }}" required>
         @error('late_fee_per_hour') <p class="err">{{ $message }}</p> @enderror
     </div>
+    <div class="field">
+        <label for="batas">Batas waktu unggah bukti bayar (jam)</label>
+        <input id="batas" type="number" name="batas_bayar_jam" min="0" max="72" value="{{ old('batas_bayar_jam', $batasBayar) }}" required>
+        <p class="hint">Pesanan tanpa bukti bayar melewati batas ini dibatalkan otomatis dan unitnya kosong lagi. Isi 0 untuk mematikan.</p>
+        @error('batas_bayar_jam') <p class="err">{{ $message }}</p> @enderror
+    </div>
     <p class="hint mb-2">Berlaku untuk pesanan dan pengembalian berikutnya. Pesanan yang sudah ada tidak berubah.</p>
     <button class="btn">Simpan pengaturan</button>
 </div></form>

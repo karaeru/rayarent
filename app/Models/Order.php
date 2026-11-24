@@ -16,7 +16,7 @@ class Order extends Model
     protected $fillable = [
         'code', 'user_id', 'vehicle_unit_id', 'rental_package_id', 'quantity',
         'start_at', 'end_at', 'pickup_location', 'total_price', 'pay_mode', 'status',
-        'returned_at', 'return_condition', 'late_fee', 'damage_fee',
+        'returned_at', 'return_condition', 'late_fee', 'damage_fee', 'cancel_reason',
     ];
 
     protected $casts = [
@@ -68,6 +68,38 @@ class Order extends Model
         if ($this->payments->where('status', 'menunggu')->isNotEmpty()) return 'Menunggu Verifikasi';
         if ($this->paid_amount > 0) return $this->due_amount === 0 ? 'Lunas' : 'DP Dibayar';
         return $this->payments->isNotEmpty() ? 'Ditolak' : 'Belum Bayar';
+    }
+
+    /** Batas waktu unggah bukti bayar (jam) sejak pesanan dibuat. 0 = fitur mati. */
+    public static function paymentWindowHours(): int
+    {
+        return max(0, (int) Setting::get('batas_bayar_jam', 2));
+    }
+
+    /** Kapan pesanan ini batal otomatis bila belum ada bukti bayar. Null bila tidak berlaku. */
+    public function getPayDeadlineAttribute(): ?Carbon
+    {
+        $jam = static::paymentWindowHours();
+        if (! $jam || $this->status !== 'menunggu_konfirmasi') return null;
+        if ($this->payments->whereIn('status', ['menunggu', 'diterima'])->isNotEmpty()) return null;
+
+        return $this->created_at->copy()->addHours($jam);
+    }
+
+    /**
+     * Batalkan pesanan "menunggu konfirmasi" yang lewat batas waktu tanpa bukti bayar
+     * (tidak ada pembayaran menunggu/diterima). Unitnya otomatis kosong lagi.
+     * Dipanggil oleh scheduler dan juga sebelum cek ketersediaan, jadi tetap jalan walau scheduler mati.
+     */
+    public static function cancelExpired(): int
+    {
+        $jam = static::paymentWindowHours();
+        if (! $jam) return 0;
+
+        return static::where('status', 'menunggu_konfirmasi')
+            ->where('created_at', '<', now()->subHours($jam))
+            ->whereDoesntHave('payments', fn ($p) => $p->whereIn('status', ['menunggu', 'diterima']))
+            ->update(['status' => 'dibatalkan', 'cancel_reason' => 'Otomatis: tidak ada bukti bayar dalam ' . $jam . ' jam', 'updated_at' => now()]);
     }
 
     /** Nomor pesanan berikutnya: RR-0001, RR-0002, ... */

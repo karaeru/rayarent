@@ -30,6 +30,7 @@ class BookingController extends Controller
     public function availability(Request $request, Vehicle $vehicle): JsonResponse
     {
         [$pkg, $start, $end, $total] = $this->quote($request, $vehicle);
+        Order::cancelExpired();   // bebaskan unit dari pesanan yang tidak dibayar
 
         $free = VehicleUnit::where('vehicle_id', $vehicle->id)
             ->availableBetween($start, $end)->pluck('id')->all();
@@ -58,6 +59,8 @@ class BookingController extends Controller
             'pickup_location' => ['nullable', 'string', 'max:200'],
             'pay_mode' => ['required', 'in:dp,lunas'],
         ]);
+
+        Order::cancelExpired();
 
         $order = DB::transaction(function () use ($vehicle, $pkg, $start, $end, $total, $data, $request) {
             // Kunci semua unit kendaraan ini supaya dua pelanggan tidak bisa
@@ -95,7 +98,9 @@ class BookingController extends Controller
         });
 
         return redirect()->route('pelanggan.pesanan.show', $order)
-            ->with('ok', 'Pesanan dibuat. Silakan transfer dan unggah bukti pembayaran di halaman ini.');
+            ->with('ok', Order::paymentWindowHours()
+                ? 'Pesanan dibuat. Unggah bukti transfer dalam ' . Order::paymentWindowHours() . ' jam, atau pesanan batal otomatis.'
+                : 'Pesanan dibuat. Silakan transfer dan unggah bukti pembayaran di halaman ini.');
     }
 
     /** Validasi paket dan jadwal, lalu hitung waktu selesai dan total harga. */

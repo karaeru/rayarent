@@ -27,7 +27,7 @@
     <tbody>
     @forelse ($orders as $o)
         <tr>
-            <td><b>{{ $o->code }}</b><br><span class="muted small">{{ $o->created_at->format('d/m/Y') }}</span></td>
+            <td><b>{{ $o->code }}</b> <a class="small" href="{{ route('invoice', $o) }}" target="_blank" rel="noopener">invoice</a><br><span class="muted small">{{ $o->created_at->format('d/m/Y') }}</span></td>
             <td>{{ $o->user->name }}<br><span class="muted small">{{ $o->user->phone ?? '-' }}</span></td>
             <td>{{ $o->unit->vehicle->name }}<br><span class="plate">{{ $o->unit->plate_number }}</span></td>
             <td class="nowrap small">{{ $o->start_at->format('d/m H:i') }}<br>{{ $o->end_at->format('d/m H:i') }}</td>

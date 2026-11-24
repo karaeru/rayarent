@@ -8,6 +8,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -20,6 +21,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/masuk', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::get('/daftar', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/daftar', [AuthController::class, 'register'])->middleware('throttle:5,1');
+
+    Route::get('/lupa-password', [PasswordResetController::class, 'request'])->name('password.request');
+    Route::post('/lupa-password', [PasswordResetController::class, 'send'])->middleware('throttle:3,1')->name('password.email');
+    Route::get('/atur-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/atur-password', [PasswordResetController::class, 'update'])->middleware('throttle:5,1')->name('password.update');
 });
 
 Route::post('/keluar', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -29,6 +35,9 @@ Route::get('/foto/{vehicle}', [CatalogController::class, 'photo'])->name('foto.k
 
 // Bukti bayar (pemilik pesanan atau admin; dicek di controller)
 Route::get('/bukti/{payment}', [OrderController::class, 'proof'])->middleware('auth')->name('bukti');
+
+// Invoice (pemilik pesanan atau admin; dicek di controller)
+Route::get('/invoice/{order}', [OrderController::class, 'invoice'])->middleware('auth')->name('invoice');
 
 // Pelanggan
 Route::middleware(['auth', 'role:pelanggan'])->group(function () {

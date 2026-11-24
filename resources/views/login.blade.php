@@ -24,7 +24,10 @@
                 @error('password') <p class="err">{{ $message }}</p> @enderror
             </div>
 
-            <label class="check mb-2"><input type="checkbox" name="remember"> Ingat saya di perangkat ini</label>
+            <div class="row between mb-2">
+                <label class="check" style="margin:0"><input type="checkbox" name="remember"> Ingat saya di perangkat ini</label>
+                <a href="{{ route('password.request') }}" class="small">Lupa password?</a>
+            </div>
             <button class="btn btn-block">Masuk</button>
         </form>
     </div></div>
