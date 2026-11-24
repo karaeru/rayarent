@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class AdminVehicleController extends Controller
 {
@@ -42,11 +43,13 @@ class AdminVehicleController extends Controller
     public function edit(Vehicle $vehicle)
     {
         $vehicle->load('packages')->load(['units' => fn ($q) => $q->withCount('orders')->orderBy('plate_number')]);
+        $jumlahPesanan = (int) $vehicle->units->sum('orders_count');
 
         return view('admin.vehicle-form', [
             'vehicle' => $vehicle,
             'services' => RentalPackage::SERVICES,
             'variants' => $vehicle->variants(),
+            'jumlahPesanan' => $jumlahPesanan,
             'usedPackageIds' => Order::whereIn('rental_package_id', $vehicle->packages->pluck('id'))
                 ->pluck('rental_package_id')->unique()->all(),
         ]);
@@ -57,6 +60,36 @@ class AdminVehicleController extends Controller
         $vehicle->update($this->vehicleData($request, $vehicle));
 
         return back()->with('ok', 'Data kendaraan disimpan.');
+    }
+
+    /**
+     * Hapus kendaraan beserta paket, unit, dan fotonya.
+     * Ditolak bila salah satu unitnya pernah dipesan, supaya riwayat pesanan dan laporan tidak rusak.
+     */
+    public function destroy(Request $request, Vehicle $vehicle): RedirectResponse
+    {
+        $request->validate(['konfirmasi' => ['required', 'in:' . $vehicle->name]], [
+            'konfirmasi.required' => 'Ketik nama kendaraan untuk konfirmasi.',
+            'konfirmasi.in' => 'Nama yang diketik tidak sama dengan "' . $vehicle->name . '".',
+        ]);
+
+        $adaPesanan = Order::whereIn('vehicle_unit_id', $vehicle->units()->select('id'))->exists();
+        if ($adaPesanan) {
+            return back()->with('error', $vehicle->name . ' sudah punya riwayat pesanan dan tidak bisa dihapus. '
+                . 'Hilangkan centang "Tampilkan di katalog" untuk menyembunyikannya.');
+        }
+
+        $nama = $vehicle->name;
+        $foto = $vehicle->photo;
+
+        DB::transaction(function () use ($vehicle) {
+            $vehicle->packages()->delete();
+            $vehicle->units()->delete();
+            $vehicle->delete();
+        });
+        $this->deletePhotoFile($foto);   // hapus file setelah database berhasil
+
+        return redirect()->route('admin.kendaraan')->with('ok', 'Kendaraan ' . $nama . ' dihapus.');
     }
 
     /* ---------- paket harga ---------- */

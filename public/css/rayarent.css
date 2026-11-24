@@ -456,6 +456,10 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 }
 @media(prefers-reduced-motion:reduce){.kt-map__pin::after{animation:none}}
 
+/* Zona hapus di halaman kelola kendaraan */
+.danger-zone{border-color:#f0b4b4}
+.danger-zone .card-title{color:var(--danger)}
+
 /* Foto kendaraan tampil utuh (tidak terpotong) */
 .ar-media,
 .vcard__media{background:#fff}

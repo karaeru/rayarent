@@ -152,5 +152,32 @@
     </form>
 </div></div>
 @endif
+@if ($vehicle->exists)
+<div class="card danger-zone"><div class="card-body">
+    <h3 class="card-title">Hapus kendaraan</h3>
+    @if ($jumlahPesanan > 0)
+        <p class="muted" style="margin:0">
+            {{ $vehicle->name }} punya <b>{{ $jumlahPesanan }} pesanan</b> dalam riwayat, jadi tidak bisa dihapus agar laporan tetap utuh.
+            Untuk berhenti menyewakannya, hilangkan centang <b>Tampilkan di katalog</b> di atas lalu simpan.
+        </p>
+    @else
+        <p class="muted">Paket harga, {{ $vehicle->units->count() }} unit, dan foto kendaraan ini ikut terhapus. Tindakan ini tidak bisa dibatalkan.</p>
+        <form method="POST" action="{{ route('admin.kendaraan.hapus', $vehicle) }}" class="row" data-delete-form>
+            @csrf @method('DELETE')
+            <label class="sr-only" for="konfirmasi">Ketik nama kendaraan</label>
+            <input id="konfirmasi" name="konfirmasi" class="input input-sm" style="flex:1;min-width:200px" autocomplete="off"
+                   placeholder="Ketik: {{ $vehicle->name }}" data-expect="{{ $vehicle->name }}" required>
+            <button class="btn btn-danger btn-sm" disabled>Hapus permanen</button>
+        </form>
+        @error('konfirmasi') <p class="err">{{ $message }}</p> @enderror
+        <script>
+            document.querySelectorAll('[data-delete-form]').forEach((f) => {
+                const input = f.querySelector('[data-expect]'), btn = f.querySelector('button');
+                input.addEventListener('input', () => { btn.disabled = input.value.trim() !== input.dataset.expect; });
+            });
+        </script>
+    @endif
+</div></div>
+@endif
 </div>
 @endsection

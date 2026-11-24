@@ -66,6 +66,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/kendaraan', [AdminVehicleController::class, 'store'])->name('admin.kendaraan.simpan');
     Route::get('/kendaraan/{vehicle}/ubah', [AdminVehicleController::class, 'edit'])->name('admin.kendaraan.ubah');
     Route::put('/kendaraan/{vehicle}', [AdminVehicleController::class, 'update'])->name('admin.kendaraan.perbarui');
+    Route::delete('/kendaraan/{vehicle}', [AdminVehicleController::class, 'destroy'])->name('admin.kendaraan.hapus');
     Route::post('/kendaraan/{vehicle}/paket', [AdminVehicleController::class, 'storePackage'])->name('admin.paket.simpan');
     Route::post('/kendaraan/{vehicle}/foto', [AdminVehicleController::class, 'storePhoto'])->name('admin.foto.simpan');
     Route::delete('/kendaraan/{vehicle}/foto', [AdminVehicleController::class, 'destroyPhoto'])->name('admin.foto.hapus');
