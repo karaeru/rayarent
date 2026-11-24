@@ -10,7 +10,7 @@
 @php
     $user = auth()->user();
     $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
-    $home = $user ? ($user->isAdmin() ? route('admin.dashboard') : route('pelanggan.katalog')) : route('login');
+    $home = $user ? ($user->isAdmin() ? route('admin.dashboard') : route('pelanggan.katalog')) : route('home');
 
     $menu = [];
     if ($user?->isAdmin()) {
@@ -34,12 +34,25 @@
     <div class="container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
             @if ($logo)
-                <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="{{ config('rayarent.nama') }}">
+                <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true">
+                <span>{{ config('rayarent.nama') }}</span>
             @else
                 <span class="brand__mark" aria-hidden="true">R</span>
                 <span>{{ config('rayarent.nama') }}</span>
             @endif
         </a>
+
+        @guest
+            <nav class="guest-nav" aria-label="Menu utama">
+                <a href="{{ route('home') }}#armada">Armada</a>
+                <a href="{{ route('home') }}#harga">Harga</a>
+                <a href="{{ route('home') }}#cara-sewa">Cara sewa</a>
+            </nav>
+            <div class="guest-actions">
+                @unless (request()->routeIs('login'))<a href="{{ route('login') }}" class="btn btn-outline btn-sm">Masuk</a>@endunless
+                @unless (request()->routeIs('register'))<a href="{{ route('register') }}" class="btn btn-sm">Daftar</a>@endunless
+            </div>
+        @endguest
 
         @if ($user)
             <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="menu-utama">Menu</button>

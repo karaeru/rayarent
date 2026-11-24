@@ -234,3 +234,141 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 .auth__head{text-align:center;margin-bottom:20px}
 .auth__head p{color:var(--muted);margin-top:6px}
 .upload-box{padding:16px;border:2px dashed var(--line-strong);border-radius:var(--radius-sm);background:var(--bg)}
+
+/* ==========================================================================
+   Landing page (resources/views/home.blade.php)
+   ========================================================================== */
+.guest-nav{display:flex;gap:4px;flex:1;margin-left:12px}
+.guest-nav a{padding:8px 12px;border-radius:var(--radius-sm);color:var(--ink-2);font-weight:600;font-size:.95rem}
+.guest-nav a:hover{background:var(--bg);text-decoration:none}
+.guest-actions{display:flex;gap:8px;margin-left:auto}
+@media(max-width:900px){.guest-nav{display:none}}
+
+.lp-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px;align-items:end;padding:28px 0 44px;border-bottom:1px solid var(--line)}
+.lp-hero h1{font-size:clamp(1.8rem,3.6vw,2.6rem);line-height:1.15;letter-spacing:-.02em;max-width:18ch}
+.lp-eyebrow{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);margin-bottom:12px}
+.lp-lead{font-size:1.1rem;color:var(--ink-2);max-width:52ch;margin-top:16px}
+.lp-facts{display:grid;grid-template-columns:1fr 1fr;margin:0;border-top:2px solid var(--ink)}
+.lp-facts div{padding:14px 0;border-bottom:1px solid var(--line)}
+.lp-facts div:nth-child(odd){padding-right:16px}
+.lp-facts dt{font-size:.8rem;color:var(--muted)}
+.lp-facts dd{margin:2px 0 0;font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.lp-facts small{font-size:.8rem;font-weight:500;color:var(--muted);margin-left:4px}
+
+.lp-section{padding:48px 0 8px}
+.lp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 24px;flex-wrap:wrap;margin-bottom:20px}
+.lp-head p{margin:0;max-width:60ch}
+
+.lp-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:step;border-top:1px solid var(--line)}
+.lp-steps li{counter-increment:step;padding:20px 20px 4px 0}
+.lp-steps li+li{padding-left:20px;border-left:1px solid var(--line)}
+.lp-steps li::before{content:"0" counter(step);display:block;font-size:.85rem;font-weight:800;color:var(--brand);margin-bottom:10px;font-variant-numeric:tabular-nums}
+.lp-steps h3{margin-bottom:6px}
+.lp-steps p{color:var(--ink-2);font-size:.95rem}
+
+.lp-terms dl{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+.lp-terms dl div{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.lp-terms dt{font-weight:700}
+.lp-terms dd{margin:0;color:var(--ink-2)}
+
+.lp-cta{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:56px;padding:32px;border-radius:var(--radius);background:var(--brand-strong);color:var(--on-brand)}
+.lp-cta h2{color:inherit}
+.lp-cta p{margin:6px 0 0;opacity:.85}
+.lp-cta__btn{background:var(--on-brand);color:var(--brand-strong)}
+.lp-cta__btn:hover{background:var(--brand-soft);color:var(--brand-strong)}
+.lp-cta__ghost{background:transparent;border-color:rgba(255,255,255,.5);color:var(--on-brand)}
+.lp-cta__ghost:hover{background:rgba(255,255,255,.1);color:var(--on-brand)}
+
+@media(max-width:900px){
+  .lp-hero{grid-template-columns:1fr;gap:28px;padding-top:8px}
+  .lp-steps{grid-template-columns:1fr 1fr}
+  .lp-steps li:nth-child(3){padding-left:0;border-left:0}
+  .lp-terms dl{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .lp-steps{grid-template-columns:1fr}
+  .lp-steps li+li{padding-left:0;border-left:0;border-top:1px solid var(--line)}
+  .lp-terms dl div{grid-template-columns:1fr;gap:2px}
+  .lp-cta{padding:24px}
+}
+
+/* ---------- Daftar harga (per kendaraan) ---------- */
+.lp-pricelist{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.lp-pricerow{display:grid;grid-template-columns:240px 1fr;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);transition:background .2s}
+.lp-pricerow:last-child{border-bottom:0}
+.lp-pricerow:hover{background:var(--brand-soft)}
+.lp-pricerow__name{display:flex;flex-direction:column;line-height:1.3}
+.lp-pricerow__pkgs{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.lp-pricerow__pkgs li{display:flex;flex-direction:column;min-width:150px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);transition:border-color .2s,transform .2s}
+.lp-pricerow:hover .lp-pricerow__pkgs li{border-color:var(--line-strong)}
+.lp-pricerow__pkgs li:hover{transform:translateY(-2px);border-color:var(--brand)}
+.lp-pricerow__pkgs span{font-size:.78rem;color:var(--muted)}
+.lp-pricerow__pkgs b{font-variant-numeric:tabular-nums}
+@media(max-width:700px){.lp-pricerow{grid-template-columns:1fr;gap:10px;padding:14px 16px}.lp-pricerow__pkgs li{flex:1 1 140px}}
+
+/* ---------- Animasi ---------- */
+/* judul pembuka: baris naik satu per satu */
+.lp-hero__text>*{animation:lp-rise .8s cubic-bezier(.2,.7,.2,1) both}
+.lp-hero__text>:nth-child(2){animation-delay:.08s}
+.lp-hero__text>:nth-child(3){animation-delay:.18s}
+.lp-hero__text>:nth-child(4){animation-delay:.28s}
+@keyframes lp-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* garis bawah tebal di atas angka "tergambar" dari kiri */
+.lp-facts{position:relative;border-top-color:transparent}
+.lp-facts::before{content:"";position:absolute;left:0;right:0;top:-2px;height:2px;background:var(--ink);transform-origin:left;animation:lp-draw 1s .3s cubic-bezier(.6,0,.2,1) both}
+@keyframes lp-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.lp-facts dd{font-variant-numeric:tabular-nums}
+
+/* jalan dengan marka putus-putus + mobil kecil yang lewat */
+.lp-hero{position:relative}
+.lp-road{position:absolute;left:0;right:0;bottom:-1px;height:2px;overflow:visible;pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--line-strong) 0 18px,transparent 18px 34px);background-size:34px 2px;animation:lp-dash 1.2s linear infinite}
+.lp-road__car{position:absolute;bottom:-2px;left:0;font-size:22px;line-height:1;transform:scaleX(-1);animation:lp-drive 9s cubic-bezier(.45,.05,.55,.95) 1.2s infinite}
+@keyframes lp-dash{to{background-position:-34px 0}}
+@keyframes lp-drive{
+  0%{left:-40px}
+  45%{left:calc(100% + 10px)}
+  100%{left:calc(100% + 10px)}
+}
+
+/* muncul saat discroll (hanya bila JS aktif, jadi tanpa JS semua tetap terlihat) */
+.lp-js [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.lp-js [data-reveal].is-in{opacity:1;transform:none}
+.lp-js .lp-pricerow[data-reveal]{transform:translateX(-16px)}
+.lp-js .lp-pricerow[data-reveal].is-in{transform:none}
+
+/* kartu armada: setelah muncul, gerak miring dikendalikan JS */
+.vcard[data-tilt].is-in{transition:transform .25s ease-out,box-shadow .2s;will-change:transform}
+.vcard .vcard__media img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.vcard:hover .vcard__media img{transform:scale(1.06)}
+
+/* langkah: nomor & garis pemisah terisi berurutan */
+.lp-steps{position:relative;border-top-color:transparent}
+.lp-steps::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(.6,0,.2,1) .2s}
+.lp-steps.is-in::before{transform:scaleX(1)}
+.lp-js .lp-steps li{opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s}
+.lp-steps.is-in li{opacity:1;transform:none}
+.lp-steps.is-in li:nth-child(1){transition-delay:.25s}
+.lp-steps.is-in li:nth-child(2){transition-delay:.55s}
+.lp-steps.is-in li:nth-child(3){transition-delay:.85s}
+.lp-steps.is-in li:nth-child(4){transition-delay:1.15s}
+.lp-steps li::before{transition:letter-spacing .3s}
+.lp-steps li:hover::before{letter-spacing:.2em}
+
+/* tombol utama: panah kecil bergeser */
+.lp-hero .btn:not(.btn-outline)::after{content:"→";display:inline-block;transition:transform .25s}
+.lp-hero .btn:not(.btn-outline):hover::after{transform:translateX(4px)}
+
+/* kotak ajakan: cahaya mengikuti kursor */
+.lp-cta{position:relative;overflow:hidden;isolation:isolate}
+.lp-cta::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .3s;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.16),transparent 70%)}
+.lp-cta:hover::before{opacity:1}
+
+@media(prefers-reduced-motion:reduce){
+  .lp-hero__text>*,.lp-facts::before,.lp-road,.lp-road__car{animation:none!important}
+  .lp-road__car{display:none}
+  .lp-js [data-reveal],.lp-js .lp-steps li{opacity:1!important;transform:none!important}
+  .lp-steps::before{transform:none}
+}

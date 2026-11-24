@@ -12,7 +12,7 @@ class ExampleTest extends TestCase
 
     public function test_guest_can_open_authentication_pages(): void
     {
-        $this->get('/')->assertRedirect(route('login'));
+        $this->get('/')->assertOk()->assertSee('Daftar harga');
         $this->get('/masuk')->assertOk();
         $this->get('/daftar')->assertOk();
     }
