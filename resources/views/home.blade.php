@@ -1,5 +1,9 @@
 @extends('app')
 @section('title', config('rayarent.nama').' · '.config('rayarent.tagline'))
+@push('head')
+    <meta name="description" content="Sewa mobil dan minibus {{ config('rayarent.nama') }}: lepas kunci atau dengan driver, paket 12 dan 24 jam. Lihat harga dan cek unit kosong langsung di website.">
+    <link rel="canonical" href="{{ route('home') }}">
+@endpush
 @php
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
@@ -48,15 +52,15 @@
     <div class="vgrid">
         @foreach ($vehicles as $v)
             <article class="vcard" data-reveal data-tilt>
-                <div class="vcard__media">
+                <a class="vcard__media" href="{{ route('armada', $v->slug) }}" tabindex="-1" aria-hidden="true">
                     @if ($v->photo_url)
-                        <img src="{{ $v->photo_url }}" alt="{{ $v->name }}" loading="lazy">
+                        <img src="{{ $v->photo_url }}" alt="" loading="lazy">
                     @else
-                        <span class="media-placeholder" aria-hidden="true">{{ $v->capacity >= 14 ? '🚐' : ($v->capacity <= 4 ? '🚗' : '🚙') }}</span>
+                        <span class="media-placeholder">{{ $v->capacity >= 14 ? '🚐' : ($v->capacity <= 4 ? '🚗' : '🚙') }}</span>
                     @endif
-                </div>
+                </a>
                 <div class="vcard__body">
-                    <h3 class="vcard__title">{{ $v->name }}</h3>
+                    <h3><a class="vcard__title" href="{{ route('armada', $v->slug) }}">{{ $v->name }}</a></h3>
                     <div class="vcard__chips">
                         <span class="chip">{{ $v->seat_label }} kursi</span>
                         @if ($v->transmission) <span class="chip">{{ $v->transmission }}</span> @endif
@@ -65,7 +69,7 @@
                     <p class="muted small" style="margin:0">{{ $v->packages->pluck('service_label')->unique()->implode(' · ') }}</p>
                     <div class="vcard__foot">
                         <div class="price"><small>Mulai dari</small>{{ $rp($v->min_price) }}</div>
-                        <a class="btn btn-sm" href="{{ route('pelanggan.pesan', $v) }}">Pesan</a>
+                        <a class="btn btn-sm btn-outline" href="{{ route('armada', $v->slug) }}">Detail</a>
                     </div>
                 </div>
             </article>
@@ -85,7 +89,7 @@
         @foreach ($vehicles->sortBy('capacity') as $v)
             <div class="lp-pricerow" data-reveal>
                 <div class="lp-pricerow__name">
-                    <strong>{{ $v->name }}</strong>
+                    <a href="{{ route('armada', $v->slug) }}"><strong>{{ $v->name }}</strong></a>
                     <span class="muted small">{{ $v->seat_label }} kursi{{ $v->transmission ? ' · '.$v->transmission : '' }}</span>
                 </div>
                 <ul class="lp-pricerow__pkgs">
@@ -147,64 +151,5 @@
         @if ($waLink) <a href="{{ $waLink }}" class="btn btn-lg lp-cta__ghost" rel="noopener">WhatsApp</a> @endif
     </div>
 </section>
-<script>
-(() => {
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.documentElement.classList.add('lp-js');
-
-    // 1. Muncul saat di-scroll, berurutan per kelompok
-    const items = document.querySelectorAll('[data-reveal]');
-    if (reduce || !('IntersectionObserver' in window)) {
-        items.forEach(el => el.classList.add('is-in'));
-    } else {
-        const io = new IntersectionObserver((entries) => {
-            entries.filter(e => e.isIntersecting).forEach((e) => {
-                const sibs = [...e.target.parentElement.children].filter(c => c.hasAttribute('data-reveal'));
-                e.target.style.setProperty('--d', (Math.max(0, sibs.indexOf(e.target)) % 6) * 70 + 'ms');
-                e.target.classList.add('is-in');
-                io.unobserve(e.target);
-            });
-        }, { rootMargin: '0px 0px -8% 0px' });
-        items.forEach(el => io.observe(el));
-    }
-
-    // 2. Angka di pembuka berputar seperti odometer
-    const fmt = (n, rp) => rp ? n.toLocaleString('id-ID') : String(n);
-    document.querySelectorAll('[data-count]').forEach((el) => {
-        const to = +el.dataset.count, rp = el.dataset.format === 'rp';
-        if (reduce || !to) return;
-        const t0 = performance.now() + 250, dur = 1400;
-        el.textContent = fmt(0, rp);
-        const tick = (t) => {
-            const p = Math.min(1, Math.max(0, (t - t0) / dur));
-            const eased = 1 - Math.pow(1 - p, 4);
-            let v = Math.round(to * eased);
-            if (rp && p < 1) v = Math.round(v / 1000) * 1000;
-            el.textContent = fmt(v, rp);
-            if (p < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-    });
-
-    if (reduce || !matchMedia('(hover: hover)').matches) return;
-
-    // 3. Kartu armada sedikit miring mengikuti kursor
-    document.querySelectorAll('[data-tilt]').forEach((card) => {
-        card.addEventListener('pointermove', (e) => {
-            const r = card.getBoundingClientRect();
-            const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-            card.style.transform = `perspective(700px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg) translateY(-3px)`;
-        });
-        card.addEventListener('pointerleave', () => { card.style.transform = ''; });
-    });
-
-    // 4. Cahaya mengikuti kursor di kotak ajakan
-    const spot = document.querySelector('[data-spot]');
-    spot?.addEventListener('pointermove', (e) => {
-        const r = spot.getBoundingClientRect();
-        spot.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-        spot.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
-})();
-</script>
+@include('partials.landing-motion')
 @endsection

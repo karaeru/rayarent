@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Vehicle extends Model
 {
@@ -46,6 +47,18 @@ class Vehicle extends Model
     public static function baseName(string $name): string
     {
         return mb_strtolower(trim(preg_replace('/\s+/', ' ', preg_replace('/\b(matic|manual)\b/i', '', $name))));
+    }
+
+    /** Potongan alamat publik dari nama, mis. "Innova Zenix" -> "innova-zenix". */
+    public function getSlugAttribute(): string
+    {
+        return Str::slug($this->name);
+    }
+
+    /** Cari kendaraan aktif dari slug. Nama kendaraan unik, jadi slug juga unik. */
+    public static function findActiveBySlug(string $slug): ?self
+    {
+        return static::where('is_active', true)->get()->first(fn (self $v) => $v->slug === $slug);
     }
 
     /** Harga paket termurah, untuk ditampilkan di katalog ("mulai Rp..."). */

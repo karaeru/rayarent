@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1e4fa0">
     <title>@yield('title', config('rayarent.nama'))</title>
+    @stack('head')
     <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
 </head>
 @php
@@ -46,7 +47,8 @@
             <nav class="guest-nav" aria-label="Menu utama">
                 <a href="{{ route('home') }}#armada">Armada</a>
                 <a href="{{ route('home') }}#harga">Harga</a>
-                <a href="{{ route('home') }}#cara-sewa">Cara sewa</a>
+                <a href="{{ route('tentang') }}" @class(['is-active' => request()->routeIs('tentang')])>Tentang</a>
+                <a href="{{ route('kontak') }}" @class(['is-active' => request()->routeIs('kontak')])>Kontak</a>
             </nav>
             <div class="guest-actions">
                 @unless (request()->routeIs('login'))<a href="{{ route('login') }}" class="btn btn-outline btn-sm">Masuk</a>@endunless
@@ -98,6 +100,11 @@
                 </div>
             @endif
         </div>
+        <nav class="site-footer__links" aria-label="Tautan footer">
+            <a href="{{ route('home') }}#harga">Harga</a>
+            <a href="{{ route('tentang') }}">Tentang</a>
+            <a href="{{ route('kontak') }}">Kontak &amp; lokasi</a>
+        </nav>
         <div class="site-footer__copy">© {{ date('Y') }} {{ config('rayarent.nama') }}. Semua hak dilindungi.</div>
     </div>
 </footer>

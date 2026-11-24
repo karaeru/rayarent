@@ -11,6 +11,9 @@ use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/armada/{slug}', [HomeController::class, 'vehicle'])->where('slug', '[a-z0-9-]+')->name('armada');
+Route::get('/tentang', [HomeController::class, 'about'])->name('tentang');
+Route::get('/kontak', [HomeController::class, 'contact'])->name('kontak');
 
 Route::middleware('guest')->group(function () {
     Route::get('/masuk', [AuthController::class, 'showLogin'])->name('login');
