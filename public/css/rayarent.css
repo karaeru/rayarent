@@ -455,3 +455,11 @@ a.pg:hover{background:var(--bg);text-decoration:none}
   .tt-points>div+div{padding-left:0;border-left:0;border-top:1px solid var(--line)}
 }
 @media(prefers-reduced-motion:reduce){.kt-map__pin::after{animation:none}}
+
+/* Foto kendaraan tampil utuh (tidak terpotong) */
+.ar-media,
+.vcard__media{background:#fff}
+.ar-media img,
+.vcard__media img{object-fit:contain;padding:4%}
+.ar-media{aspect-ratio:16/10;border:1px solid var(--line)}
+.vcard__media{aspect-ratio:16/10;border-bottom:1px solid var(--line)}
