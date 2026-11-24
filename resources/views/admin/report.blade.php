@@ -1,45 +1,35 @@
 @extends('app')
-@section('title', 'Laporan · Admin RAYARENT')
+@section('title', 'Laporan · Admin '.config('rayarent.nama'))
 @section('content')
-<style>
-    .tbl{width:100%;border-collapse:collapse;font-size:14px}
-    .tbl th{text-align:left;color:var(--mu);font-weight:600;padding:8px;border-bottom:1px solid var(--ln);white-space:nowrap}
-    .tbl td{padding:8px;border-bottom:1px solid var(--ln);vertical-align:top}
-    .sm{padding:7px 9px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx);font:inherit;font-size:14px;width:auto}
-    .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
-    .sum div{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:14px}
-    .sum b{font-size:20px;display:block}
-</style>
-<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-    <h2 style="margin:0">Laporan transaksi</h2>
-    <a class="btn y" style="text-decoration:none" href="{{ route('admin.laporan.unduh', request()->query()) }}">Unduh CSV</a>
+<div class="page-head">
+    <div><h2>Laporan transaksi</h2><p class="page-sub">Filter berdasarkan tanggal mulai sewa dan status.</p></div>
+    <a class="btn btn-outline" href="{{ route('admin.laporan.unduh', request()->query()) }}">Unduh CSV</a>
 </div>
 
-<form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px">
-    <span style="color:var(--mu);font-size:13px">Mulai sewa</span>
-    <input type="date" name="dari" value="{{ $filters['dari'] ?? '' }}" class="sm">
-    <span style="color:var(--mu);font-size:13px">s/d</span>
-    <input type="date" name="sampai" value="{{ $filters['sampai'] ?? '' }}" class="sm">
-    <select name="status" class="sm">
-        <option value="">Semua status</option>
-        @foreach (['menunggu_konfirmasi' => 'Menunggu konfirmasi', 'dikonfirmasi' => 'Dikonfirmasi', 'sedang_disewa' => 'Sedang disewa', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $k => $l)
-            <option value="{{ $k }}" @selected(($filters['status'] ?? '') === $k)>{{ $l }}</option>
-        @endforeach
-    </select>
-    <button class="btn y" style="padding:7px 14px">Terapkan</button>
-    @if ($filters)<a href="{{ route('admin.laporan') }}">Reset</a>@endif
+<form method="GET" class="card filters" style="align-items:flex-end">
+    <div><label class="label" for="dari">Mulai sewa dari</label><input id="dari" type="date" name="dari" value="{{ $filters['dari'] ?? '' }}"></div>
+    <div><label class="label" for="sampai">Sampai</label><input id="sampai" type="date" name="sampai" value="{{ $filters['sampai'] ?? '' }}"></div>
+    <div><label class="label" for="status">Status</label>
+        <select id="status" name="status">
+            <option value="">Semua status</option>
+            @foreach (['menunggu_konfirmasi' => 'Menunggu konfirmasi', 'dikonfirmasi' => 'Dikonfirmasi', 'sedang_disewa' => 'Sedang disewa', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $k => $l)
+                <option value="{{ $k }}" @selected(($filters['status'] ?? '') === $k)>{{ $l }}</option>
+            @endforeach
+        </select></div>
+    <button class="btn">Terapkan</button>
+    @if ($filters)<a href="{{ route('admin.laporan') }}" class="btn btn-outline">Reset</a>@endif
 </form>
-@if ($errors->any())<p class="err">{{ $errors->first() }}</p>@endif
+@if ($errors->any())<div class="alert alert-error">{{ $errors->first() }}</div>@endif
 
-<div class="sum">
-    <div><span style="color:var(--mu);font-size:13px">Jumlah pesanan</span><b>{{ $jumlah }}</b></div>
-    <div><span style="color:var(--mu);font-size:13px">Total tagihan</span><b>Rp{{ number_format($tagihan, 0, ',', '.') }}</b></div>
-    <div><span style="color:var(--mu);font-size:13px">Sudah diterima</span><b>Rp{{ number_format($diterima, 0, ',', '.') }}</b></div>
-    <div><span style="color:var(--mu);font-size:13px">Belum dibayar</span><b>Rp{{ number_format(max(0, $tagihan - $diterima), 0, ',', '.') }}</b></div>
+<div class="stats">
+    <div class="stat"><span class="stat__num">{{ $jumlah }}</span><span class="stat__lbl">Jumlah pesanan</span></div>
+    <div class="stat"><span class="stat__num is-money">Rp{{ number_format($tagihan, 0, ',', '.') }}</span><span class="stat__lbl">Total tagihan</span></div>
+    <div class="stat"><span class="stat__num is-money" style="color:var(--success)">Rp{{ number_format($diterima, 0, ',', '.') }}</span><span class="stat__lbl">Sudah diterima</span></div>
+    <div class="stat"><span class="stat__num is-money" style="color:var(--warn)">Rp{{ number_format(max(0, $tagihan - $diterima), 0, ',', '.') }}</span><span class="stat__lbl">Belum dibayar</span></div>
 </div>
-<p style="color:var(--mu);font-size:12px;margin:0 0 12px">Ringkasan tidak menghitung pesanan yang dibatalkan.</p>
+<p class="muted small">Ringkasan tidak menghitung pesanan yang dibatalkan.</p>
 
-<div style="background:var(--sf);border:1px solid var(--ln);border-radius:12px;overflow-x:auto">
+<div class="table-wrap">
 <table class="tbl">
     <thead><tr><th>Kode</th><th>Pelanggan</th><th>Kendaraan</th><th>Mulai</th><th>Status</th><th>Pembayaran</th><th>Total</th><th>Diterima</th></tr></thead>
     <tbody>
@@ -47,18 +37,18 @@
         <tr>
             <td><b>{{ $o->code }}</b></td>
             <td>{{ $o->user->name }}</td>
-            <td>{{ $o->unit->vehicle->name }} <span class="plate" style="font-size:11px">{{ $o->unit->plate_number }}</span></td>
-            <td style="white-space:nowrap">{{ $o->start_at->format('d/m/Y H:i') }}</td>
-            <td>{{ str_replace('_', ' ', $o->status) }}</td>
-            <td>{{ $o->payment_status }}</td>
-            <td>Rp{{ number_format($o->grand_total, 0, ',', '.') }}</td>
-            <td>Rp{{ number_format($o->paid_amount, 0, ',', '.') }}</td>
+            <td>{{ $o->unit->vehicle->name }} <span class="plate">{{ $o->unit->plate_number }}</span></td>
+            <td class="nowrap">{{ $o->start_at->format('d/m/Y H:i') }}</td>
+            <td><x-order-status :status="$o->status" /></td>
+            <td><x-payment-status :status="$o->payment_status" /></td>
+            <td class="nowrap">Rp{{ number_format($o->grand_total, 0, ',', '.') }}</td>
+            <td class="nowrap">Rp{{ number_format($o->paid_amount, 0, ',', '.') }}</td>
         </tr>
     @empty
-        <tr><td colspan="8" style="text-align:center;color:var(--mu);padding:22px">Tidak ada transaksi pada filter ini.</td></tr>
+        <tr><td colspan="8"><div class="empty"><strong>Tidak ada transaksi</strong>Tidak ada data pada filter ini.</div></td></tr>
     @endforelse
     </tbody>
 </table>
 </div>
-@if ($orders->hasPages())<div style="margin-top:14px">{{ $orders->links('pagination') }}</div>@endif
+{{ $orders->links('pagination') }}
 @endsection

@@ -42,14 +42,19 @@ class DemoOrderSeederTest extends TestCase
     public function test_active_orders_never_double_book_a_unit(): void
     {
         $aktif = Order::whereIn('status', VehicleUnit::AKTIF)->get();
+        $bentrok = [];
 
         foreach ($aktif as $a) {
             foreach ($aktif as $b) {
-                if ($a->id < $b->id && $a->vehicle_unit_id === $b->vehicle_unit_id) {
-                    $this->assertFalse($a->start_at < $b->end_at && $a->end_at > $b->start_at, "{$a->code} bentrok dengan {$b->code}");
+                if ($a->id < $b->id && $a->vehicle_unit_id === $b->vehicle_unit_id
+                    && $a->start_at < $b->end_at && $a->end_at > $b->start_at) {
+                    $bentrok[] = "{$a->code} bentrok dengan {$b->code}";
                 }
             }
         }
+
+        $this->assertGreaterThan(0, $aktif->count());
+        $this->assertSame([], $bentrok);
     }
 
     public function test_rented_orders_mark_their_units_as_rented_and_one_is_overdue(): void

@@ -18,7 +18,8 @@ class SeederProductionGuardTest extends TestCase
     {
         $this->app['env'] = 'production';
 
-        $this->seed(UserSeeder::class);
+        // dipanggil langsung: perintah db:seed di production meminta konfirmasi interaktif
+        $this->app->make(UserSeeder::class)->run();
 
         $this->assertSame(0, User::count());
     }
@@ -27,7 +28,7 @@ class SeederProductionGuardTest extends TestCase
     {
         $this->app['env'] = 'production';
 
-        $this->seed(VehicleSeeder::class);
+        $this->app->make(VehicleSeeder::class)->run();
 
         $this->assertSame(28, Vehicle::count());
         $this->assertSame(0, VehicleUnit::count());

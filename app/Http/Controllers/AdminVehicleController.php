@@ -8,6 +8,9 @@ use App\Models\Vehicle;
 use App\Models\VehicleUnit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AdminVehicleController extends Controller
@@ -42,6 +45,7 @@ class AdminVehicleController extends Controller
         return view('admin.vehicle-form', [
             'vehicle' => $vehicle,
             'services' => RentalPackage::SERVICES,
+            'variants' => $vehicle->variants(),
             'usedPackageIds' => Order::whereIn('rental_package_id', $vehicle->packages->pluck('id'))
                 ->pluck('rental_package_id')->unique()->all(),
         ]);
@@ -135,6 +139,106 @@ class AdminVehicleController extends Controller
         $unit->delete();
 
         return back()->with('ok', 'Unit dihapus.');
+    }
+
+    /* ---------- foto ---------- */
+
+    public function storePhoto(Request $request, Vehicle $vehicle): RedirectResponse
+    {
+        $request->validate([
+            'photo' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120',
+                'dimensions:min_width=600,min_height=400,max_width=6000,max_height=6000'],
+        ], [
+            'photo.required' => 'Pilih file foto dulu.',
+            'photo.uploaded' => 'Unggahan gagal. Ukuran file mungkin melebihi batas server (upload_max_filesize di php.ini).',
+            'photo.image' => 'File harus berupa gambar.',
+            'photo.mimes' => 'Format foto harus JPG, PNG, atau WebP.',
+            'photo.max' => 'Ukuran foto maksimal 5 MB.',
+            'photo.dimensions' => 'Foto minimal 600x400 piksel dan maksimal 6000x6000 piksel.',
+        ]);
+
+        $path = $this->saveImage($request->file('photo'));
+
+        $targets = collect([$vehicle]);
+        if ($request->boolean('apply_variants')) {
+            $targets = $targets->merge($vehicle->variants());
+        }
+
+        foreach ($targets->values() as $i => $target) {
+            $old = $target->photo;
+            // tiap kendaraan memegang file-nya sendiri, jadi menghapus satu foto tidak merusak yang lain
+            $target->update(['photo' => $i === 0 ? $path : $this->copyImage($path)]);
+            $this->deletePhotoFile($old);
+        }
+
+        return back()->with('ok', $targets->count() > 1
+            ? 'Foto disimpan untuk ' . $targets->count() . ' kendaraan.'
+            : 'Foto disimpan.');
+    }
+
+    public function destroyPhoto(Vehicle $vehicle): RedirectResponse
+    {
+        $this->deletePhotoFile($vehicle->photo);
+        $vehicle->update(['photo' => null]);
+
+        return back()->with('ok', 'Foto dihapus.');
+    }
+
+    /**
+     * Simpan ulang gambar sebagai JPEG (maks. 1600 px). Dengan begitu metadata EXIF (termasuk lokasi GPS)
+     * terbuang, ukuran file kecil, dan isi file dipastikan gambar sungguhan.
+     */
+    private function saveImage(UploadedFile $file): string
+    {
+        $path = 'vehicles/' . Str::uuid() . '.jpg';
+
+        if (! function_exists('imagecreatefromstring')) {
+            // ekstensi GD tidak aktif: simpan apa adanya (sudah divalidasi sebagai gambar)
+            return $file->storeAs('vehicles', Str::uuid() . '.' . $file->extension(), 'local');
+        }
+
+        $source = @imagecreatefromstring((string) file_get_contents($file->getRealPath()));
+        if (! $source) {
+            throw ValidationException::withMessages(['photo' => 'File gambar rusak atau tidak didukung.']);
+        }
+
+        // foto dari HP sering disimpan "miring" dan hanya diberi tanda orientasi EXIF
+        if (function_exists('exif_read_data') && in_array(strtolower($file->extension()), ['jpg', 'jpeg'], true)) {
+            $exif = @exif_read_data($file->getRealPath());
+            $angle = is_array($exif) ? ([3 => 180, 6 => -90, 8 => 90][(int) ($exif['Orientation'] ?? 1)] ?? 0) : 0;
+            if ($angle !== 0 && ($rotated = imagerotate($source, $angle, 0))) {
+                $source = $rotated;
+            }
+        }
+
+        [$w, $h] = [imagesx($source), imagesy($source)];
+        $scale = min(1, 1600 / max($w, $h));
+        [$nw, $nh] = [max(1, (int) round($w * $scale)), max(1, (int) round($h * $scale))];
+
+        $canvas = imagecreatetruecolor($nw, $nh);
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));   // PNG transparan jadi latar putih
+        imagecopyresampled($canvas, $source, 0, 0, 0, 0, $nw, $nh, $w, $h);
+
+        ob_start();
+        imagejpeg($canvas, null, 82);
+        Storage::disk('local')->put($path, (string) ob_get_clean());
+
+        return $path;
+    }
+
+    private function copyImage(string $path): string
+    {
+        $copy = 'vehicles/' . Str::uuid() . '.jpg';
+        Storage::disk('local')->copy($path, $copy);
+
+        return $copy;
+    }
+
+    private function deletePhotoFile(?string $path): void
+    {
+        if ($path && str_starts_with($path, 'vehicles/')) {
+            Storage::disk('local')->delete($path);
+        }
     }
 
     private function hasUpcomingOrders(VehicleUnit $unit): bool

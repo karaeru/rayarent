@@ -1,65 +1,51 @@
 @extends('app')
-@section('title', $vehicle->name.' · RAYARENT')
+@section('title', $vehicle->name.' · '.config('rayarent.nama'))
 @section('content')
-<style>
-    .hero{height:160px;border-radius:12px;background:linear-gradient(120deg,#1d4e89,#14181f);display:flex;align-items:center;justify-content:center;font-size:80px;margin-bottom:20px}
-    .spec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:16px 0}
-    .spec{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px;text-align:center}
-    .spec .val{font-size:18px;font-weight:700}
-    .spec .lbl{font-size:12px;color:var(--mu);margin-top:2px}
-    .pkg-row{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-    a.btn{text-decoration:none;display:inline-block}
-</style>
+<p class="mb-2"><a href="{{ route('pelanggan.katalog') }}">← Kembali ke katalog</a></p>
 
-<p><a href="{{ route('pelanggan.katalog') }}" style="color:var(--mu)">← Kembali ke katalog</a></p>
-
-<div class="hero">{{ $vehicle->capacity >= 14 ? '🚐' : ($vehicle->capacity <= 4 ? '🚗' : '🚙') }}</div>
-
-<h2 style="margin:0">{{ $vehicle->name }}</h2>
-<p style="color:var(--mu);margin:4px 0 16px">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</p>
-
-<div class="spec-grid">
-    <div class="spec">
-        <div class="val">{{ $vehicle->seat_label }}</div>
-        <div class="lbl">Kapasitas</div>
-    </div>
-    @if ($vehicle->transmission)
-    <div class="spec">
-        <div class="val">{{ $vehicle->transmission }}</div>
-        <div class="lbl">Transmisi</div>
-    </div>
-    @endif
-    <div class="spec">
-        <div class="val">{{ $vehicle->units->where('status', '!=', 'perawatan')->count() }}</div>
-        <div class="lbl">Unit Aktif</div>
-    </div>
-    <div class="spec">
-        <div class="val">Rp{{ number_format($vehicle->packages->min('price'), 0, ',', '.') }}</div>
-        <div class="lbl">Mulai dari</div>
-    </div>
-</div>
-
-<h3 style="margin:20px 0 10px">Paket Layanan</h3>
-@foreach ($vehicle->packages->groupBy('service') as $service => $pkgs)
-<h4 style="margin:12px 0 6px;color:var(--mu);font-size:13px;text-transform:uppercase;letter-spacing:.5px">{{ $pkgs->first()->service_label }}</h4>
-@foreach ($pkgs as $p)
-<div class="pkg-row">
+<div class="two-col">
     <div>
-        <b>{{ $p->duration_hours }} jam / periode</b>
-        <div style="font-size:13px;color:var(--mu)">{{ $p->service_label }}</div>
-    </div>
-    <div style="text-align:right">
-        <div style="font-size:18px;font-weight:700">Rp{{ number_format($p->price, 0, ',', '.') }}</div>
-        <div style="font-size:12px;color:var(--mu)">per periode</div>
-    </div>
-</div>
-@endforeach
-@endforeach
+        <div class="media-hero">
+            @if ($vehicle->photo_url)
+                <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}">
+            @else
+                <span class="media-placeholder" style="font-size:5rem">{{ $vehicle->capacity >= 14 ? '🚐' : ($vehicle->capacity <= 4 ? '🚗' : '🚙') }}</span>
+            @endif
+        </div>
 
-<div style="margin-top:20px">
-    <a class="btn y" href="{{ route('pelanggan.pesan', $vehicle) }}" style="padding:12px 24px;font-size:16px">
-        Pesan Sekarang →
-    </a>
-</div>
+        <h2>{{ $vehicle->name }}</h2>
+        <p class="page-sub">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</p>
 
+        <div class="specs">
+            <div class="spec"><div class="spec__val">{{ $vehicle->seat_label }}</div><div class="spec__lbl">Kapasitas</div></div>
+            @if ($vehicle->transmission)
+                <div class="spec"><div class="spec__val">{{ $vehicle->transmission }}</div><div class="spec__lbl">Transmisi</div></div>
+            @endif
+            <div class="spec"><div class="spec__val">{{ $vehicle->units->where('status', '!=', 'perawatan')->count() }}</div><div class="spec__lbl">Unit Aktif</div></div>
+        </div>
+
+        <h3 class="mt-3">Paket layanan</h3>
+        @foreach ($vehicle->packages->groupBy('service') as $service => $pkgs)
+            <div class="group-title">{{ $pkgs->first()->service_label }}</div>
+            @foreach ($pkgs as $p)
+                <div class="pkg">
+                    <div>
+                        <b>{{ $p->duration_hours }} jam / periode</b>
+                        <div class="muted small">{{ $p->service_label }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="price">Rp{{ number_format($p->price, 0, ',', '.') }}</div>
+                        <div class="muted small">per periode</div>
+                    </div>
+                </div>
+            @endforeach
+        @endforeach
+    </div>
+
+    <aside class="card sticky"><div class="card-body">
+        <div class="price"><small>Mulai dari</small>Rp{{ number_format($vehicle->packages->min('price'), 0, ',', '.') }}</div>
+        <p class="muted small mt-1">Pilih paket, tanggal, dan unit di langkah berikutnya. Ketersediaan dicek otomatis.</p>
+        <a class="btn btn-lg btn-block" href="{{ route('pelanggan.pesan', $vehicle) }}">Pesan sekarang</a>
+    </div></aside>
+</div>
 @endsection

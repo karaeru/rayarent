@@ -3,59 +3,101 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'RAYARENT')</title>
-    <style>
-        :root{--bg:#f6f5f1;--sf:#fff;--tx:#14181f;--mu:#5d6572;--ln:#dedbd2;--pl:#f4c20d;--rd:#c8372d;--gn:#1f7a4d}
-        @media(prefers-color-scheme:dark){:root{--bg:#0f1319;--sf:#181e27;--tx:#eef0f3;--mu:#98a2b0;--ln:#2a3340;--rd:#ff7b6e;--gn:#58c58f}}
-        *{box-sizing:border-box}
-        body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,sans-serif}
-        header{background:#14181f;color:#fff;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-        .logo{font:800 20px system-ui;display:flex;gap:8px;align-items:center}
-        .plate{background:var(--pl);color:#111;border:2px solid #111;border-radius:6px;font-weight:800;font-size:13px;padding:1px 8px}
-        nav{flex:1;display:flex;gap:14px}nav a{color:#cfd5de;text-decoration:none}
-        main{max-width:960px;margin:0 auto;padding:24px 16px}
-        .card{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:20px;max-width:440px;margin:0 auto}
-        label{display:block;font-size:13px;color:var(--mu);font-weight:600;margin:12px 0 4px}
-        input{width:100%;padding:9px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx);font:inherit}
-        .password-field{position:relative}
-        .password-field input{padding-right:44px}
-        .password-toggle{position:absolute;top:50%;right:8px;display:flex;width:32px;height:32px;align-items:center;justify-content:center;padding:4px;transform:translateY(-50%);border:0;border-radius:6px;background:transparent;color:var(--mu);cursor:pointer}
-        .password-toggle:focus-visible{outline:2px solid var(--pl);outline-offset:1px}
-        .password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-        .btn{background:#14181f;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;font:inherit}
-        .btn.y{background:var(--pl);color:#111}
-        .err{color:var(--rd);font-size:13px;margin:4px 0 0}
-        .ok{background:#1f7a4d22;color:var(--gn);padding:8px 12px;border-radius:8px;margin-bottom:12px}
-    </style>
+    <meta name="theme-color" content="#1e4fa0">
+    <title>@yield('title', config('rayarent.nama'))</title>
+    <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
 </head>
+@php
+    $user = auth()->user();
+    $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
+    $home = $user ? ($user->isAdmin() ? route('admin.dashboard') : route('pelanggan.katalog')) : route('login');
+
+    $menu = [];
+    if ($user?->isAdmin()) {
+        $menu = [
+            ['Dashboard', route('admin.dashboard'), ['admin.dashboard']],
+            ['Pesanan', route('admin.pesanan'), ['admin.pesanan']],
+            ['Laporan', route('admin.laporan'), ['admin.laporan', 'admin.laporan.*']],
+            ['Kendaraan', route('admin.kendaraan'), ['admin.kendaraan', 'admin.kendaraan.*', 'admin.paket.*', 'admin.unit.*', 'admin.foto.*']],
+            ['Pengaturan', route('admin.pengaturan'), ['admin.pengaturan', 'admin.pengaturan.*']],
+        ];
+    } elseif ($user?->isPelanggan()) {
+        $menu = [
+            ['Katalog', route('pelanggan.katalog'), ['pelanggan.katalog', 'pelanggan.kendaraan', 'pelanggan.pesan', 'pelanggan.pesan.*', 'pelanggan.ketersediaan']],
+            ['Pesanan saya', route('pelanggan.pesanan'), ['pelanggan.pesanan', 'pelanggan.pesanan.*']],
+        ];
+    }
+    $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
+@endphp
 <body>
-<header>
-    <div class="logo"><span class="plate">AD 1 RA</span>RAYARENT</div>
-    <nav>
-        @auth
-            @if (auth()->user()->isAdmin())
-                <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-                <a href="{{ route('admin.pesanan') }}">Pesanan</a>
-                <a href="{{ route('admin.laporan') }}">Laporan</a>
-                <a href="{{ route('admin.kendaraan') }}">Kendaraan</a>
-                <a href="{{ route('admin.pengaturan') }}">Pengaturan</a>
-            @elseif (auth()->user()->isPelanggan())
-                <a href="{{ route('pelanggan.katalog') }}">Katalog</a>
-                <a href="{{ route('pelanggan.pesanan') }}">Pesanan saya</a>
+<header class="site-header" data-site-header>
+    <div class="container site-header__inner">
+        <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
+            @if ($logo)
+                <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="{{ config('rayarent.nama') }}">
+            @else
+                <span class="brand__mark" aria-hidden="true">R</span>
+                <span>{{ config('rayarent.nama') }}</span>
             @endif
-        @endauth
-    </nav>
-    @auth
-        <span>{{ auth()->user()->name }} ({{ auth()->user()->role }})</span>
-        <form method="POST" action="{{ route('logout') }}">@csrf <button class="btn y">Keluar</button></form>
-    @endauth
+        </a>
+
+        @if ($user)
+            <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="menu-utama">Menu</button>
+            <nav class="nav" id="menu-utama" aria-label="Menu utama">
+                @foreach ($menu as [$label, $url, $patterns])
+                    <a href="{{ $url }}" @class(['is-active' => request()->routeIs(...$patterns)]) @if (request()->routeIs(...$patterns)) aria-current="page" @endif>{{ $label }}</a>
+                @endforeach
+            </nav>
+            <div class="user-box">
+                <span class="user-box__name">{{ $user->name }}<span class="user-box__role">{{ $user->role }}</span></span>
+                <form method="POST" action="{{ route('logout') }}">@csrf <button class="btn btn-outline btn-sm">Keluar</button></form>
+            </div>
+        @endif
+    </div>
 </header>
-<main>
-    @if (session('ok')) <div class="ok">{{ session('ok') }}</div> @endif
-    @if (session('error')) <div class="ok" style="background:#c8372d22;color:var(--rd)">{{ session('error') }}</div> @endif
-    @yield('content')
+
+<main class="site-main">
+    <div class="container">
+        @if (session('ok')) <div class="alert alert-success" role="status">✓ <span>{{ session('ok') }}</span></div> @endif
+        @if (session('error')) <div class="alert alert-error" role="alert">! <span>{{ session('error') }}</span></div> @endif
+        @yield('content')
+    </div>
 </main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="site-footer__grid">
+            <div>
+                <strong>{{ config('rayarent.nama') }}</strong><br>
+                {{ config('rayarent.tagline') }}
+            </div>
+            @if (config('rayarent.whatsapp') || config('rayarent.email'))
+                <div>
+                    <strong>Hubungi kami</strong><br>
+                    @if ($wa) WhatsApp: <a href="https://wa.me/{{ $wa }}" rel="noopener">+{{ $wa }}</a><br> @endif
+                    @if (config('rayarent.email')) Email: <a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a> @endif
+                </div>
+            @endif
+            @if (config('rayarent.alamat') || config('rayarent.jam_operasional'))
+                <div>
+                    @if (config('rayarent.alamat')) <strong>Alamat</strong><br>{{ config('rayarent.alamat') }}<br> @endif
+                    @if (config('rayarent.jam_operasional')) <span class="small">{{ config('rayarent.jam_operasional') }}</span> @endif
+                </div>
+            @endif
+        </div>
+        <div class="site-footer__copy">© {{ date('Y') }} {{ config('rayarent.nama') }}. Semua hak dilindungi.</div>
+    </div>
+</footer>
+
 <script>
+    const siteHeader = document.querySelector('[data-site-header]');
+    const navToggle = document.querySelector('[data-nav-toggle]');
+
+    navToggle?.addEventListener('click', () => {
+        const open = siteHeader.classList.toggle('is-open');
+        navToggle.setAttribute('aria-expanded', String(open));
+    });
+
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
         toggle.addEventListener('click', () => {
             const passwordInput = document.getElementById(toggle.getAttribute('aria-controls'));

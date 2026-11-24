@@ -1,156 +1,122 @@
 @extends('app')
 @section('title', 'Pesanan '.$order->code)
 @section('content')
-<style>
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
-    .badge-yellow{background:#fef9c3;color:#854d0e}
-    .badge-green{background:#dcfce7;color:#166534}
-    .badge-red{background:#fee2e2;color:#991b1b}
-    .badge-blue{background:#dbeafe;color:#1e40af}
-    .badge-gray{background:var(--ln);color:var(--mu)}
-    .payment-row{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:12px;margin-bottom:8px}
-    .upload-box{border:2px dashed var(--ln);border-radius:10px;padding:20px;text-align:center;margin-top:6px}
-    .upload-box input[type=file]{margin-top:8px}
-    td{padding:5px 0}td:first-child{color:var(--mu);width:140px;font-size:14px}
-</style>
+@php
+    $alur = ['menunggu_konfirmasi' => 'Menunggu konfirmasi', 'dikonfirmasi' => 'Dikonfirmasi', 'sedang_disewa' => 'Sedang disewa', 'selesai' => 'Selesai'];
+    $posisi = array_search($order->status, array_keys($alur), true);
+    $menungguVerifikasi = $order->hasPendingPayment();
+@endphp
 
-<div style="max-width:580px;margin:0 auto">
+<p class="mb-2"><a href="{{ route('pelanggan.pesanan') }}">← Semua pesanan</a></p>
 
-{{-- Header pesanan --}}
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap">
-    <h2 style="margin:0">{{ $order->code }}</h2>
-    @php
-        $badges = [
-            'menunggu_konfirmasi' => ['yellow', 'Menunggu Konfirmasi'],
-            'dikonfirmasi'        => ['blue',   'Dikonfirmasi'],
-            'sedang_disewa'       => ['green',  'Sedang Disewa'],
-            'selesai'             => ['green',  'Selesai'],
-            'dibatalkan'          => ['red',    'Dibatalkan'],
-        ];
-        [$bc, $bl] = $badges[$order->status] ?? ['gray', $order->status];
-    @endphp
-    <span class="badge badge-{{ $bc }}">{{ $bl }}</span>
+<div class="page-head">
+    <div>
+        <h2>{{ $order->code }}</h2>
+        <p class="page-sub">{{ $order->unit->vehicle->name }} <span class="plate">{{ $order->unit->plate_number }}</span></p>
+    </div>
+    <div class="row"><x-order-status :status="$order->status" /> <x-payment-status :status="$order->payment_status" /></div>
 </div>
-<p style="color:var(--mu);margin:0 0 16px">
-    {{ $order->unit->vehicle->name }}
-    <span class="plate">{{ $order->unit->plate_number }}</span>
-</p>
 
-{{-- Detail pesanan --}}
-<div style="background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:20px;margin-bottom:16px">
-    <table style="width:100%;border-collapse:collapse">
-        @foreach ([
-            'Paket'           => $order->package->service_label.' · '.$order->package->duration_hours.' jam × '.$order->quantity,
-            'Mulai'           => $order->start_at->translatedFormat('d M Y H:i'),
-            'Selesai'         => $order->end_at->translatedFormat('d M Y H:i'),
-            'Lokasi'          => $order->pickup_location ?: '-',
-            'Total tagihan'   => 'Rp'.number_format($order->grand_total, 0, ',', '.'),
-            'Sudah dibayar'   => 'Rp'.number_format($order->paid_amount, 0, ',', '.'),
-            'Sisa tagihan'    => 'Rp'.number_format($order->due_amount, 0, ',', '.'),
-        ] as $k => $v)
-            <tr><td>{{ $k }}</td><td><b>{{ $v }}</b></td></tr>
+<div class="two-col">
+<div class="stack">
+
+    @if ($order->status === 'dibatalkan')
+        <div class="alert alert-error">Pesanan ini dibatalkan.</div>
+    @else
+        <div class="card"><div class="card-body">
+            <ol class="steps" aria-label="Progres pesanan">
+                @foreach ($alur as $key => $label)
+                    @php $i = array_search($key, array_keys($alur), true); @endphp
+                    <li @class(['is-done' => $order->status === 'selesai' || $i < $posisi, 'is-current' => $order->status !== 'selesai' && $i === $posisi])>{{ $label }}</li>
+                @endforeach
+            </ol>
+        </div></div>
+    @endif
+
+    <div class="card"><div class="card-body">
+        <h3 class="card-title">Detail pesanan</h3>
+        <dl class="kv">
+            <dt>Paket</dt><dd>{{ $order->package->service_label }} · {{ $order->package->duration_hours }} jam × {{ $order->quantity }}</dd>
+            <dt>Mulai</dt><dd>{{ $order->start_at->translatedFormat('d M Y H:i') }}</dd>
+            <dt>Selesai</dt><dd>{{ $order->end_at->translatedFormat('d M Y H:i') }}</dd>
+            <dt>Lokasi</dt><dd>{{ $order->pickup_location ?: '-' }}</dd>
+            @if ($order->returned_at)
+                <dt>Dikembalikan</dt><dd>{{ $order->returned_at->translatedFormat('d M Y H:i') }}</dd>
+            @endif
+        </dl>
+    </div></div>
+
+    @if ($order->payments->isNotEmpty())
+    <div class="card"><div class="card-body">
+        <h3 class="card-title">Riwayat pembayaran</h3>
+        @foreach ($order->payments as $p)
+            <div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)">
+                <div>
+                    <b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>
+                    <span class="muted small"> · {{ $p->created_at->translatedFormat('d M Y H:i') }}</span>
+                    @if ($p->proof_path)
+                        <div><a class="small" href="{{ route('bukti', $p) }}" target="_blank" rel="noopener">Lihat bukti transfer</a></div>
+                    @endif
+                </div>
+                <x-payment-status :status="$p->status" />
+            </div>
         @endforeach
-        <tr>
-            <td>Status bayar</td>
-            <td>
-                @php
-                    $ps = $order->payment_status;
-                    $pbc = match($ps) {
-                        'Lunas'               => 'green',
-                        'DP Dibayar'          => 'blue',
-                        'Menunggu Verifikasi' => 'yellow',
-                        'Ditolak'             => 'red',
-                        default               => 'gray',
-                    };
-                @endphp
-                <span class="badge badge-{{ $pbc }}">{{ $ps }}</span>
-            </td>
-        </tr>
-    </table>
-</div>
+    </div></div>
+    @endif
 
-{{-- Riwayat pembayaran --}}
-@if ($order->payments->isNotEmpty())
-<h3 style="margin:0 0 8px">Riwayat Pembayaran</h3>
-@foreach ($order->payments as $p)
-<div class="payment-row">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-        <div>
-            <b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>
-            <span style="font-size:13px;color:var(--mu)"> · {{ $p->created_at->translatedFormat('d M Y H:i') }}</span>
-        </div>
-        @php
-            $pst = match($p->status) {
-                'diterima' => ['green', 'Diterima'],
-                'ditolak'  => ['red',   'Ditolak'],
-                default    => ['yellow','Menunggu Verifikasi'],
-            };
-        @endphp
-        <span class="badge badge-{{ $pst[0] }}">{{ $pst[1] }}</span>
-    </div>
-    @if ($p->proof_path)
-    <div style="margin-top:8px">
-        <a href="{{ route('bukti', $p) }}" target="_blank"
-           style="font-size:13px;color:var(--mu)">📎 Lihat bukti transfer</a>
-    </div>
+    {{-- Form upload bukti bayar --}}
+    @if ($menungguVerifikasi)
+        <div class="alert alert-warn">Bukti pembayaran Anda sedang menunggu verifikasi admin. Form pembayaran muncul lagi setelah diverifikasi.</div>
+    @elseif ($order->due_amount > 0 && ! in_array($order->status, ['dibatalkan', 'selesai'], true))
+        <div class="card"><div class="card-body">
+            <h3 class="card-title">Upload bukti transfer</h3>
+            @if (config('rayarent.rekening'))
+                <div class="alert alert-info">Transfer ke: <b>{{ config('rayarent.rekening') }}</b></div>
+            @endif
+            <p class="muted small">
+                Sisa tagihan: <b style="color:var(--ink)">Rp{{ number_format($order->due_amount, 0, ',', '.') }}</b>
+                @if ($order->pay_mode === 'dp') · Mode DP aktif @endif
+            </p>
+            <form method="POST" action="{{ route('pelanggan.pesanan.bayar', $order) }}" enctype="multipart/form-data">
+                @csrf
+                <div class="field">
+                    <label for="amount">Jumlah yang ditransfer (Rp)</label>
+                    <input id="amount" type="number" name="amount" min="1" max="{{ $order->due_amount }}"
+                           value="{{ old('amount', $order->due_amount) }}" required>
+                    @error('amount') <p class="err">{{ $message }}</p> @enderror
+                </div>
+                <div class="field">
+                    <label for="proof">Bukti transfer (JPG, PNG, atau PDF, maks. 2 MB)</label>
+                    <input id="proof" type="file" name="proof" accept="image/jpeg,image/png,application/pdf" required>
+                    @error('proof') <p class="err">{{ $message }}</p> @enderror
+                </div>
+                <button class="btn btn-lg btn-block">Kirim Bukti Pembayaran</button>
+            </form>
+        </div></div>
+    @endif
+
+    {{-- Pembatalan --}}
+    @if ($order->status === 'menunggu_konfirmasi' && $order->paid_amount === 0 && ! $menungguVerifikasi)
+        <form method="POST" action="{{ route('pelanggan.pesanan.batal', $order) }}">
+            @csrf
+            @method('DELETE')
+            <button class="btn btn-danger-outline" onclick="return confirm('Yakin ingin membatalkan pesanan {{ $order->code }}?')">Batalkan Pesanan</button>
+        </form>
+    @elseif ($order->status === 'menunggu_konfirmasi')
+        <p class="muted small">Pesanan yang sudah ada pembayaran dibatalkan lewat admin. Silakan hubungi kami.</p>
     @endif
 </div>
-@endforeach
-@endif
 
-{{-- Form upload bukti bayar --}}
-@php $menungguVerifikasi = $order->hasPendingPayment(); @endphp
-@if ($menungguVerifikasi)
-<p style="color:#854d0e;font-size:13px;background:#fef9c3;padding:10px 14px;border-radius:8px;margin-top:16px">
-    ⏳ Bukti pembayaran Anda sedang menunggu verifikasi admin. Form pembayaran muncul lagi setelah diverifikasi.
-</p>
-@elseif ($order->due_amount > 0 && ! in_array($order->status, ['dibatalkan', 'selesai'], true))
-<h3 style="margin:16px 0 8px">Upload Bukti Transfer</h3>
-<div style="background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:20px">
-    <p style="margin:0 0 4px;color:var(--mu);font-size:13px">
-        Sisa tagihan: <b style="color:var(--tx)">Rp{{ number_format($order->due_amount, 0, ',', '.') }}</b>
-        @if ($order->pay_mode === 'dp')
-            · Mode DP aktif
-        @endif
-    </p>
-    <form method="POST" action="{{ route('pelanggan.pesanan.bayar', $order) }}" enctype="multipart/form-data">
-        @csrf
-        <label>Jumlah yang ditransfer (Rp)</label>
-        <input type="number" name="amount" min="1" max="{{ $order->due_amount }}"
-               value="{{ old('amount', $order->due_amount) }}" required
-               placeholder="Contoh: {{ $order->due_amount }}">
-        @error('amount') <p class="err">{{ $message }}</p> @enderror
-
-        <label style="margin-top:12px;display:block">Bukti Transfer (JPG/PNG/PDF, maks 2 MB)</label>
-        <div class="upload-box">
-            <div style="font-size:28px">📤</div>
-            <div style="font-size:13px;color:var(--mu)">Upload foto/screenshot bukti transfer</div>
-            <input type="file" name="proof" accept="image/jpeg,image/png,application/pdf" required>
-        </div>
-        @error('proof') <p class="err">{{ $message }}</p> @enderror
-
-        <button class="btn y" style="margin-top:14px;width:100%">Kirim Bukti Pembayaran</button>
-    </form>
-</div>
-@endif
-
-{{-- Tombol batalkan pesanan --}}
-@if ($order->status === 'menunggu_konfirmasi' && $order->paid_amount === 0 && ! $menungguVerifikasi)
-<div style="margin-top:16px;border-top:1px solid var(--ln);padding-top:16px">
-    <form method="POST" action="{{ route('pelanggan.pesanan.batal', $order) }}">
-        @csrf
-        @method('DELETE')
-        <button class="btn" style="color:var(--rd);border:1px solid var(--rd);background:transparent"
-                onclick="return confirm('Yakin ingin membatalkan pesanan {{ $order->code }}?')">
-            ✕ Batalkan Pesanan
-        </button>
-    </form>
-</div>
-@elseif ($order->status === 'menunggu_konfirmasi')
-<p style="margin-top:16px;color:var(--mu);font-size:13px">Pesanan yang sudah ada pembayaran dibatalkan lewat admin. Silakan hubungi kami.</p>
-@endif
-
-<p style="margin-top:20px"><a href="{{ route('pelanggan.pesanan') }}">← Semua pesanan</a></p>
-
+<aside class="card sticky"><div class="card-body">
+    <h3 class="card-title">Ringkasan biaya</h3>
+    <dl class="kv" style="grid-template-columns:1fr auto">
+        <dt>Harga sewa</dt><dd class="text-right">Rp{{ number_format($order->total_price, 0, ',', '.') }}</dd>
+        @if ($order->late_fee) <dt>Denda keterlambatan</dt><dd class="text-right">Rp{{ number_format($order->late_fee, 0, ',', '.') }}</dd> @endif
+        @if ($order->damage_fee) <dt>Biaya kerusakan</dt><dd class="text-right">Rp{{ number_format($order->damage_fee, 0, ',', '.') }}</dd> @endif
+        <dt>Total tagihan</dt><dd class="text-right">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</dd>
+        <dt>Sudah dibayar</dt><dd class="text-right">Rp{{ number_format($order->paid_amount, 0, ',', '.') }}</dd>
+        <dt><b style="color:var(--ink)">Sisa tagihan</b></dt><dd class="text-right price">Rp{{ number_format($order->due_amount, 0, ',', '.') }}</dd>
+    </dl>
+</div></aside>
 </div>
 @endsection

@@ -1,55 +1,81 @@
 @extends('app')
 @section('title', 'Pesan '.$vehicle->name)
 @section('content')
-<div class="card" style="max-width:520px">
-    <h2 style="margin:0">{{ $vehicle->name }}</h2>
-    <p style="color:var(--mu);margin:2px 0 0">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</p>
+<p class="mb-2"><a href="{{ route('pelanggan.kendaraan', $vehicle) }}">← Detail kendaraan</a></p>
+<div class="page-head"><div><h2>Pesan {{ $vehicle->name }}</h2><p class="page-sub">Lengkapi data sewa. Ketersediaan unit dicek otomatis.</p></div></div>
 
-    <form method="POST" action="{{ route('pelanggan.pesan.simpan', $vehicle) }}" id="f">
+<div class="two-col">
+    <form method="POST" action="{{ route('pelanggan.pesan.simpan', $vehicle) }}" id="f" class="card"><div class="card-body">
         @csrf
-        <label for="pkg">Paket layanan</label>
-        <select id="pkg" name="rental_package_id" style="width:100%;padding:9px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx)">
-            @foreach ($vehicle->packages as $p)
-                <option value="{{ $p->id }}" @selected(old('rental_package_id') == $p->id)>
-                    {{ $p->service_label }} · {{ $p->duration_hours }} jam · Rp{{ number_format($p->price, 0, ',', '.') }}
-                </option>
-            @endforeach
-        </select>
+        <div class="field">
+            <label for="pkg">Paket layanan</label>
+            <select id="pkg" name="rental_package_id">
+                @foreach ($vehicle->packages as $p)
+                    <option value="{{ $p->id }}" @selected(old('rental_package_id') == $p->id)>
+                        {{ $p->service_label }} · {{ $p->duration_hours }} jam · Rp{{ number_format($p->price, 0, ',', '.') }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
-            <div>
-                <label for="start">Mulai</label>
+        <div class="field-row">
+            <div class="field">
+                <label for="start">Mulai sewa</label>
                 <input id="start" type="datetime-local" name="start_at" min="{{ $minStart }}" value="{{ old('start_at', now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')) }}" required>
+                @error('start_at') <p class="err">{{ $message }}</p> @enderror
             </div>
-            <div>
+            <div class="field">
                 <label for="qty">Jumlah periode</label>
                 <input id="qty" type="number" name="quantity" min="1" max="30" value="{{ old('quantity', 1) }}" required>
+                @error('quantity') <p class="err">{{ $message }}</p> @enderror
             </div>
         </div>
-        @error('start_at') <p class="err">{{ $message }}</p> @enderror
-        @error('quantity') <p class="err">{{ $message }}</p> @enderror
 
-        <label for="unit">Pilih unit</label>
-        <select id="unit" name="vehicle_unit_id" style="width:100%;padding:9px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx)">
-            <option value="">Otomatis (unit kosong mana saja)</option>
-        </select>
-        @error('vehicle_unit_id') <p class="err">{{ $message }}</p> @enderror
+        <div class="field">
+            <label for="unit">Pilih unit</label>
+            <select id="unit" name="vehicle_unit_id">
+                <option value="">Otomatis (unit kosong mana saja)</option>
+            </select>
+            @error('vehicle_unit_id') <p class="err">{{ $message }}</p> @enderror
+        </div>
 
-        <label for="loc">Lokasi jemput / penggunaan</label>
-        <input id="loc" name="pickup_location" value="{{ old('pickup_location') }}" placeholder="Contoh: Stasiun Solo Balapan">
+        <div class="field">
+            <label for="loc">Lokasi jemput / penggunaan</label>
+            <input id="loc" name="pickup_location" value="{{ old('pickup_location') }}" placeholder="Contoh: Stasiun Solo Balapan">
+        </div>
 
-        <label for="mode">Pembayaran</label>
-        <select id="mode" name="pay_mode" style="width:100%;padding:9px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);color:var(--tx)">
-            <option value="dp">DP ({{ $dpPercent }}%)</option>
-            <option value="lunas">Lunas</option>
-        </select>
+        <div class="field">
+            <label for="mode">Pembayaran</label>
+            <select id="mode" name="pay_mode">
+                <option value="dp">DP ({{ $dpPercent }}%)</option>
+                <option value="lunas">Lunas</option>
+            </select>
+        </div>
 
-        <div id="sum" style="border:1px dashed var(--ln);border-radius:8px;padding:10px;margin-top:14px"></div>
-        <p style="display:flex;align-items:center;gap:10px">
-            <button class="btn y" id="go" disabled>Buat pesanan</button>
-            <a class="btn" href="{{ route('pelanggan.kendaraan', $vehicle) }}" style="text-decoration:none">Batal</a>
-        </p>
-    </form>
+        <div id="sum" class="summary" aria-live="polite"></div>
+
+        <div class="row">
+            <button class="btn btn-lg" id="go" disabled>Buat pesanan</button>
+            <a class="btn btn-lg btn-outline" href="{{ route('pelanggan.kendaraan', $vehicle) }}">Batal</a>
+        </div>
+    </div></form>
+
+    <aside class="card sticky">
+        <div class="media-hero" style="margin:0;border:0;border-radius:var(--radius) var(--radius) 0 0">
+            @if ($vehicle->photo_url)
+                <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}">
+            @else
+                <span class="media-placeholder">{{ $vehicle->capacity >= 14 ? '🚐' : ($vehicle->capacity <= 4 ? '🚗' : '🚙') }}</span>
+            @endif
+        </div>
+        <div class="card-body">
+            <h3>{{ $vehicle->name }}</h3>
+            <div class="vcard__chips mt-1">
+                <span class="chip">{{ $vehicle->seat_label }} kursi</span>
+                @if ($vehicle->transmission) <span class="chip">{{ $vehicle->transmission }}</span> @endif
+            </div>
+        </div>
+    </aside>
 </div>
 
 <script>
@@ -81,11 +107,11 @@ async function cek() {
 
     const bayar = $('mode').value === 'dp' ? d.dp : d.total;
     out.innerHTML = (free
-        ? `<span style="color:var(--gn)">${free} dari ${d.units.length} unit tersedia</span>`
-        : '<span class="err">Tidak ada unit tersedia pada periode ini. Pilih tanggal atau kendaraan lain.</span>')
-        + `<p style="margin:6px 0 0;color:var(--mu)">Selesai: ${d.end}</p>
-           <p style="margin:6px 0 0">Total <b>${rp(d.total)}</b></p>
-           <p style="margin:2px 0 0;color:var(--mu)">Bayar sekarang: ${rp(bayar)}</p>`;
+        ? `<p><span class="badge badge-success">${free} dari ${d.units.length} unit tersedia</span></p>`
+        : '<p class="err">Tidak ada unit tersedia pada periode ini. Pilih tanggal atau kendaraan lain.</p>')
+        + `<p class="muted small">Selesai: ${d.end}</p>
+           <p>Total <b>${rp(d.total)}</b></p>
+           <p class="muted small">Bayar sekarang: ${rp(bayar)}</p>`;
     $('go').disabled = !free;
 }
 

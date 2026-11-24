@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RentalPackage;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CatalogController extends Controller
 {
@@ -36,5 +37,13 @@ class CatalogController extends Controller
         $vehicle->load('packages', 'units');
 
         return view('vehicle', compact('vehicle'));
+    }
+
+    /** Foto kendaraan. Disimpan di disk privat dan disajikan lewat route ini (tanpa storage:link). */
+    public function photo(Vehicle $vehicle)
+    {
+        abort_unless($vehicle->photo && Storage::disk('local')->exists($vehicle->photo), 404);
+
+        return Storage::disk('local')->response($vehicle->photo, null, ['Cache-Control' => 'public, max-age=86400']);
     }
 }

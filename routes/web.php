@@ -25,6 +25,9 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/keluar', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+// Foto kendaraan (publik, disajikan dari disk privat)
+Route::get('/foto/{vehicle}', [CatalogController::class, 'photo'])->name('foto.kendaraan');
+
 // Bukti bayar (pemilik pesanan atau admin; dicek di controller)
 Route::get('/bukti/{payment}', [OrderController::class, 'proof'])->middleware('auth')->name('bukti');
 
@@ -65,6 +68,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/kendaraan/{vehicle}/ubah', [AdminVehicleController::class, 'edit'])->name('admin.kendaraan.ubah');
     Route::put('/kendaraan/{vehicle}', [AdminVehicleController::class, 'update'])->name('admin.kendaraan.perbarui');
     Route::post('/kendaraan/{vehicle}/paket', [AdminVehicleController::class, 'storePackage'])->name('admin.paket.simpan');
+    Route::post('/kendaraan/{vehicle}/foto', [AdminVehicleController::class, 'storePhoto'])->name('admin.foto.simpan');
+    Route::delete('/kendaraan/{vehicle}/foto', [AdminVehicleController::class, 'destroyPhoto'])->name('admin.foto.hapus');
     Route::put('/paket/{package}', [AdminVehicleController::class, 'updatePackage'])->name('admin.paket.perbarui');
     Route::delete('/paket/{package}', [AdminVehicleController::class, 'destroyPackage'])->name('admin.paket.hapus');
     Route::post('/kendaraan/{vehicle}/unit', [AdminVehicleController::class, 'storeUnit'])->name('admin.unit.simpan');
