@@ -43,6 +43,7 @@ class OrderController extends Controller
         $data = $request->validate([
             'amount' => ['required', 'integer', 'min:1', 'max:' . $order->due_amount],
             'proof'  => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'bank'   => ['nullable', 'in:' . collect(config('rayarent.rekening'))->pluck('bank')->implode(',')],
         ], [
             'amount.max' => 'Jumlah transfer tidak boleh melebihi sisa tagihan (Rp' . number_format($order->due_amount, 0, ',', '.') . ').',
         ]);
@@ -53,6 +54,7 @@ class OrderController extends Controller
         Payment::create([
             'order_id'   => $order->id,
             'amount'     => $data['amount'],
+            'bank'       => $data['bank'] ?? null,
             'proof_path' => $path,
             'status'     => 'menunggu',
         ]);

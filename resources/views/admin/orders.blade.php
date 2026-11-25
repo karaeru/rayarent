@@ -38,7 +38,7 @@
                 {{-- verifikasi bukti bayar yang menunggu --}}
                 @foreach ($o->payments->where('status', 'menunggu') as $p)
                     <div class="small" style="margin-bottom:6px">
-                        <b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>
+                        <b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>@if ($p->bank) <span class="muted">ke {{ $p->bank }}</span>@endif
                         @if ($p->proof_path) · <a href="{{ route('bukti', $p) }}" target="_blank" rel="noopener">bukti</a> @endif
                         <form class="inline-form" method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}">@csrf @method('PATCH')<input type="hidden" name="action" value="diterima"><button class="btn btn-success btn-sm">Terima</button></form>
                         <form class="inline-form" method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}" onsubmit="return confirm('Tolak pembayaran ini?')">@csrf @method('PATCH')<input type="hidden" name="action" value="ditolak"><button class="btn btn-danger-outline btn-sm">Tolak</button></form>

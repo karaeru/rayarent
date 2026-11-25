@@ -58,7 +58,7 @@
             <div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)">
                 <div>
                     <b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>
-                    <span class="muted small"> · {{ $p->created_at->translatedFormat('d M Y H:i') }}</span>
+                    <span class="muted small"> · {{ $p->bank ? 'ke '.$p->bank.' · ' : '' }}{{ $p->created_at->translatedFormat('d M Y H:i') }}</span>
                     @if ($p->proof_path)
                         <div><a class="small" href="{{ route('bukti', $p) }}" target="_blank" rel="noopener">Lihat bukti transfer</a></div>
                     @endif
@@ -94,14 +94,14 @@
     @elseif ($order->due_amount > 0 && ! in_array($order->status, ['dibatalkan', 'selesai'], true))
         <div class="card"><div class="card-body">
             <h3 class="card-title">Upload bukti transfer</h3>
-            @if (config('rayarent.rekening'))
-                <div class="alert alert-info">Transfer ke: <b>{{ config('rayarent.rekening') }}</b></div>
-            @endif
+            <p class="small" style="margin-bottom:8px"><b>Transfer ke salah satu rekening berikut</b>, lalu pilih rekening yang Anda pakai:</p>
+            @include('partials.rekening', ['kode' => $order->code, 'pilih' => 'form-bayar'])
             <p class="muted small">
                 Sisa tagihan: <b style="color:var(--ink)">Rp{{ number_format($order->due_amount, 0, ',', '.') }}</b>
                 @if ($order->pay_mode === 'dp') · Mode DP aktif @endif
             </p>
-            <form method="POST" action="{{ route('pelanggan.pesanan.bayar', $order) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('pelanggan.pesanan.bayar', $order) }}" enctype="multipart/form-data" id="form-bayar">
+                @error('bank') <p class="err">{{ $message }}</p> @enderror
                 @csrf
                 <div class="field">
                     <label for="amount">Jumlah yang ditransfer (Rp)</label>

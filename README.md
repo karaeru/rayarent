@@ -113,10 +113,12 @@ RAYARENT_INSTAGRAM=rayarent.id
 RAYARENT_ALAMAT="Jl. Contoh No. 1, Bantul, Yogyakarta"
 RAYARENT_MAPS="-7.83,110.33"          # koordinat untuk pin peta
 RAYARENT_JAM="Setiap hari, 07.00-21.00"
-RAYARENT_REKENING="BCA 1234567890 a.n. RAYARENT"
 RAYARENT_SEJAK=2019
 RAYARENT_SK_VERSI=2026-11-25          # ganti setiap isi Syarat & Ketentuan diubah
 ```
+
+**Rekening tujuan transfer** diatur di `config/rayarent.php` bagian `'rekening'`. Saat ini berisi
+3 rekening **dummy** (BCA, BNI, Mandiri). Ganti dengan rekening asli bila aplikasi dipakai sungguhan.
 
 Email (lupa password) secara bawaan hanya ditulis ke `storage/logs/laravel.log` (`MAIL_MAILER=log`).
 

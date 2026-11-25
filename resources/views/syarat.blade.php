@@ -77,6 +77,13 @@
                 @if ($batasBayar)
                     <li>Bukti bayar harus diunggah paling lambat <b>{{ $batasBayar }} jam</b> setelah pesanan dibuat. Lewat dari itu, pesanan <b>batal otomatis</b> dan unit dilepas untuk penyewa lain.</li>
                 @endif
+                <li>Transfer <b>hanya</b> ke rekening resmi {{ $nama }} berikut. {{ $nama }} tidak bertanggung jawab atas transfer ke rekening lain, termasuk yang diminta lewat pesan pribadi.
+                    <ul class="sk-rek">
+                        @foreach (config('rayarent.rekening') as $r)
+                            <li><b>{{ $r['bank'] }}</b> {{ trim(chunk_split($r['nomor'], 4, ' ')) }} a.n. {{ $r['nama'] }}</li>
+                        @endforeach
+                    </ul>
+                </li>
                 <li>Pesanan baru dianggap pasti setelah pembayaran diverifikasi dan pesanan dikonfirmasi admin.</li>
                 <li>Sisa tagihan dilunasi paling lambat saat serah terima kendaraan, tunai atau transfer.</li>
             </ol>

@@ -877,3 +877,36 @@ body.has-sticky-buy .wa-float{bottom:84px}
 @media(max-width:900px){.site-header.is-open .guest-nav>a:nth-of-type(5){transition-delay:.16s}}
 @media(min-width:901px) and (max-width:1100px){.guest-nav a{padding:8px 9px;font-size:.9rem}}
 .guest-nav a,.nav a{white-space:nowrap}
+
+/* ==========================================================================
+   Rekening tujuan transfer
+   ========================================================================== */
+.rek{margin-bottom:16px}
+.rek__list{display:grid;gap:8px}
+.rek__item{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:12px 14px;
+  border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+.rek__item:hover{border-color:var(--line-strong)}
+.rek__item input{position:absolute;opacity:0;pointer-events:none}
+.rek__item:has(input){grid-template-columns:auto auto 1fr auto;padding-left:40px}
+.rek__item:has(input)::before{content:"";position:absolute;left:14px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;
+  border:2px solid var(--line-strong);background:var(--surface);transition:border .15s}
+.rek__item:has(input:checked){border-color:var(--bank);box-shadow:0 0 0 3px color-mix(in srgb,var(--bank) 14%,transparent);background:color-mix(in srgb,var(--bank) 4%,var(--surface))}
+.rek__item:has(input:checked)::before{border:5px solid var(--bank)}
+.rek__item:has(input:focus-visible){outline:3px solid color-mix(in srgb,var(--brand) 45%,transparent);outline-offset:2px}
+.rek__bank{min-width:72px;padding:5px 10px;border-radius:6px;background:var(--bank);color:#fff;font-weight:800;font-size:.85rem;text-align:center;letter-spacing:.02em}
+.rek__body{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.rek__no{font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:var(--ink)}
+.rek__name{font-size:.82rem;color:var(--muted)}
+.rek__copy{padding:6px 12px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);
+  font:600 .82rem var(--font);color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+.rek__copy:hover{border-color:var(--brand);color:var(--brand)}
+.rek__copy.is-done{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+.rek__copy--inline{padding:2px 8px;font-size:.75rem;margin:0 2px}
+.rek__note{margin:10px 0 0;padding:10px 12px;border-radius:var(--radius-sm);background:var(--warn-bg);color:var(--warn);font-size:.88rem}
+.rek__note b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sk-rek{list-style:none;margin:8px 0 0;padding:0}
+.sk-rek li{margin-bottom:4px;font-variant-numeric:tabular-nums}
+@media(max-width:480px){
+  .rek__item,.rek__item:has(input){grid-template-columns:auto 1fr;row-gap:8px}
+  .rek__copy:not(.rek__copy--inline){grid-column:1/-1;justify-self:stretch}
+}

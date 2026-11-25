@@ -43,6 +43,8 @@
         .tot .grand td{border-top:2px solid #111827;font-size:16px;font-weight:800;padding-top:10px}
         .muted{color:#6b7280}
         footer{margin-top:40px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;display:flex;justify-content:space-between;gap:24px}
+        .rek-inv{width:auto;margin:4px 0 8px}
+        .rek-inv td{padding:2px 16px 2px 0;border:0;color:#111827;font-size:12px}
         @media print{
             body{background:#fff}
             .bar{display:none}
@@ -117,17 +119,21 @@
     <table class="tot">
         <tr><td>Total tagihan</td><td class="r">{{ $rp($order->grand_total) }}</td></tr>
         @foreach ($diterima as $p)
-            <tr class="muted"><td>Dibayar {{ $p->proof_path ? 'transfer' : 'tunai' }} · {{ $p->verified_at?->translatedFormat('d M Y') }}</td><td class="r">−{{ $rp($p->amount) }}</td></tr>
+            <tr class="muted"><td>Dibayar {{ $p->proof_path ? 'transfer'.($p->bank ? ' '.$p->bank : '') : 'tunai' }} · {{ $p->verified_at?->translatedFormat('d M Y') }}</td><td class="r">−{{ $rp($p->amount) }}</td></tr>
         @endforeach
         <tr class="grand"><td>Sisa tagihan</td><td class="r">{{ $rp($order->due_amount) }}</td></tr>
     </table>
 
     <footer>
         <div>
-            @if (! $lunas && config('rayarent.rekening'))
+            @if (! $lunas && ! empty(config('rayarent.rekening')))
                 <div class="lbl">Pembayaran ke</div>
-                <span style="color:#111827">{{ config('rayarent.rekening') }}</span><br>
-                Cantumkan kode {{ $order->code }} di berita transfer.
+                <table class="rek-inv">
+                    @foreach (config('rayarent.rekening') as $r)
+                        <tr><td><b>{{ $r['bank'] }}</b></td><td>{{ trim(chunk_split($r['nomor'], 4, ' ')) }}</td><td>a.n. {{ $r['nama'] }}</td></tr>
+                    @endforeach
+                </table>
+                Cantumkan kode <b style="color:#111827">{{ $order->code }}</b> di berita transfer.
             @else
                 Terima kasih telah menyewa di {{ $nama }}.
             @endif

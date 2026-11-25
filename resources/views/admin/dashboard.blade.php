@@ -46,7 +46,7 @@
                 <td><b>{{ $p->order->code }}</b><br><span class="muted small">{{ $p->created_at->translatedFormat('d M H:i') }}</span></td>
                 <td>{{ $p->order->user->name }}</td>
                 <td>{{ $p->order->unit->vehicle->name }}</td>
-                <td><b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b></td>
+                <td><b>Rp{{ number_format($p->amount, 0, ',', '.') }}</b>@if ($p->bank)<br><span class="muted small">ke {{ $p->bank }}</span>@endif</td>
                 <td>@if ($p->proof_path)<a href="{{ route('bukti', $p) }}" target="_blank" rel="noopener">Lihat</a>@else <span class="muted">-</span>@endif</td>
                 <td class="nowrap">
                     <form class="inline-form" method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}">

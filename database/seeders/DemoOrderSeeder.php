@@ -163,8 +163,10 @@ class DemoOrderSeeder extends Seeder
 
     private function bayar(Order $order, int $jumlah, string $status, $waktu): void
     {
+        $banks = collect(config('rayarent.rekening'))->pluck('bank');
         $order->payments()->create([
             'amount' => $jumlah,
+            'bank' => $banks->isNotEmpty() ? $banks[$order->id % $banks->count()] : null,
             'status' => $status,
             'verified_by' => $status === 'menunggu' ? null : $this->adminId,
             'verified_at' => $status === 'menunggu' ? null : $waktu,
