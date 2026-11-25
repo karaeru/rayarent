@@ -694,7 +694,7 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 .lp-contact__list .is-wide{grid-column:1/-1}
 .lp-contact__list dt{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.75}
 .lp-contact__list dd{margin:2px 0 0;font-weight:600;font-size:.92rem;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lp-contact__list dd.clamp-2{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.lp-contact__list dd.clamp-2{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical}
 .lp-contact__list a{color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.5);text-underline-offset:3px}
 .lp-contact__list a:hover{text-decoration-color:#fff}
 

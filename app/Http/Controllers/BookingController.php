@@ -30,7 +30,8 @@ class BookingController extends Controller
     public function availability(Request $request, Vehicle $vehicle): JsonResponse
     {
         [$pkg, $start, $end, $total] = $this->quote($request, $vehicle);
-        Order::cancelExpired();   // bebaskan unit dari pesanan yang tidak dibayar
+        // bebaskan unit dari pesanan yang tidak dibayar; bila gagal (mis. migration belum jalan) cek ketersediaan tetap lanjut
+        rescue(fn () => Order::cancelExpired(), 0);
 
         $free = VehicleUnit::where('vehicle_id', $vehicle->id)
             ->availableBetween($start, $end)->pluck('id')->all();
@@ -60,7 +61,7 @@ class BookingController extends Controller
             'pay_mode' => ['required', 'in:dp,lunas'],
         ]);
 
-        Order::cancelExpired();
+        rescue(fn () => Order::cancelExpired(), 0);
 
         $order = DB::transaction(function () use ($vehicle, $pkg, $start, $end, $total, $data, $request) {
             // Kunci semua unit kendaraan ini supaya dua pelanggan tidak bisa

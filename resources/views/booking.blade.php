@@ -94,7 +94,12 @@ async function cek() {
 
     if (!res.ok) {
         const e = await res.json().catch(() => ({}));
-        out.innerHTML = '<span class="err">' + (Object.values(e.errors || {})[0]?.[0] || 'Periksa isian Anda.') + '</span>';
+        const pesan = res.status === 422
+            ? (Object.values(e.errors || {})[0]?.[0] || 'Periksa isian Anda.')
+            : res.status === 401 || res.status === 419
+                ? 'Sesi Anda habis. Muat ulang halaman lalu masuk lagi.'
+                : 'Gagal mengecek ketersediaan (kode ' + res.status + '). Coba lagi atau hubungi admin.';
+        out.innerHTML = '<span class="err">' + pesan + '</span>';
         $('go').disabled = true;
         return;
     }
