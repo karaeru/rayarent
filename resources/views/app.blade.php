@@ -84,7 +84,7 @@
     </div>
 </header>
 
-<main class="site-main">
+<main @class(['site-main', 'site-main--wide' => $user?->isAdmin()])>
     <div class="container">
         @if (session('ok')) <div class="alert alert-success" role="status">✓ <span>{{ session('ok') }}</span></div> @endif
         @if (session('error')) <div class="alert alert-error" role="alert">! <span>{{ session('error') }}</span></div> @endif

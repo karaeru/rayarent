@@ -959,3 +959,120 @@ body.has-sticky-buy .wa-float{bottom:84px}
   .paytimer__clock{justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){.paytimer__clock i,.paytimer__clock .is-tick,.paytimer.is-urgent .paytimer__clock>span{animation:none}.paytimer__bar span{transition:none}}
+
+/* ==========================================================================
+   Admin · tabel pesanan
+   ========================================================================== */
+.ot-alert{font-weight:700;color:var(--warn)}
+.ot-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin-bottom:14px}
+.ot-tabs{display:flex;gap:2px;padding:4px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);overflow-x:auto;max-width:100%}
+.ot-tabs a{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:var(--radius-sm);color:var(--ink-2);font-weight:600;font-size:.88rem;white-space:nowrap;transition:background .15s,color .15s}
+.ot-tabs a span{min-width:22px;padding:0 6px;border-radius:999px;background:var(--bg);font-size:.72rem;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.6}
+.ot-tabs a:hover{background:var(--bg);text-decoration:none}
+.ot-tabs a.is-active{background:var(--brand-soft);color:var(--brand)}
+.ot-tabs a.is-active span{background:var(--brand);color:#fff}
+
+.ot-search{position:relative;flex:0 1 300px;min-width:220px}
+.ot-search svg{position:absolute;left:12px;top:50%;width:16px;height:16px;margin-top:-8px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.ot-search input{width:100%;min-height:40px;padding:8px 34px 8px 36px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);font:inherit;font-size:.9rem;color:var(--ink)}
+.ot-search input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 15%,transparent)}
+.ot-search__clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;display:grid;place-items:center;border-radius:50%;color:var(--muted);font-size:1.1rem}
+.ot-search__clear:hover{background:var(--bg);text-decoration:none}
+
+.ot-wrap{overflow:visible}
+.ot{font-size:.88rem}
+.ot th{padding:11px 16px}
+.ot td{padding:14px 16px;vertical-align:middle}
+.ot td>span,.ot td>.badge{display:block;width:fit-content}
+.ot td.text-right>*{margin-left:auto}
+.ot td>.badge+.ot-sub,.ot td>.ot-main+.badge{margin-top:4px}
+.ot-main{font-weight:600;color:var(--ink);line-height:1.35}
+.ot-sub{font-size:.78rem;color:var(--muted);line-height:1.4;margin-top:2px}
+.ot-ellipsis{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ot .plate{margin-top:4px}
+.ot-money{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ot-code{display:flex;align-items:center;gap:6px}
+.ot-code b{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.ot-icon{display:grid;place-items:center;width:26px;height:26px;border-radius:6px;color:var(--muted)}
+.ot-icon svg,.ot-menu summary svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.ot-icon:hover{background:var(--brand-soft);color:var(--brand)}
+.ot-period{display:flex;align-items:center;gap:6px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ot-arrow{color:var(--muted)}
+.ot-flag{display:inline-block;margin-top:4px;padding:1px 8px;border-radius:999px;background:var(--danger);color:#fff;font-size:.7rem;font-weight:700}
+
+/* baris yang perlu perhatian & baris batal */
+.ot tbody tr{transition:background .15s}
+.ot tbody tr.is-attention{box-shadow:inset 3px 0 0 var(--warn)}
+.ot tbody tr.is-attention:has(.ot-flag){box-shadow:inset 3px 0 0 var(--danger)}
+.ot tbody tr.is-cancelled td:not(.ot-actions){opacity:.55}
+
+/* tindakan */
+.ot-actions{width:1%;white-space:nowrap;text-align:right}
+.ot-actions__row{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.ot-actions form{display:inline}
+.btn-warn{background:#d97706;color:#fff}
+.btn-warn:hover{background:#b45309;color:#fff}
+.ot-menu{position:relative}
+.ot-menu summary{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;list-style:none;color:var(--ink-2)}
+.ot-menu summary::-webkit-details-marker{display:none}
+.ot-menu summary svg{fill:currentColor;stroke:none}
+.ot-menu summary:hover,.ot-menu[open] summary{background:var(--bg);color:var(--ink)}
+.ot-menu__list{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:210px;padding:6px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--surface);box-shadow:0 12px 28px rgba(16,24,40,.14);text-align:left;white-space:normal;animation:ot-menu .16s ease-out}
+@keyframes ot-menu{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ot-menu__list a,.ot-menu__list button{display:block;width:100%;padding:8px 10px;border:0;border-radius:6px;background:none;font:500 .88rem var(--font);color:var(--ink);text-align:left;cursor:pointer}
+.ot-menu__list a:hover,.ot-menu__list button:hover{background:var(--bg);text-decoration:none}
+.ot-menu__list form{display:block;margin-top:4px;padding-top:4px;border-top:1px solid var(--line)}
+.ot-menu__list .is-danger{color:var(--danger)}
+.ot-menu__list .is-danger:hover{background:var(--danger-bg)}
+.ot-menu__info{display:block;padding:8px 10px;font-size:.78rem;color:var(--muted)}
+
+/* dialog */
+.ot-dialog{width:min(460px,calc(100vw - 32px));padding:22px;border:0;border-radius:var(--radius);box-shadow:0 24px 60px rgba(16,24,40,.25);text-align:left;white-space:normal;color:var(--ink)}
+.ot-dialog::backdrop{background:rgba(12,28,44,.45);backdrop-filter:blur(2px)}
+.ot-dialog[open]{animation:ot-dialog .2s cubic-bezier(.2,.7,.2,1)}
+@keyframes ot-dialog{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.ot-dialog__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.ot-dialog__head h3{font-size:1.1rem}
+.ot-dialog__x{width:32px;height:32px;border:0;border-radius:50%;background:var(--bg);font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink-2)}
+.ot-dialog__x:hover{background:var(--line)}
+.ot-dialog .field{margin-bottom:14px}
+.ot-proof{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg)}
+.ot-proof .ot-money{font-size:1.15rem}
+.ot-dialog__actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+
+/* layar sempit: tiap pesanan jadi kartu */
+@media(max-width:1000px){
+  .ot thead{display:none}
+  .ot,.ot tbody,.ot tr,.ot td{display:block;width:100%}
+  .ot tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;padding:16px;border-bottom:1px solid var(--line)}
+  .ot td{padding:0;border:0}
+  .ot td::before{content:attr(data-label);display:block;margin-bottom:2px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .ot td.text-right{text-align:left}
+  .ot td.text-right>*{margin-left:0}
+  .ot-actions{grid-column:1/-1;width:100%}
+  .ot-actions__row{justify-content:flex-start}
+  .ot-actions::before{display:none!important}
+  .ot-menu__list{right:auto;left:0}
+}
+@media(max-width:520px){.ot tbody tr{grid-template-columns:1fr}.ot-search{flex-basis:100%}}
+.ot thead th:first-child{border-top-left-radius:var(--radius)}
+.ot thead th:last-child{border-top-right-radius:var(--radius)}
+
+/* ---------- Admin · perbaikan tabel pesanan v2 ---------- */
+.site-main--wide .container{max-width:1360px}
+.ot-wrap{overflow-x:auto}                          /* tabel tidak lagi keluar dari kotak */
+.ot{min-width:1080px}
+.ot td{padding:14px 14px}
+.ot th{padding:11px 14px}
+.ot-code b,.ot-nowrap,.ot-money{white-space:nowrap}
+.ot-period{display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.45;white-space:nowrap}
+.ot-ellipsis{max-width:150px}
+.ot-menu__list{position:fixed;right:auto;top:0;left:0}
+.ot-actions{padding-left:8px}
+.ot .btn-outline:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:1000px){
+  .ot{min-width:0}
+  .ot-wrap{overflow:visible}
+  .ot-period{flex-direction:row;gap:6px}
+}

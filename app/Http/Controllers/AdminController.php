@@ -82,7 +82,16 @@ class AdminController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.orders', compact('orders'));
+        // jumlah per status untuk tab di atas tabel (ikut kata kunci pencarian)
+        $counts = Order::query()
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($w) use ($request) {
+                $w->where('code', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('user', fn ($u) => $u->where('name', 'like', '%' . $request->search . '%'));
+            }))
+            ->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $perluTindakan = Payment::where('status', 'menunggu')->count();
+
+        return view('admin.orders', compact('orders', 'counts', 'perluTindakan'));
     }
 
     public function confirm(Order $order): RedirectResponse
