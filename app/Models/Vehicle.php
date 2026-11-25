@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Vehicle extends Model
@@ -24,6 +25,43 @@ class Vehicle extends Model
     public function packages(): HasMany
     {
         return $this->hasMany(RentalPackage::class);
+    }
+
+    /**
+     * Peta "nama kendaraan -> file foto", disimpan di samping fotonya dan ikut Git.
+     * Dipakai untuk memasang ulang foto setelah migrate:fresh --seed atau di laptop lain.
+     */
+    public const PHOTO_MAP = 'vehicles/peta-foto.json';
+
+    /** Tulis peta dari isi database. Dipanggil otomatis setiap foto diubah lewat admin. */
+    public static function savePhotoMap(): int
+    {
+        $map = static::whereNotNull('photo')->orderBy('name')->pluck('photo', 'name')->all();
+        Storage::disk('local')->put(self::PHOTO_MAP, json_encode($map, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+
+        return count($map);
+    }
+
+    /** Pasang foto dari peta ke kendaraan dengan nama yang sama (hanya bila file fotonya ada). */
+    public static function restorePhotoMap(): int
+    {
+        $disk = Storage::disk('local');
+        if (! $disk->exists(self::PHOTO_MAP)) {
+            return 0;
+        }
+
+        $map = json_decode((string) $disk->get(self::PHOTO_MAP), true) ?: [];
+        $dipasang = 0;
+
+        foreach (static::all() as $v) {
+            $path = $map[$v->name] ?? null;
+            if ($path && $path !== $v->photo && str_starts_with($path, 'vehicles/') && $disk->exists($path)) {
+                $v->update(['photo' => $path]);
+                $dipasang++;
+            }
+        }
+
+        return $dipasang;
     }
 
     /** Alamat foto (diberi ?v= supaya browser memuat ulang saat foto diganti). Null bila belum ada foto. */

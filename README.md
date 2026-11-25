@@ -90,10 +90,12 @@ php artisan migrate:fresh --seed
   - 1 **dibatalkan** otomatis
 
 Pesanan "menunggu" dibuat 20–90 menit sebelum seeder dijalankan. Karena ada batas bayar 2 jam,
-**jalankan `php artisan migrate:fresh --seed` sesaat sebelum demo**, atau ubah batas waktu bayar ke `0`
-di *Admin → Pengaturan* supaya tidak batal sendiri.
+pesanan yang belum bayar akan batal sendiri setelah itu. Untuk presentasi, ubah batas waktu bayar ke `0`
+di *Admin → Pengaturan*, atau reset data sesaat sebelum demo (baca peringatan di bawah dulu).
 
-Foto kendaraan tidak termasuk data demo. Unggah lewat *Admin → Kendaraan → Kelola → Foto*.
+> ⚠️ **`migrate:fresh` menghapus seluruh isi database** (akun, pesanan, dan hubungan foto–kendaraan).
+> Untuk update biasa setelah `git pull`, cukup jalankan `php artisan migrate`.
+> Foto kendaraan tetap aman karena dipasang ulang otomatis dari `peta-foto.json` (lihat bagian *Foto kendaraan*).
 
 ---
 
@@ -122,8 +124,29 @@ Email (lupa password) secara bawaan hanya ditulis ke `storage/logs/laravel.log` 
 
 ## Gambar
 
-| Lokasi | Isi |
+| Lokasi | Isi | Ikut Git? |
+|---|---|---|
+| `public/images/logo.png` | Logo di header, footer, invoice, slide pertama | ✅ |
+| `public/images/pelanggan/` | Foto pelanggan untuk slide 2–5. Nama file jadi keterangan, contoh `01-rombongan-ke-dieng.jpg` | ✅ |
+| `storage/app/private/vehicles/` | Foto kendaraan (diunggah lewat admin, ditampilkan lewat `/foto/{id}`) | ✅ |
+| `storage/app/private/vehicles/peta-foto.json` | Daftar "nama kendaraan → file foto" | ✅ |
+| `storage/app/private/proofs/` | Bukti transfer pelanggan (privat) | ❌ sengaja tidak |
+
+### Foto kendaraan
+Website membaca foto dari kolom `photo` di tabel `vehicles`, lalu mengambil filenya dari
+`storage/app/private/vehicles/`. Karena isi database tidak ikut Git, setiap kali foto diunggah, diganti,
+atau dihapus lewat admin, aplikasi juga menulis **`peta-foto.json`** yang ikut Git.
+
+Peta ini dipakai otomatis oleh `php artisan migrate:fresh --seed` / `db:seed`, jadi foto langsung muncul lagi
+setelah reset data atau di laptop lain. Kendaraan dicocokkan berdasarkan **nama**, jadi jangan ganti nama
+kendaraan di seeder tanpa mengunggah ulang fotonya.
+
+| Situasi | Perintah |
 |---|---|
+| Foto hilang setelah reset / di laptop teman | `php artisan armada:foto` |
+| Foto di database sudah benar tapi peta belum ada (pertama kali) | `php artisan armada:foto --simpan`, lalu commit `peta-foto.json` |
+
+---|---|
 | `public/images/logo.png` | Logo di header, footer, invoice, slide pertama |
 | `public/images/pelanggan/` | Foto pelanggan untuk slide 2–5. Nama file jadi keterangan, contoh `01-rombongan-ke-dieng.jpg` |
 | `storage/app/private/vehicles/` | Foto kendaraan (diunggah lewat admin, disajikan lewat `/foto/{id}`) |
@@ -138,6 +161,7 @@ Email (lupa password) secara bawaan hanya ditulis ke `storage/logs/laravel.log` 
 | `php artisan migrate:fresh --seed` | Reset database dan isi data demo |
 | `php artisan admin:buat email@domain.com` | Buat akun admin baru (password ditanyakan) |
 | `php artisan armada:impor file.csv [--cek] [--ganti]` | Impor plat nomor unit dari CSV (kolom: kendaraan, plat, status) |
+| `php artisan armada:foto [--simpan]` | Pasang ulang foto kendaraan dari `peta-foto.json` / tulis peta dari database |
 | `php artisan pesanan:batal-kedaluwarsa` | Batalkan pesanan tanpa bukti bayar yang lewat batas waktu |
 | `php artisan schedule:work` | Menjalankan jadwal otomatis (batal kedaluwarsa tiap 5 menit) selama dibiarkan terbuka |
 | `php artisan test` | Menjalankan semua test (memakai database `rayarent_test`) |
@@ -147,11 +171,42 @@ walau `schedule:work` tidak dinyalakan.
 
 ---
 
+## Bekerja berdua (sinkron lewat Git)
+
+**Yang mengirim perubahan:**
+```bash
+git status            # pastikan tidak ada .env atau *.sql
+git add .
+git commit -m "pesan singkat"
+git push
+```
+
+**Yang mengambil perubahan** (terminal Laragon):
+```bash
+git pull origin main
+composer install
+php artisan migrate
+php artisan armada:foto
+php artisan optimize:clear
+```
+
+| Ikut Git | Tidak ikut Git (kirim manual / buat sendiri) |
+|---|---|
+| Kode, tampilan, migration, seeder | `.env` (kirim file langsung bila isinya berubah) |
+| Logo, foto pelanggan, foto kendaraan + `peta-foto.json` | Isi database: akun & pesanan buatan sendiri (export/import `.sql` lewat phpMyAdmin) |
+| | Bukti transfer pelanggan |
+| | Database `rayarent_test` (buat kosong untuk menjalankan test) |
+
+Bila `git pull` menolak karena *"local changes would be overwritten"*, backup file yang disebut,
+lalu jalankan `git restore <file>` atau `git stash`, baru `git pull` lagi.
+
+---
+
 ## Struktur penting
 
 ```
 app/
-├── Console/Commands/        admin:buat, armada:impor, pesanan:batal-kedaluwarsa
+├── Console/Commands/        admin:buat, armada:impor, armada:foto, pesanan:batal-kedaluwarsa
 ├── Http/Controllers/
 │   ├── HomeController       landing, detail armada publik, tentang, kontak, S&K
 │   ├── BookingController    form pesan + cek ketersediaan
@@ -174,4 +229,4 @@ public/css/rayarent.css      semua gaya tampilan (warna brand di blok :root pali
 - Akun demo **tidak dibuat** saat `APP_ENV=production`; gunakan `php artisan admin:buat`.
 - Peran pengguna selalu `pelanggan` saat daftar dan tidak bisa diisi dari form.
 - Bukti transfer dan foto disimpan di disk privat dan hanya bisa dibuka pemilik pesanan / admin.
-- Jangan commit `.env` dan file `*.sql`.
+- Jangan commit `.env` dan file `*.sql` (berisi data pelanggan dan akun).

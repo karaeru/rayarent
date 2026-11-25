@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Setting;
+use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +20,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([UserSeeder::class, VehicleSeeder::class]);
+
+        // pasang lagi foto kendaraan yang sudah pernah diunggah (lihat peta-foto.json)
+        if ($n = Vehicle::restorePhotoMap()) {
+            $this->command?->info("{$n} foto kendaraan dipasang dari peta-foto.json");
+        }
 
         if (! app()->environment('production')) {
             $this->call(DemoOrderSeeder::class);

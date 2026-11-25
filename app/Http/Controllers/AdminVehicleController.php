@@ -59,6 +59,8 @@ class AdminVehicleController extends Controller
     {
         $vehicle->update($this->vehicleData($request, $vehicle));
 
+        $this->updatePhotoMap();   // nama bisa berubah, peta foto memakai nama
+
         return back()->with('ok', 'Data kendaraan disimpan.');
     }
 
@@ -88,6 +90,7 @@ class AdminVehicleController extends Controller
             $vehicle->delete();
         });
         $this->deletePhotoFile($foto);   // hapus file setelah database berhasil
+        $this->updatePhotoMap();
 
         return redirect()->route('admin.kendaraan')->with('ok', 'Kendaraan ' . $nama . ' dihapus.');
     }
@@ -204,6 +207,7 @@ class AdminVehicleController extends Controller
             $target->update(['photo' => $i === 0 ? $path : $this->copyImage($path)]);
             $this->deletePhotoFile($old);
         }
+        $this->updatePhotoMap();
 
         return back()->with('ok', $targets->count() > 1
             ? 'Foto disimpan untuk ' . $targets->count() . ' kendaraan.'
@@ -214,6 +218,7 @@ class AdminVehicleController extends Controller
     {
         $this->deletePhotoFile($vehicle->photo);
         $vehicle->update(['photo' => null]);
+        $this->updatePhotoMap();
 
         return back()->with('ok', 'Foto dihapus.');
     }
@@ -260,7 +265,13 @@ class AdminVehicleController extends Controller
         return $path;
     }
 
-    private function copyImage(string $path): string
+    /** Peta foto gagal ditulis tidak boleh membatalkan simpan foto; cukup dicatat di log. */
+    private function updatePhotoMap(): void
+    {
+        rescue(fn () => Vehicle::savePhotoMap());
+    }
+
+        private function copyImage(string $path): string
     {
         $copy = 'vehicles/' . Str::uuid() . '.jpg';
         Storage::disk('local')->copy($path, $copy);
