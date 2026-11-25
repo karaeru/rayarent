@@ -827,3 +827,48 @@ body.has-sticky-buy .wa-float{bottom:84px}
   .guest-nav__auth{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 }
 @media(prefers-reduced-motion:reduce){.wa-float,.wa-float::before,.vcard.is-pop{animation:none}.site-header .guest-nav,.guest-nav>a{transition:none}}
+
+/* ==========================================================================
+   Syarat & Ketentuan
+   ========================================================================== */
+.sk-head{max-width:720px;margin-bottom:24px}
+.sk-head h1{font-size:clamp(1.8rem,3.4vw,2.5rem);letter-spacing:-.02em;margin-bottom:8px}
+.sk-key{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 40px}
+.sk-key div{padding:16px 18px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.sk-key dt{font-size:.8rem;color:var(--muted)}
+.sk-key dd{margin:4px 0 0;font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.sk-key small{font-size:.85rem;font-weight:500;color:var(--muted);margin-left:2px}
+
+.sk-layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;align-items:start}
+.sk-toc{position:sticky;top:88px}
+.sk-toc__title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.sk-toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.sk-toc a{display:flex;gap:10px;padding:7px 0 7px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--ink-2);font-size:.9rem;transition:color .2s,border-color .2s}
+.sk-toc a span{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.8rem;padding-top:1px}
+.sk-toc a:hover{color:var(--brand);text-decoration:none}
+.sk-toc a.is-current{color:var(--brand);border-left-color:var(--brand);font-weight:600}
+.sk-toc a.is-current span{color:var(--brand)}
+
+.sk-body{max-width:720px}
+.sk-body section{padding:4px 0 28px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.sk-body section:last-child{border-bottom:0}
+.sk-body h2{display:flex;align-items:baseline;gap:12px;font-size:1.3rem;margin-bottom:14px}
+.sk-body h2 span{font-size:.85rem;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums}
+.sk-body ol,.sk-body ul{margin:0 0 12px;padding-left:22px;color:var(--ink-2)}
+.sk-body li{margin-bottom:8px;padding-left:4px;line-height:1.65}
+.sk-body li::marker{color:var(--muted);font-variant-numeric:tabular-nums}
+.sk-body p{color:var(--ink-2)}
+
+@media(max-width:900px){
+  .sk-layout{grid-template-columns:1fr;gap:20px}
+  .sk-toc{position:static;padding:16px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+  .sk-toc ol{columns:2;column-gap:20px;border-left:0}
+  .sk-toc a{padding:5px 0;margin:0;border-left:0}
+}
+@media(max-width:480px){.sk-toc ol{columns:1}}
+
+/* centang persetujuan di form pesan */
+.agree{padding:14px 16px;border-radius:var(--radius-sm);background:var(--brand-soft);border:1px solid color-mix(in srgb,var(--brand) 20%,transparent)}
+.agree .check{display:flex;gap:10px;align-items:flex-start;margin:0;line-height:1.5;font-size:.92rem}
+.agree input{flex:none;width:18px;height:18px;margin-top:2px;accent-color:var(--brand)}
+.agree a{font-weight:600}

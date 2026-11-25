@@ -260,7 +260,10 @@
 
 {{-- ============ KETENTUAN ============ --}}
 <section class="lp-section lp-terms lp-band lp-band--soft" id="ketentuan" data-reveal>
-    <div class="lp-head" data-reveal><h2>Yang perlu diketahui</h2></div>
+    <div class="lp-head" data-reveal>
+        <h2>Yang perlu diketahui</h2>
+        <a href="{{ route('syarat') }}">Baca Syarat &amp; Ketentuan lengkap →</a>
+    </div>
     <dl>
         <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa. Anda juga bisa langsung bayar lunas.</dd></div>
         <div><dt>Keterlambatan</dt><dd>{{ $rp($lateFee) }} per jam, dihitung dibulatkan ke atas sejak jam selesai sewa.</dd></div>

@@ -107,7 +107,10 @@
 </section>
 
 <section class="lp-section lp-terms" data-reveal>
-    <div class="lp-head"><h2>Ketentuan singkat</h2></div>
+    <div class="lp-head">
+        <h2>Ketentuan singkat</h2>
+        <a href="{{ route('syarat') }}">Syarat &amp; Ketentuan lengkap →</a>
+    </div>
     <dl>
         <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa, atau langsung lunas.</dd></div>
         <div><dt>Keterlambatan</dt><dd>{{ $rp($lateFee) }} per jam, dibulatkan ke atas.</dd></div>

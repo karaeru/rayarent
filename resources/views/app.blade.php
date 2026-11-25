@@ -126,7 +126,7 @@
                 <h2>{{ config('rayarent.nama') }}</h2>
                 <a href="{{ route('tentang') }}">Tentang kami</a>
                 <a href="{{ route('home') }}#cara-sewa">Cara sewa</a>
-                <a href="{{ route('home') }}#ketentuan">Ketentuan</a>
+                <a href="{{ route('syarat') }}">Syarat &amp; Ketentuan</a>
                 <a href="{{ route('kontak') }}">Kontak &amp; lokasi</a>
             </nav>
 

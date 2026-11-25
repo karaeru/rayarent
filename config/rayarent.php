@@ -17,5 +17,8 @@ return [
     'maps' => env('RAYARENT_MAPS'),
     'instagram' => env('RAYARENT_INSTAGRAM'),     // contoh: rayarent.id (tanpa @)
     'tahun_berdiri' => env('RAYARENT_SEJAK'),     // contoh: 2019
-    'jam_operasional' => env('RAYARENT_JAM'),      // contoh: Setiap hari, 07.00-21.00
+    'jam_operasional' => env('RAYARENT_JAM'),
+    // Versi Syarat & Ketentuan. Ganti tanggalnya setiap kali isi resources/views/syarat.blade.php diubah,
+    // supaya tercatat versi mana yang disetujui tiap pesanan.
+    'sk_versi' => env('RAYARENT_SK_VERSI', '2026-11-25'),      // contoh: Setiap hari, 07.00-21.00
 ];

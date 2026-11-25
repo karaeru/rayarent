@@ -54,6 +54,14 @@
 
         <div id="sum" class="summary" aria-live="polite"></div>
 
+        <div class="field agree">
+            <label class="check">
+                <input type="checkbox" id="agree" name="setuju" value="1" @checked(old('setuju')) required>
+                <span>Saya sudah membaca dan menyetujui <a href="{{ route('syarat') }}" target="_blank" rel="noopener">Syarat &amp; Ketentuan sewa</a>, termasuk denda keterlambatan dan tanggung jawab atas kerusakan.</span>
+            </label>
+            @error('setuju') <p class="err">{{ $message }}</p> @enderror
+        </div>
+
         <div class="row">
             <button class="btn btn-lg" id="go" disabled>Buat pesanan</button>
             <a class="btn btn-lg btn-outline" href="{{ route('pelanggan.kendaraan', $vehicle) }}">Batal</a>
@@ -100,7 +108,8 @@ async function cek() {
                 ? 'Sesi Anda habis. Muat ulang halaman lalu masuk lagi.'
                 : 'Gagal mengecek ketersediaan (kode ' + res.status + '). Coba lagi atau hubungi admin.';
         out.innerHTML = '<span class="err">' + pesan + '</span>';
-        $('go').disabled = true;
+        tersedia = false;
+        tombol();
         return;
     }
     const d = await res.json();
@@ -117,8 +126,16 @@ async function cek() {
         + `<p class="muted small">Selesai: ${d.end}</p>
            <p>Total <b>${rp(d.total)}</b></p>
            <p class="muted small">Bayar sekarang: ${rp(bayar)}</p>`;
-    $('go').disabled = !free;
+    tersedia = free > 0;
+    tombol();
 }
+
+let tersedia = false;
+const tombol = () => {
+    $('go').disabled = !tersedia || !$('agree').checked;
+    $('go').title = !tersedia ? 'Tidak ada unit tersedia' : (!$('agree').checked ? 'Centang persetujuan Syarat & Ketentuan dulu' : '');
+};
+$('agree').addEventListener('change', tombol);
 
 ['pkg', 'start', 'qty', 'mode', 'unit'].forEach(id => $(id).addEventListener('change', cek));
 $('qty').addEventListener('input', () => { clearTimeout(t); t = setTimeout(cek, 300); });

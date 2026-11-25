@@ -15,6 +15,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/armada/{slug}', [HomeController::class, 'vehicle'])->where('slug', '[a-z0-9-]+')->name('armada');
 Route::get('/tentang', [HomeController::class, 'about'])->name('tentang');
 Route::get('/kontak', [HomeController::class, 'contact'])->name('kontak');
+Route::get('/syarat-ketentuan', [HomeController::class, 'terms'])->name('syarat');
 
 Route::middleware('guest')->group(function () {
     Route::get('/masuk', [AuthController::class, 'showLogin'])->name('login');

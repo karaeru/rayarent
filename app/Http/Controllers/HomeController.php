@@ -125,6 +125,15 @@ class HomeController extends Controller
         ] + $this->lokasi());
     }
 
+    public function terms()
+    {
+        return view('syarat', [
+            'dpPercent' => (int) Setting::get('dp_percent', 30),
+            'lateFee' => (int) Setting::get('late_fee_per_hour', 50000),
+            'batasBayar' => (int) Setting::get('batas_bayar_jam', 2),
+        ]);
+    }
+
     public function contact()
     {
         return view('kontak', [

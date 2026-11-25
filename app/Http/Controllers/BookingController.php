@@ -59,6 +59,9 @@ class BookingController extends Controller
             'vehicle_unit_id' => ['nullable', Rule::exists('vehicle_units', 'id')->where('vehicle_id', $vehicle->id)],
             'pickup_location' => ['nullable', 'string', 'max:200'],
             'pay_mode' => ['required', 'in:dp,lunas'],
+            'setuju' => ['accepted'],
+        ], [
+            'setuju.accepted' => 'Centang persetujuan Syarat & Ketentuan sewa dulu.',
         ]);
 
         rescue(fn () => Order::cancelExpired(), 0);
@@ -91,6 +94,8 @@ class BookingController extends Controller
                 'pickup_location' => $data['pickup_location'] ?? null,
                 'total_price' => $total,
                 'pay_mode' => $data['pay_mode'],
+                'terms_accepted_at' => now(),
+                'terms_version' => config('rayarent.sk_versi'),
                 'status' => 'menunggu_konfirmasi',
             ]);
             $order->update(['code' => 'RR-' . str_pad((string) $order->id, 4, '0', STR_PAD_LEFT)]);

@@ -16,13 +16,14 @@ class Order extends Model
     protected $fillable = [
         'code', 'user_id', 'vehicle_unit_id', 'rental_package_id', 'quantity',
         'start_at', 'end_at', 'pickup_location', 'total_price', 'pay_mode', 'status',
-        'returned_at', 'return_condition', 'late_fee', 'damage_fee', 'cancel_reason',
+        'returned_at', 'return_condition', 'late_fee', 'damage_fee', 'cancel_reason', 'terms_accepted_at', 'terms_version',
     ];
 
     protected $casts = [
         'start_at' => 'datetime',
         'end_at' => 'datetime',
         'returned_at' => 'datetime',
+        'terms_accepted_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

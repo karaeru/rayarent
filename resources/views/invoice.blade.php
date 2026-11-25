@@ -132,7 +132,12 @@
                 Terima kasih telah menyewa di {{ $nama }}.
             @endif
         </div>
-        <div style="text-align:right">Dokumen ini dibuat otomatis oleh sistem<br>dan sah tanpa tanda tangan.</div>
+        <div style="text-align:right">
+            Dokumen ini dibuat otomatis oleh sistem<br>dan sah tanpa tanda tangan.
+            @if ($order->terms_accepted_at)
+                <br>Penyewa menyetujui Syarat &amp; Ketentuan versi {{ $order->terms_version }}<br>pada {{ $order->terms_accepted_at->translatedFormat('d M Y H:i') }}.
+            @endif
+        </div>
     </footer>
 </main>
 </body>
