@@ -25,7 +25,20 @@ class HomeController extends Controller
             ->sortBy(fn ($v) => $v->min_price)
             ->values();
 
+        // Foto untuk panggung di pembuka: foto RAYARENT sendiri (public/images/hero/*) lebih dulu,
+        // lalu foto kendaraan; satu foto per model (Matic/Manual tidak dobel), maksimal 6.
+        $heroFiles = collect(glob(public_path('images/hero/*.{jpg,jpeg,png,webp}'), GLOB_BRACE) ?: [])
+            ->sort()->map(fn ($f) => ['src' => asset('images/hero/' . basename($f)), 'cover' => true,
+                'title' => config('rayarent.nama'), 'sub' => config('rayarent.tagline'), 'url' => route('tentang')]);
+        $heroCars = $vehicles->filter(fn ($v) => $v->photo)
+            ->unique(fn ($v) => Vehicle::baseName($v->name))
+            ->sortByDesc('capacity')->values()
+            ->map(fn ($v) => ['src' => $v->photo_url, 'cover' => false, 'title' => $v->name,
+                'sub' => $v->seat_label . ' kursi · mulai Rp' . number_format($v->min_price, 0, ',', '.'),
+                'url' => route('armada', $v->slug)]);
+
         return view('home', [
+            'showcase' => $heroFiles->concat($heroCars)->take(6)->values(),
             'vehicles' => $vehicles,
             'services' => RentalPackage::SERVICES,
             'totalUnit' => $vehicles->sum('units_count'),

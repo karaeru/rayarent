@@ -37,6 +37,41 @@
         requestAnimationFrame(tick);
     });
 
+    // Panggung foto di pembuka: ganti otomatis, berhenti saat disentuh kursor / tab tidak terlihat
+    const stage = document.querySelector('[data-stage]');
+    const slides = stage ? [...stage.querySelectorAll('[data-slide]')] : [];
+    if (slides.length > 1) {
+        const dots = [...stage.querySelectorAll('[data-dot]')];
+        let cur = 0, timer = null;
+        const show = (n) => {
+            const prev = cur;
+            cur = (n + slides.length) % slides.length;
+            if (prev === cur) return;
+            slides[prev].classList.remove('is-active');
+            slides[prev].classList.add('is-leaving');
+            setTimeout(() => slides[prev].classList.remove('is-leaving'), 900);
+            slides.forEach((s, i) => { s.setAttribute('aria-hidden', i === cur ? 'false' : 'true'); s.tabIndex = i === cur ? 0 : -1; });
+            slides[cur].classList.add('is-active');
+            dots.forEach((d, i) => d.classList.toggle('is-active', i === cur));
+        };
+        const play = () => { if (!reduce) { clearInterval(timer); timer = setInterval(() => show(cur + 1), 4200); stage.classList.add('is-playing'); } };
+        const stop = () => { clearInterval(timer); stage.classList.remove('is-playing'); };
+        dots.forEach((d, i) => d.addEventListener('click', () => { show(i); play(); }));
+        stage.addEventListener('pointerenter', stop);
+        stage.addEventListener('pointerleave', play);
+        stage.addEventListener('focusin', stop);
+        document.addEventListener('visibilitychange', () => document.hidden ? stop() : play());
+        // geser di HP
+        let x0 = null;
+        stage.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+        stage.addEventListener('touchend', (e) => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0; x0 = null;
+            if (Math.abs(dx) > 40) { show(cur + (dx < 0 ? 1 : -1)); play(); }
+        });
+        play();
+    }
+
     // Tombol pesan menempel (HP) muncul setelah tombol utama lewat dari layar
     const sticky = document.querySelector('[data-sticky-buy]');
     const buy = document.querySelector('.ar-buy');

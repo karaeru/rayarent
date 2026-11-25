@@ -4,10 +4,11 @@
    ========================================================================== */
 :root{
   /* BRAND */
-  --brand:#1e4fa0;
-  --brand-strong:#163d7e;
-  --brand-soft:#eaf1fb;
+  --brand:#0077b6;
+  --brand-strong:#005b8c;
+  --brand-soft:#e2f6fa;
   --on-brand:#ffffff;
+  --brand-gradient:linear-gradient(120deg,#00808a 0%,#007f9e 45%,#3d6fd1 100%);
 
   /* NETRAL */
   --bg:#f5f7fa; --surface:#fff; --ink:#111827; --ink-2:#374151; --muted:#6b7280;
@@ -273,7 +274,7 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 
 .lp-cta{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:56px;padding:32px;border-radius:var(--radius);background:var(--brand-strong);color:var(--on-brand)}
 .lp-cta h2{color:inherit}
-.lp-cta p{margin:6px 0 0;opacity:.85}
+.lp-cta p{margin:6px 0 0}
 .lp-cta__btn{background:var(--on-brand);color:var(--brand-strong)}
 .lp-cta__btn:hover{background:var(--brand-soft);color:var(--brand-strong)}
 .lp-cta__ghost{background:transparent;border-color:rgba(255,255,255,.5);color:var(--on-brand)}
@@ -467,3 +468,66 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 .vcard__media img{object-fit:contain;padding:4%}
 .ar-media{aspect-ratio:16/10;border:1px solid var(--line)}
 .vcard__media{aspect-ratio:16/10;border-bottom:1px solid var(--line)}
+
+/* ==========================================================================
+   Pembuka v2: teks kiri, panggung foto kanan
+   ========================================================================== */
+.lp-hero{align-items:center;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);padding:32px 0 56px}
+.lp-hero h1{max-width:14ch}
+.lp-mini{display:flex;flex-wrap:wrap;gap:8px 32px;margin:32px 0 0;padding-top:20px;border-top:1px solid var(--line)}
+.lp-mini dt{font-size:.78rem;color:var(--muted)}
+.lp-mini dd{margin:2px 0 0;font-weight:800;font-size:1.1rem;font-variant-numeric:tabular-nums}
+
+.lp-stage{position:relative;aspect-ratio:5/4;isolation:isolate}
+.lp-stage__blob{position:absolute;inset:8% 2% 12% 6%;z-index:-1;border-radius:46% 54% 42% 58%/55% 45% 55% 45%;
+  background:radial-gradient(120% 120% at 30% 20%,var(--brand-soft),color-mix(in srgb,var(--brand) 14%,var(--brand-soft)));
+  animation:lp-morph 14s ease-in-out infinite alternate}
+@keyframes lp-morph{
+  0%{border-radius:46% 54% 42% 58%/55% 45% 55% 45%;transform:rotate(0)}
+  100%{border-radius:58% 42% 55% 45%/45% 58% 42% 55%;transform:rotate(6deg)}
+}
+.lp-slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;color:var(--ink);text-decoration:none;
+  opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
+.lp-slide:hover{text-decoration:none}
+.lp-slide img{display:block;width:100%;height:78%;object-fit:contain;filter:drop-shadow(0 18px 18px rgba(16,24,40,.18));
+  transform:translateX(14%) scale(.96);transition:transform 1s cubic-bezier(.2,.75,.2,1)}
+.lp-slide.is-active{opacity:1;visibility:visible;transition:opacity .7s ease}
+.lp-slide.is-active img{transform:none}
+.lp-slide.is-leaving{opacity:0;visibility:visible}
+.lp-slide.is-leaving img{transform:translateX(-14%) scale(.96)}
+/* foto suasana (public/images/hero): memenuhi bingkai */
+.lp-slide.is-cover img{height:100%;object-fit:cover;border-radius:24px;filter:none;transform:scale(1.06)}
+.lp-slide.is-cover.is-active img{transform:none;transition:transform 6s ease-out}
+.lp-slide.is-cover .lp-slide__cap{position:absolute;left:16px;bottom:16px}
+
+.lp-slide__cap{align-self:flex-start;display:flex;flex-direction:column;margin:0 0 0 6%;padding:10px 16px;border-radius:12px;
+  background:var(--surface);box-shadow:0 6px 20px rgba(16,24,40,.10);line-height:1.3;
+  opacity:0;transform:translateY(10px);transition:opacity .5s .35s,transform .5s .35s}
+.lp-slide.is-active .lp-slide__cap{opacity:1;transform:none}
+.lp-slide__cap span{font-size:.82rem;color:var(--muted)}
+.lp-slide:hover .lp-slide__cap b{color:var(--brand)}
+.lp-slide--empty{align-items:center;gap:8px;font-size:5rem}
+
+.lp-stage__dots{position:absolute;right:4%;bottom:2%;display:flex;gap:6px}
+.lp-stage__dots button{width:28px;height:20px;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center}
+.lp-stage__dots span{display:block;width:100%;height:4px;border-radius:4px;background:var(--line-strong);overflow:hidden;position:relative}
+.lp-stage__dots .is-active span::after{content:"";position:absolute;inset:0;background:var(--brand);transform-origin:left}
+.lp-stage.is-playing .lp-stage__dots .is-active span::after{animation:lp-progress 4.2s linear}
+@keyframes lp-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+@media(max-width:900px){
+  .lp-hero{grid-template-columns:1fr;gap:12px;padding:8px 0 40px}
+  .lp-stage{order:-1;aspect-ratio:16/11;margin:0 -8px}
+  .lp-hero h1{max-width:none}
+}
+@media(prefers-reduced-motion:reduce){.lp-stage__blob{animation:none}.lp-slide img,.lp-slide__cap{transition:none!important}}
+
+/* ==========================================================================
+   Aksen gradasi sesuai logo (hanya di beberapa titik)
+   ========================================================================== */
+.lp-cta{background:var(--brand-gradient)}
+.lp-cta__btn{color:var(--brand-strong)}
+.lp-steps::before{background:var(--brand-gradient)}
+.lp-stage__dots .is-active span::after{background:var(--brand-gradient)}
+.lp-stage__blob{background:radial-gradient(120% 120% at 30% 20%,#e6fbfa,#cdeefa 60%,#d6e4fb)}
+.lp-eyebrow{background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}

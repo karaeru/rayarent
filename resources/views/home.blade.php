@@ -14,29 +14,56 @@
 {{-- ============ PEMBUKA ============ --}}
 <section class="lp-hero">
     <div class="lp-hero__text" data-hero>
-        <p class="lp-eyebrow">Rental mobil &amp; minibus</p>
-        <h1>Sewa kendaraan per 12 atau 24 jam, lepas kunci atau dengan driver.</h1>
+        <p class="lp-eyebrow">Rental mobil &amp; minibus{{ config('rayarent.kota') ? ' · '.config('rayarent.kota') : '' }}</p>
+        <h1>Mau ke mana hari ini? Mobilnya sudah siap.</h1>
         <p class="lp-lead">
-            Lihat harga di bawah, pilih tanggal, dan cek unit yang kosong langsung di website.
-            Bayar DP {{ $dpPercent }}% lewat transfer, sisanya saat serah terima.
+            Sewa per 12 atau 24 jam, setir sendiri atau pakai driver.
+            Pilih tanggal, lihat unit yang kosong, dan bayar DP {{ $dpPercent }}% saja di awal.
         </p>
         <div class="row mt-2">
-            <a href="#harga" class="btn btn-lg">Lihat daftar harga</a>
+            <a href="#armada" class="btn btn-lg">Pilih kendaraan</a>
             @if ($waLink)
                 <a href="{{ $waLink }}" class="btn btn-lg btn-outline" rel="noopener">Tanya via WhatsApp</a>
             @else
-                <a href="{{ route('register') }}" class="btn btn-lg btn-outline">Buat akun</a>
+                <a href="#harga" class="btn btn-lg btn-outline">Lihat harga</a>
             @endif
         </div>
+
+        <dl class="lp-mini">
+            <div><dt>Armada</dt><dd><span data-count="{{ $totalUnit }}">{{ $totalUnit }}</span> unit</dd></div>
+            <div><dt>Mulai dari</dt><dd>Rp<span data-count="{{ $hargaTermurah }}" data-format="rp">{{ number_format($hargaTermurah, 0, ',', '.') }}</span></dd></div>
+            <div><dt>Kapasitas</dt><dd>s.d. {{ $kursiTerbanyak }} kursi</dd></div>
+        </dl>
     </div>
 
-    <dl class="lp-facts" data-reveal>
-        <div><dt>Jenis kendaraan</dt><dd><span data-count="{{ $vehicles->count() }}">{{ $vehicles->count() }}</span></dd></div>
-        <div><dt>Unit siap jalan</dt><dd><span data-count="{{ $totalUnit }}">{{ $totalUnit }}</span></dd></div>
-        <div><dt>Harga mulai</dt><dd>Rp<span data-count="{{ $hargaTermurah }}" data-format="rp">{{ number_format($hargaTermurah, 0, ',', '.') }}</span><small>/ paket</small></dd></div>
-        <div><dt>Kapasitas sampai</dt><dd><span data-count="{{ $kursiTerbanyak }}">{{ $kursiTerbanyak }}</span><small>kursi</small></dd></div>
-    </dl>
-    <div class="lp-road" aria-hidden="true"><span class="lp-road__car">🚙</span></div>
+    <div class="lp-stage" data-stage aria-roledescription="carousel" aria-label="Foto armada">
+        <div class="lp-stage__blob" aria-hidden="true"></div>
+        @forelse ($showcase as $i => $s)
+            <a href="{{ $s['url'] }}" @class(['lp-slide', 'is-cover' => $s['cover'], 'is-active' => $i === 0]) data-slide
+               aria-hidden="{{ $i === 0 ? 'false' : 'true' }}" @if ($i) tabindex="-1" @endif>
+                <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" @if ($i) loading="lazy" @endif>
+                <span class="lp-slide__cap">
+                    <b>{{ $s['title'] }}</b>
+                    <span>{{ $s['sub'] }}</span>
+                </span>
+            </a>
+        @empty
+            <div class="lp-slide is-active lp-slide--empty">
+                <span aria-hidden="true">🚙</span>
+                <span class="small muted">Foto armada belum diunggah</span>
+            </div>
+        @endforelse
+
+        @if ($showcase->count() > 1)
+            <div class="lp-stage__dots" role="tablist">
+                @foreach ($showcase as $i => $s)
+                    <button type="button" role="tab" data-dot="{{ $i }}" aria-label="Foto {{ $i + 1 }}: {{ $s['title'] }}" @class(['is-active' => $i === 0])>
+                        <span></span>
+                    </button>
+                @endforeach
+            </div>
+        @endif
+    </div>
 </section>
 
 {{-- ============ ARMADA ============ --}}

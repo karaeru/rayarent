@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#1e4fa0">
+    <meta name="theme-color" content="#0077b6">
     <title>@yield('title', config('rayarent.nama'))</title>
     @stack('head')
     <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
