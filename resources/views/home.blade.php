@@ -75,19 +75,24 @@
                         @break
 
                     @case('contact')
+                        @php
+                            // alamat versi pendek untuk slide: buang plus code Google ("576W+M62,") dan ", Indonesia"
+                            $alamatPendek = trim(preg_replace(['/^[2-9CFGHJMPQRVWX]{4,8}\+[2-9CFGHJMPQRVWX]{2,3},?\s*/i', '/,?\s*Indonesia$/i'], '', (string) config('rayarent.alamat')));
+                            $ig = ltrim((string) config('rayarent.instagram'), '@');
+                        @endphp
                         <div class="lp-contact">
                             <span class="lp-slide__tag">Hubungi kami</span>
                             <h3>Siap jalan? Tanya dulu juga boleh.</h3>
-                            <ul>
-                                @if ($wa) <li><span>WhatsApp</span><a href="{{ $waLink }}" rel="noopener">+{{ $wa }}</a></li> @endif
-                                @if (config('rayarent.alamat')) <li><span>Alamat</span>{{ config('rayarent.alamat') }}</li> @endif
-                                @if (config('rayarent.jam_operasional')) <li><span>Jam buka</span>{{ config('rayarent.jam_operasional') }}</li> @endif
-                                @if (config('rayarent.instagram')) <li><span>Instagram</span><a href="https://instagram.com/{{ ltrim(config('rayarent.instagram'), '@') }}" rel="noopener">{{ '@'.ltrim(config('rayarent.instagram'), '@') }}</a></li> @endif
-                                @if (config('rayarent.email')) <li><span>Email</span><a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a></li> @endif
-                            </ul>
+                            <dl class="lp-contact__list">
+                                @if ($wa) <div><dt>WhatsApp</dt><dd><a href="{{ $waLink }}" rel="noopener">+{{ $wa }}</a></dd></div> @endif
+                                @if (config('rayarent.jam_operasional')) <div><dt>Jam buka</dt><dd>{{ config('rayarent.jam_operasional') }}</dd></div> @endif
+                                @if ($alamatPendek) <div class="is-wide is-optional"><dt>Alamat</dt><dd class="clamp-2">{{ $alamatPendek }}</dd></div> @endif
+                                @if ($ig) <div class="is-optional"><dt>Instagram</dt><dd><a href="https://instagram.com/{{ $ig }}" rel="noopener">{{ '@'.$ig }}</a></dd></div> @endif
+                                @if (config('rayarent.email')) <div class="is-optional"><dt>Email</dt><dd><a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a></dd></div> @endif
+                            </dl>
                             <div class="lp-contact__actions">
-                                @if ($waLink) <a class="btn lp-cta__btn" href="{{ $waLink }}" rel="noopener">Chat WhatsApp</a> @endif
-                                <a class="btn lp-cta__ghost" href="{{ route('kontak') }}">Lokasi &amp; peta</a>
+                                @if ($waLink) <a class="btn lp-contact__wa" href="{{ $waLink }}" rel="noopener">Chat WhatsApp</a> @endif
+                                <a class="btn lp-contact__map" href="{{ route('kontak') }}">Lokasi &amp; peta</a>
                             </div>
                         </div>
                         @break
