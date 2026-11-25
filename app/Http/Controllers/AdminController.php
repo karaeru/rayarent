@@ -177,12 +177,25 @@ class AdminController extends Controller
         $orders = (clone $base)->with('user', 'unit.vehicle', 'package', 'payments')
             ->latest('start_at')->paginate(25)->withQueryString();
 
+        // rincian tambahan (semua tanpa pesanan batal, kecuali hitungan status)
+        $perStatus = (clone $base)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $perLayanan = (clone $base)->where('orders.status', '!=', 'dibatalkan')
+            ->join('rental_packages', 'orders.rental_package_id', '=', 'rental_packages.id')
+            ->selectRaw('rental_packages.service, COUNT(*) as jumlah, SUM(orders.total_price + orders.late_fee + orders.damage_fee) as tagihan')
+            ->groupBy('rental_packages.service')->orderByDesc('tagihan')->get();
+        $denda = (clone $base)->where('status', '!=', 'dibatalkan')
+            ->selectRaw('COALESCE(SUM(late_fee), 0) as telat, COALESCE(SUM(damage_fee), 0) as rusak')->first();
+
         return view('admin.report', [
             'orders' => $orders,
             'filters' => $filters,
             'jumlah' => (int) $ringkasan->jumlah,
             'tagihan' => (int) $ringkasan->tagihan,
             'diterima' => $diterima,
+            'perStatus' => $perStatus,
+            'perLayanan' => $perLayanan,
+            'dendaTelat' => (int) $denda->telat,
+            'biayaRusak' => (int) $denda->rusak,
         ]);
     }
 
