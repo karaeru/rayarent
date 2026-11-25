@@ -44,9 +44,10 @@
         </a>
 
         @guest
-            <nav class="guest-nav" aria-label="Menu utama">
-                <a href="{{ route('home') }}#armada">Armada</a>
-                <a href="{{ route('home') }}#harga">Harga</a>
+            <nav class="guest-nav" aria-label="Menu utama" data-guest-nav>
+                <span class="guest-nav__pill" aria-hidden="true"></span>
+                <a href="{{ route('home') }}#armada" data-spy="armada">Armada</a>
+                <a href="{{ route('home') }}#harga" data-spy="harga">Harga</a>
                 <a href="{{ route('tentang') }}" @class(['is-active' => request()->routeIs('tentang')])>Tentang</a>
                 <a href="{{ route('kontak') }}" @class(['is-active' => request()->routeIs('kontak')])>Kontak</a>
             </nav>
@@ -134,6 +135,106 @@
             toggle.querySelector('[data-password-slash]').hidden = isVisible;
         });
     });
+
+    /* ---------- Scroll halus ke bagian halaman + penanda menu yang ikut bergeser ---------- */
+    (() => {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const header = document.querySelector('[data-site-header]');
+        const offset = () => (header?.offsetHeight || 0) + 12;
+        const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);   // pelan-cepat-pelan
+        let anim = null;
+
+        const scrollToEl = (el) => {
+            const from = window.scrollY;
+            const to = Math.max(0, Math.min(
+                el.getBoundingClientRect().top + from - offset(),
+                document.documentElement.scrollHeight - innerHeight
+            ));
+            const dist = to - from;
+            if (reduce || Math.abs(dist) < 2) { window.scrollTo(0, to); return; }
+
+            const dur = Math.min(1100, Math.max(450, Math.abs(dist) * 0.45));
+            const t0 = performance.now();
+            cancelAnimationFrame(anim);
+            document.documentElement.classList.add('is-autoscroll');
+            const step = (now) => {
+                const p = Math.min(1, (now - t0) / dur);
+                window.scrollTo(0, from + dist * ease(p));
+                if (p < 1) { anim = requestAnimationFrame(step); return; }
+                document.documentElement.classList.remove('is-autoscroll');
+                el.classList.remove('is-arrived'); void el.offsetWidth; el.classList.add('is-arrived');
+            };
+            anim = requestAnimationFrame(step);
+        };
+        // pengguna menggulir sendiri: hentikan animasi
+        ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => {
+            cancelAnimationFrame(anim);
+            document.documentElement.classList.remove('is-autoscroll');
+        }, { passive: true }));
+
+        // semua link ke #bagian di halaman yang sama (menu, tombol pembuka, footer)
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest('a[href*="#"]');
+            if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+            const url = new URL(a.href, location.href);
+            if (url.pathname !== location.pathname || !url.hash) return;
+            const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+            if (!target) return;
+            e.preventDefault();
+            history.pushState(null, '', url.hash);
+            header?.classList.remove('is-open');
+            scrollToEl(target);
+        });
+
+        // datang dari halaman lain (mis. /tentang -> /#harga): mulai dari atas lalu meluncur
+        if (location.hash) {
+            const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+            if (target && !reduce) {
+                history.scrollRestoration = 'manual';
+                window.scrollTo(0, 0);
+                addEventListener('load', () => setTimeout(() => scrollToEl(target), 120), { once: true });
+            }
+        }
+
+        // penanda (pill) di menu: bergeser ke menu bagian yang sedang terlihat
+        const nav = document.querySelector('[data-guest-nav]');
+        if (!nav) return;
+        const pill = nav.querySelector('.guest-nav__pill');
+        const links = [...nav.querySelectorAll('a')];
+        const spyLinks = links.filter((a) => a.dataset.spy && document.getElementById(a.dataset.spy));
+        const movePill = (a) => {
+            if (!a) { pill.style.opacity = 0; return; }
+            pill.style.opacity = 1;
+            pill.style.width = a.offsetWidth + 'px';
+            pill.style.transform = `translateX(${a.offsetLeft}px)`;
+        };
+        const fixed = links.find((a) => a.classList.contains('is-active'));
+        let current = fixed || null;
+        const setCurrent = (a) => {
+            if (fixed || a === current) return;
+            current = a;
+            links.forEach((l) => { l.classList.toggle('is-spy', l === a); a === l ? l.setAttribute('aria-current', 'location') : l.removeAttribute('aria-current'); });
+            movePill(a);
+        };
+        nav.addEventListener('pointerover', (e) => { const a = e.target.closest('a'); if (a) movePill(a); });
+        nav.addEventListener('pointerleave', () => movePill(current));
+        addEventListener('resize', () => movePill(current));
+        requestAnimationFrame(() => { pill.style.transition = 'none'; movePill(current); requestAnimationFrame(() => { pill.style.transition = ''; }); });
+
+        if (!fixed && spyLinks.length) {
+            const onScroll = () => {
+                const y = offset() + innerHeight * 0.25;
+                let hit = null;
+                spyLinks.forEach((a) => {
+                    const r = document.getElementById(a.dataset.spy).getBoundingClientRect();
+                    if (r.top <= y && r.bottom > offset()) hit = a;
+                });
+                setCurrent(hit);
+            };
+            addEventListener('scroll', () => requestAnimationFrame(onScroll), { passive: true });
+            onScroll();
+        }
+    })();
 </script>
 </body>
 </html>

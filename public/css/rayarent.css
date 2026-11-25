@@ -558,3 +558,29 @@ a.pg:hover{background:var(--bg);text-decoration:none}
   .pl-row__prices{grid-area:prices;justify-content:flex-start;gap:16px}
   .pl-row__prices span{min-width:0;text-align:left}
 }
+
+/* ==========================================================================
+   Menu pengunjung: penanda bergeser + scroll halus
+   ========================================================================== */
+.guest-nav{position:relative}
+.guest-nav a{position:relative;z-index:1;transition:color .25s}
+.guest-nav a:hover{background:none}
+.guest-nav a.is-active,.guest-nav a.is-spy{background:none;color:var(--brand)}
+.guest-nav__pill{position:absolute;left:0;top:0;bottom:0;z-index:0;width:0;border-radius:var(--radius-sm);background:var(--brand-soft);
+  opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.3,.8,.25,1),width .45s cubic-bezier(.3,.8,.25,1),opacity .25s}
+.guest-nav__pill::after{content:"";position:absolute;left:12px;right:12px;bottom:3px;height:2px;border-radius:2px;background:var(--brand-gradient,var(--brand))}
+
+/* target link (#armada, #harga) tidak tertutup header saat dibuka langsung */
+[id]{scroll-margin-top:84px}
+
+/* judul bagian "menyala" sebentar saat tiba */
+.lp-section.is-arrived>.lp-head h2{animation:lp-arrive .9s cubic-bezier(.2,.7,.2,1)}
+@keyframes lp-arrive{
+  0%{transform:translateY(10px);opacity:.4}
+  55%{transform:none;opacity:1;color:var(--brand)}
+  100%{color:var(--ink)}
+}
+/* selama meluncur, efek miring kartu dimatikan supaya tidak "kedip" */
+.is-autoscroll .vcard[data-tilt]{transform:none!important}
+
+@media(prefers-reduced-motion:reduce){.guest-nav__pill{transition:none}.lp-section.is-arrived>.lp-head h2{animation:none}}
