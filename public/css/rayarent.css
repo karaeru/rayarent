@@ -1204,3 +1204,132 @@ a.dsh-kpi:hover{background:#fafbfc;text-decoration:none;color:var(--ink)}
   .dsh-task{flex-wrap:wrap;gap:8px 12px}
   .dsh-task__actions{width:100%}
 }
+
+/* ==========================================================================
+   Admin · Kendaraan (daftar & kelola)
+   ========================================================================== */
+.fl-kpi-btn{border:0;background:none;text-align:left;font:inherit;cursor:pointer}
+.fl-kpi-btn:hover{background:#fafbfc}
+.fl{font-size:.88rem}
+.fl th{padding:11px 16px}
+.fl td{padding:12px 16px;vertical-align:middle}
+.fl td>span{display:block;width:fit-content}
+.fl td.text-right>span{margin-left:auto}
+.fl tbody tr.is-hidden-row .fl-item{opacity:.6}
+.fl tbody tr[hidden]{display:none}
+.fl-num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.fl-muted{color:var(--muted)}
+.fl-item{display:flex;align-items:center;gap:12px;color:var(--ink);min-width:220px}
+.fl-item:hover{text-decoration:none;color:var(--ink)}
+.fl-item:hover b{color:var(--brand)}
+.fl-thumb{flex:none;display:grid;place-items:center;width:64px;height:42px;border:1px solid var(--line);border-radius:6px;background:#fff;overflow:hidden;color:var(--brand)}
+.fl-thumb img{width:100%;height:100%;object-fit:contain;padding:2px}
+.fl-thumb .car-icon{width:70%;opacity:.4}
+.fl-item__text{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.fl-item__text b{font-weight:600}
+.fl-item__text span{font-size:.78rem;color:var(--muted)}
+.fl-missing{font-size:.8rem;color:#b45309}
+.fl-units{display:flex!important;flex-direction:column;gap:5px;min-width:140px}
+.fl-units__bar{display:flex;gap:2px;width:100px;height:6px;border-radius:999px;overflow:hidden;background:#eef1f4}
+.fl-units__bar i{display:block}
+.fl-units__bar .is-ok{background:#16a34a}
+.fl-units__bar .is-out{background:var(--brand)}
+.fl-units__bar .is-fix{background:#d97706}
+.fl-units__text{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.fl-units__text b{color:var(--ink);font-weight:600}
+.fl-state{display:inline-flex!important;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);white-space:nowrap}
+.fl-state::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--line-strong)}
+.fl-state.is-on{color:var(--ink)}
+.fl-state.is-on::before{background:#16a34a}
+
+/* halaman kelola */
+.fl-meta{display:flex;align-items:center;gap:14px}
+.fl-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.fl-main,.fl-side{display:flex;flex-direction:column;gap:16px}
+.fl-side{position:sticky;top:84px}
+.fl-fields{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.fl-fields .fl-span{grid-column:1/-1}
+.fl-fields .field{margin-bottom:14px}
+.fl-actions{display:flex;justify-content:flex-end;margin:4px -20px -18px;padding:12px 20px;border-top:1px solid var(--line);background:#fafbfc;border-radius:0 0 var(--radius) var(--radius)}
+
+.fl-switch{display:inline-flex;align-items:center;gap:10px;min-height:42px;cursor:pointer;font-size:.9rem}
+.fl-switch input{position:absolute;opacity:0;pointer-events:none}
+.fl-switch__track{position:relative;width:36px;height:20px;border-radius:999px;background:var(--line-strong);transition:background .2s}
+.fl-switch__track::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .2s}
+.fl-switch input:checked+.fl-switch__track{background:var(--brand)}
+.fl-switch input:checked+.fl-switch__track::after{transform:translateX(16px)}
+.fl-switch input:focus-visible+.fl-switch__track{outline:3px solid color-mix(in srgb,var(--brand) 40%,transparent);outline-offset:2px}
+
+.fl-sub{width:100%;border-collapse:collapse;font-size:.88rem}
+.fl-sub th{padding:0 10px 8px;font-size:.72rem;font-weight:600;color:var(--muted);text-align:left;border-bottom:1px solid var(--line)}
+.fl-sub th:first-child,.fl-sub td:first-child{padding-left:0}
+.fl-sub th:last-child,.fl-sub td:last-child{padding-right:0}
+.fl-sub td{padding:9px 10px;border-bottom:1px solid #f1f3f6;vertical-align:middle}
+.fl-sub tbody tr:last-child td{border-bottom:1px solid var(--line)}
+.fl-sub tfoot td{padding:12px 0 0;border:0}
+.fl-sub form{display:inline}
+.fl-empty{color:var(--muted);font-size:.86rem;padding:14px 0!important}
+.fl-inline{display:flex!important;align-items:center;gap:8px}
+.fl-money{display:inline-flex;align-items:center;height:34px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.fl-money:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 15%,transparent)}
+.fl-money span{padding:0 4px 0 10px;font-size:.8rem;color:var(--muted)}
+.fl-money input{width:110px;height:100%;padding:0 10px 0 2px;border:0;background:none;font:inherit;font-size:.88rem;font-variant-numeric:tabular-nums;color:var(--ink);outline:none}
+.fl-add{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.fl-add select,.fl-plate-input,.fl-confirm,.fl-select{height:34px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);font:inherit;font-size:.86rem;color:var(--ink)}
+.fl-add select:focus,.fl-plate-input:focus,.fl-confirm:focus,.fl-select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 15%,transparent)}
+.fl-plate-input{width:150px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.fl-add__hint{font-size:.76rem;margin-left:auto}
+.fl-add__hint code{font-size:.74rem;padding:1px 5px;border-radius:4px;background:var(--bg)}
+.fl-select{padding-right:28px}
+.fl-select--tersedia{color:#15803d;font-weight:600}
+.fl-select--perawatan{color:#b45309;font-weight:600}
+.fl-dotlabel{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;color:var(--brand)}
+.fl-dotlabel::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.fl-icon-btn{display:inline-grid;place-items:center;width:30px;height:30px;border:0;border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+.fl-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fl-icon-btn:hover{background:var(--danger-bg);color:var(--danger)}
+.fl-tag{font-size:.74rem;color:var(--muted);padding:2px 8px;border:1px solid var(--line);border-radius:999px}
+
+.fl-photo{aspect-ratio:16/10;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;overflow:hidden;margin-bottom:12px}
+.fl-photo img{width:100%;height:100%;object-fit:contain;padding:6px}
+.fl-photo__empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:100%;color:var(--brand);font-size:.8rem}
+.fl-photo__empty .car-icon{width:40%;opacity:.35}
+.fl-photo__empty span{color:var(--muted)}
+.fl-drop{position:relative;display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px dashed var(--line-strong);border-radius:var(--radius-sm);cursor:pointer;transition:border-color .15s,background .15s}
+.fl-drop:hover{border-color:var(--brand);background:#f8fbfd}
+.fl-drop.has-file{border-style:solid;border-color:var(--brand);background:var(--brand-soft)}
+.fl-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.fl-drop b{font-size:.86rem;font-weight:600;color:var(--brand);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fl-drop span{font-size:.74rem;color:var(--muted)}
+.fl-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.82rem;line-height:1.45}
+.fl-check input{margin-top:2px;accent-color:var(--brand)}
+.fl-photo__actions{display:flex;justify-content:flex-end;margin-top:12px}
+.fl-photo__del{margin-top:-30px}
+.fl-textbtn{border:0;background:none;padding:6px 0;font:500 .82rem var(--font);cursor:pointer;color:var(--ink-2)}
+.fl-textbtn.is-danger{color:var(--danger)}
+.fl-textbtn:hover{text-decoration:underline}
+.fl-danger{border-color:#f3d0d0}
+.fl-danger .dsh-card__head h3{color:var(--danger)}
+.fl-confirm{width:100%;margin-bottom:8px}
+.fl-steps{margin:0 0 10px;padding-left:20px;font-size:.88rem;color:var(--ink-2);line-height:1.9}
+
+@media(max-width:1000px){
+  .fl-layout{grid-template-columns:1fr}
+  .fl-side{position:static}
+}
+@media(max-width:560px){
+  .fl-fields{grid-template-columns:1fr}
+  .fl-add__hint{margin-left:0;width:100%}
+}
+
+/* daftar kendaraan: halaman + "tampilkan semua" */
+.fl-pager{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin-top:14px}
+.fl-pager[hidden]{display:none}
+.fl-pager .pager{margin:0}
+.fl-pager .pager[hidden]{display:none}
+.fl-pager button.pg{font:inherit;font-size:.9rem;cursor:pointer}
+.fl-pager button.pg:hover{background:var(--bg)}
+.fl-pager__info{font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.fl-pager__all{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--ink-2);cursor:pointer}
+.fl-pager__all input{width:16px;height:16px;accent-color:var(--brand)}
+@media(min-width:700px){.fl-pager__info{min-width:140px}.fl-pager__all{min-width:140px;justify-content:flex-end}}
