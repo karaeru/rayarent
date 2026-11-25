@@ -121,6 +121,13 @@ class FleetManagementTest extends TestCase
 
         $this->assertSame('40', Setting::get('dp_percent'));
         $this->assertSame('75000', Setting::get('late_fee_per_hour'));
+
+        $this->actingAs($this->admin)->put(route('admin.pengaturan.simpan'), ['dp_percent' => 40, 'late_fee_per_hour' => 75000, 'batas_bayar_jam' => 99])
+            ->assertSessionHasErrors('batas_bayar_jam');
+
+        $this->actingAs($this->admin)->put(route('admin.pengaturan.simpan'), ['dp_percent' => 40, 'late_fee_per_hour' => 75000, 'batas_bayar_jam' => 3])
+            ->assertSessionHas('ok');
+        $this->assertSame('3', Setting::get('batas_bayar_jam'));
     }
 
     public function test_customers_cannot_open_fleet_or_settings_pages(): void

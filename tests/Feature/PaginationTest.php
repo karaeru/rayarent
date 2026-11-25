@@ -29,9 +29,13 @@ class PaginationTest extends TestCase
             ]);
         }
 
-        $this->actingAs($admin)->get(route('admin.pesanan'))
+        $html = $this->actingAs($admin)->get(route('admin.pesanan'))
             ->assertOk()
             ->assertSee('Berikutnya')
-            ->assertDontSee('<svg', false);
+            ->getContent();
+
+        // hanya bagian navigasi halaman yang diperiksa; ikon SVG di footer (WhatsApp, Instagram) boleh ada
+        $this->assertSame(1, preg_match('/<nav class="pager".*?<\/nav>/s', $html, $pager), 'Navigasi halaman tidak ditemukan.');
+        $this->assertStringNotContainsString('<svg', $pager[0]);
     }
 }
