@@ -72,4 +72,12 @@ class DemoOrderSeederTest extends TestCase
 
         $this->assertSame(25, Order::count());
     }
+
+    public function test_waiting_orders_show_a_deadline_and_are_not_auto_cancelled_right_away(): void
+    {
+        $this->assertSame(0, Order::cancelExpired());
+        $this->assertSame(3, Order::where('status', 'menunggu_konfirmasi')->count());
+        $this->assertFalse(Order::where('created_at', '>', now())->exists(), 'Ada pesanan dengan tanggal pesan di masa depan');
+        $this->assertSame(25, Order::whereNotNull('terms_accepted_at')->count());
+    }
 }

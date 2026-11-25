@@ -11,8 +11,12 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Pesanan contoh untuk demo dashboard dan laporan.
- * Jalankan: php artisan db:seed --class=DemoOrderSeeder
+ * Pesanan contoh untuk demo dashboard, laporan, dan invoice.
+ * Ikut berjalan di: php artisan migrate:fresh --seed
+ * Atau sendiri:     php artisan db:seed --class=DemoOrderSeeder
+ *
+ * Isi: 16 selesai (sebagian kena denda telat / biaya rusak), 3 sedang disewa (1 terlambat),
+ * 2 dikonfirmasi, 3 menunggu (bukti menunggu verifikasi, bukti ditolak, belum bayar), 1 dibatalkan.
  * Tidak berjalan di production dan tidak berjalan bila sudah ada pesanan.
  */
 class DemoOrderSeeder extends Seeder
@@ -34,7 +38,7 @@ class DemoOrderSeeder extends Seeder
         $this->adminId = User::where('role', 'admin')->value('id');
 
         $pelanggan = collect([
-            ['Budi Santoso', 'budi@mail.com', '08123456789'],
+            ['Budi Santoso', 'budi@mail.com', '08123456789'],   // dibuat UserSeeder, password budi123
             ['Siti Rahayu', 'siti@mail.com', '081111111111'],
             ['Andi Wijaya', 'andi@mail.com', '082222222222'],
             ['Dewi Lestari', 'dewi@mail.com', '083333333333'],
@@ -62,10 +66,10 @@ class DemoOrderSeeder extends Seeder
         $this->buat(-2, 8, 'Jazz RS Matic', 0, 1, $pelanggan[3], 'sedang_disewa', 'dp');
         $this->buat(1, 8, 'Fortuner GR', 1, 2, $pelanggan[3], 'dikonfirmasi', 'dp');
         $this->buat(3, 8, 'Alphard', 0, 1, $pelanggan[4], 'dikonfirmasi', 'lunas');
-        $this->buat(2, 9, 'Xenia Matic', 0, 1, $pelanggan[1], 'menunggu_konfirmasi', 'dp', ['menunggu_verifikasi' => true]);
-        $this->buat(5, 7, 'Hiace Commuter', 1, 1, $pelanggan[2], 'menunggu_konfirmasi', 'lunas', ['ditolak' => true]);
-        $this->buat(4, 10, 'Grand Avanza Manual', 0, 1, $pelanggan[0], 'menunggu_konfirmasi', 'dp');
-        $this->buat(6, 8, 'Agya Manual', 0, 1, $pelanggan[4], 'dibatalkan', 'dp');
+        $this->buat(2, 9, 'Xenia Matic', 0, 1, $pelanggan[1], 'menunggu_konfirmasi', 'dp', ['menunggu_verifikasi' => true, 'dibuat_menit_lalu' => 90]);
+        $this->buat(5, 7, 'Hiace Commuter', 1, 1, $pelanggan[2], 'menunggu_konfirmasi', 'lunas', ['ditolak' => true, 'dibuat_menit_lalu' => 50]);
+        $this->buat(4, 10, 'Grand Avanza Manual', 0, 1, $pelanggan[0], 'menunggu_konfirmasi', 'dp', ['dibuat_menit_lalu' => 20]);
+        $this->buat(6, 8, 'Agya Manual', 0, 1, $pelanggan[4], 'dibatalkan', 'dp', ['alasan' => 'Otomatis: tidak ada bukti bayar dalam 2 jam']);
 
         if ($this->dilewati) {
             $this->command->warn('Dilewati (kendaraan/paket/unit tidak ada): ' . implode(', ', array_unique($this->dilewati)));
@@ -104,7 +108,16 @@ class DemoOrderSeeder extends Seeder
             'status' => $status,
         ]);
         $order->code = 'RR-' . str_pad((string) $order->id, 4, '0', STR_PAD_LEFT);
-        $order->created_at = $mulai->copy()->subDays(2);
+        // tanggal pesan tidak boleh di masa depan; pesanan "menunggu" dibuat baru saja
+        // supaya hitung mundur batas bayar terlihat dan tidak langsung batal otomatis
+        $order->created_at = $status === 'menunggu_konfirmasi'
+            ? now()->subMinutes($opsi['dibuat_menit_lalu'] ?? 30)
+            : $mulai->copy()->subDays(2)->min(now()->subHours(6));
+        $order->terms_accepted_at = $order->created_at;
+        $order->terms_version = config('rayarent.sk_versi');
+        if ($status === 'dibatalkan') {
+            $order->cancel_reason = $opsi['alasan'] ?? 'Dibatalkan pelanggan';
+        }
         $order->save();
 
         match ($status) {
