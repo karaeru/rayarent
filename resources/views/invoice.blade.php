@@ -130,7 +130,11 @@
                 <div class="lbl">Pembayaran ke</div>
                 <table class="rek-inv">
                     @foreach (config('rayarent.rekening') as $r)
-                        <tr><td><b>{{ $r['bank'] }}</b></td><td>{{ trim(chunk_split($r['nomor'], 4, ' ')) }}</td><td>a.n. {{ $r['nama'] }}</td></tr>
+                        @php $lg = collect(['svg', 'png', 'webp'])->first(fn ($e) => file_exists(public_path('images/bank/'.strtolower($r['bank']).'.'.$e))); @endphp
+                        <tr>
+                            <td>@if ($lg)<img src="{{ asset('images/bank/'.strtolower($r['bank']).'.'.$lg) }}" alt="{{ $r['bank'] }}" style="height:16px;width:56px;object-fit:contain;object-position:left;vertical-align:middle">@else<b>{{ $r['bank'] }}</b>@endif</td>
+                            <td>{{ trim(chunk_split($r['nomor'], 4, ' ')) }}</td><td>a.n. {{ $r['nama'] }}</td>
+                        </tr>
                     @endforeach
                 </table>
                 Cantumkan kode <b style="color:#111827">{{ $order->code }}</b> di berita transfer.
