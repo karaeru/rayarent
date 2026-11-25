@@ -23,7 +23,7 @@
 
   --radius:12px; --radius-sm:8px;
   --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.08);
-  --font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font:"Plus Jakarta Sans",Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -717,3 +717,113 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 .lp-contact a.lp-contact__wa{background:#fff;color:var(--brand-strong);text-decoration:none}
 .lp-contact a.lp-contact__wa:hover{background:var(--brand-soft);color:var(--brand-strong)}
 .lp-contact a.lp-contact__map{color:#fff;text-decoration:none}
+
+/* ==========================================================================
+   Estetika v2: font, armada ringkas, ikon SVG, ritme, footer, WA, menu HP
+   ========================================================================== */
+/* --- tipografi --- */
+h1,h2,h3{letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,2.4vw,1.9rem)}
+.price,.lp-mini dd,.pl-row__prices,.ar-pkg__price{font-variant-numeric:tabular-nums}
+
+/* --- ikon mobil SVG --- */
+.car-icon{display:block;width:100%;height:auto}
+.media-placeholder{color:var(--brand)}
+.media-placeholder .car-icon{width:58%;max-width:220px;opacity:.55}
+.lp-road__car.car-icon{width:40px;height:auto;bottom:0;color:var(--brand);transform:none}
+
+/* --- ritme antarbagian: pita selebar layar tanpa scroll horizontal --- */
+.lp-section{padding:72px 0 16px}
+.lp-band{position:relative;margin-top:56px;padding:64px 0;background:var(--surface);
+  box-shadow:0 0 0 100vmax var(--surface);clip-path:inset(0 -100vmax)}
+.lp-band--soft{background:#eef9fb;box-shadow:0 0 0 100vmax #eef9fb}
+.lp-band+.lp-section:not(.lp-band){padding-top:72px}
+.lp-band .pl{box-shadow:none}
+.lp-cta{margin-top:72px}
+
+/* --- armada: filter kategori --- */
+.fleet-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.fleet-filter button{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid var(--line-strong);border-radius:999px;
+  background:var(--surface);font:600 .9rem var(--font);color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .15s}
+.fleet-filter button span{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.fleet-filter button:hover{border-color:var(--brand);transform:translateY(-1px)}
+.fleet-filter button.is-active{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.fleet-filter button.is-active span{color:rgba(255,255,255,.8)}
+
+.vcard__media{position:relative}
+.vcard__cat{position:absolute;left:10px;top:10px;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:700;
+  background:rgba(255,255,255,.92);color:var(--ink-2);border:1px solid var(--line)}
+.vcard__variants{display:flex;gap:6px}
+.vcard__variants a{padding:3px 10px;border-radius:var(--radius-sm);background:var(--brand-soft);color:var(--brand);font-size:.8rem;font-weight:700}
+.vcard__variants a:hover{background:var(--brand);color:var(--on-brand);text-decoration:none}
+
+[data-fleet].is-limited:not(.is-filtered) .vcard.is-extra{display:none}
+[data-fleet] .vcard.is-hidden{display:none}
+.vcard.is-pop{animation:fleet-pop .45s cubic-bezier(.2,.7,.2,1) var(--d,0ms) both}
+@keyframes fleet-pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.fleet-more{display:flex;justify-content:center;margin-top:24px}
+.fleet-more[hidden]{display:none}
+
+/* --- footer --- */
+.site-footer{padding:56px 0 24px;background:#0c1c2c;color:#a9b8c6;border-top:0}
+.ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:32px}
+.ft-brand .brand{color:#fff}
+.ft-brand p{margin:12px 0 18px;max-width:32ch}
+.ft-social{display:flex;gap:8px}
+.ft-social a{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;transition:background .2s,transform .2s}
+.ft-social a:hover{background:var(--brand);transform:translateY(-2px)}
+.social-icon{width:18px;height:18px}
+.ft-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ft-col h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:#fff;margin-bottom:6px}
+.ft-col a{color:#a9b8c6;width:fit-content}
+.ft-col a:hover{color:#fff;text-decoration:none}
+.ft-hours{color:#fff;font-weight:600}
+.site-footer .site-footer__copy{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);color:#7d8ea0}
+.site-footer__copy a{color:#7d8ea0}
+.site-footer__copy a:hover{color:#fff}
+@media(max-width:900px){.ft-grid{grid-template-columns:1fr 1fr}.ft-brand{grid-column:1/-1}}
+@media(max-width:480px){.ft-grid{grid-template-columns:1fr}}
+
+/* --- tombol WhatsApp melayang --- */
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:45;display:flex;align-items:center;gap:0;height:56px;padding:0 16px;border-radius:999px;
+  background:#25d366;color:#fff;box-shadow:0 8px 24px rgba(18,140,70,.35);text-decoration:none;
+  animation:wa-in .6s cubic-bezier(.2,.8,.2,1) 1.2s both;transition:gap .3s,bottom .3s cubic-bezier(.2,.7,.2,1),background .2s}
+.wa-float .social-icon{width:26px;height:26px;flex:none}
+.wa-float__label{max-width:0;overflow:hidden;white-space:nowrap;font-weight:700;transition:max-width .35s cubic-bezier(.2,.7,.2,1)}
+.wa-float:hover{gap:10px;background:#1ebe5b;color:#fff;text-decoration:none}
+.wa-float:hover .wa-float__label{max-width:160px}
+.wa-float::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid #25d366;animation:wa-ring 2.4s ease-out 2s 3}
+@keyframes wa-in{from{opacity:0;transform:translateY(24px) scale(.6)}to{opacity:1;transform:none}}
+@keyframes wa-ring{from{transform:scale(1);opacity:.7}to{transform:scale(1.5);opacity:0}}
+body.has-sticky-buy .wa-float{bottom:84px}
+@media(max-width:560px){.wa-float{right:14px;bottom:14px;height:52px;padding:0 13px}body.has-sticky-buy .wa-float{bottom:76px}}
+
+/* --- menu pengunjung di HP --- */
+.guest-nav__auth{display:none}
+.nav-toggle--icon{width:42px;height:42px;padding:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.nav-toggle--icon span{display:block;width:18px;height:2px;border-radius:2px;background:var(--ink);transition:transform .3s,opacity .2s}
+.site-header.is-open .nav-toggle--icon span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.site-header.is-open .nav-toggle--icon span:nth-child(2){opacity:0}
+.site-header.is-open .nav-toggle--icon span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:900px){
+  .site-header .nav-toggle--icon{display:flex;margin-left:8px}
+  .guest-actions{margin-left:auto}
+  .site-header .guest-nav{display:flex;position:absolute;left:0;right:0;top:100%;margin:0;flex-direction:column;gap:2px;padding:12px 16px 20px;
+    background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 16px 32px rgba(16,24,40,.12);
+    opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .3s cubic-bezier(.2,.7,.2,1),visibility 0s .3s}
+  .site-header.is-open .guest-nav{opacity:1;visibility:visible;transform:none;transition:opacity .25s,transform .3s cubic-bezier(.2,.7,.2,1)}
+  .site-header.is-open .site-header__inner:has(.guest-nav){flex-wrap:nowrap;padding-bottom:0}
+  .guest-nav__pill{display:none}
+  .guest-nav>a{padding:14px 8px;font-size:1.05rem;border-bottom:1px solid var(--line);opacity:0;transform:translateX(-10px);transition:opacity .3s,transform .3s}
+  .site-header.is-open .guest-nav>a{opacity:1;transform:none}
+  .site-header.is-open .guest-nav>a:nth-of-type(2){transition-delay:.04s}
+  .site-header.is-open .guest-nav>a:nth-of-type(3){transition-delay:.08s}
+  .site-header.is-open .guest-nav>a:nth-of-type(4){transition-delay:.12s}
+  .guest-nav a.is-active,.guest-nav a.is-spy{color:var(--brand)}
+}
+@media(max-width:560px){
+  .guest-actions{display:none}
+  .site-header .nav-toggle--icon{margin-left:auto}
+  .guest-nav__auth{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+}
+@media(prefers-reduced-motion:reduce){.wa-float,.wa-float::before,.vcard.is-pop{animation:none}.site-header .guest-nav,.guest-nav>a{transition:none}}

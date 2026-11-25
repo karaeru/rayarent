@@ -49,6 +49,38 @@ class Vehicle extends Model
         return mb_strtolower(trim(preg_replace('/\s+/', ' ', preg_replace('/\b(matic|manual)\b/i', '', $name))));
     }
 
+    /** Kategori untuk filter di landing page: [kunci => label]. */
+    public const CATEGORIES = [
+        'city' => 'City car',
+        'mpv' => 'MPV',
+        'suv' => 'SUV',
+        'minibus' => 'Minibus',
+        'premium' => 'Premium',
+    ];
+
+    /** Kategori ditebak dari nama, lalu kapasitas. Tambahkan nama model baru di sini bila perlu. */
+    public function getCategoryAttribute(): string
+    {
+        $n = mb_strtolower($this->name);
+        $is = fn (string $pola) => (bool) preg_match('/\b(' . $pola . ')\b/', $n);
+
+        return match (true) {
+            $is('alphard|vellfire|camry|lexus|mercedes|bmw|land cruiser') => 'premium',
+            $this->capacity >= 10 || $is('elf|hiace|bus|minibus|travello') => 'minibus',
+            $is('fortuner|pajero|terios|rush|cr-?v|hr-?v|raize|rocky|almaz|xpander cross|everest') => 'suv',
+            $is('avanza|xenia|innova|zenix|ertiga|xpander|mobilio|livina|veloz|calya|sigra|stargazer|voxy|serena|luxio|gran max') => 'mpv',
+            $is('agya|ayla|brio|yaris|jazz|sirion|ignis|wr-?v|swift|march|picanto|city') => 'city',
+            $this->capacity <= 5 => 'city',
+            default => 'mpv',
+        };
+    }
+
+    /** Jenis siluet untuk ikon pengganti foto. */
+    public function getIconAttribute(): string
+    {
+        return ['city' => 'city', 'mpv' => 'mpv', 'suv' => 'suv', 'minibus' => 'van', 'premium' => 'mpv'][$this->category];
+    }
+
     /** Potongan alamat publik dari nama, mis. "Innova Zenix" -> "innova-zenix". */
     public function getSlugAttribute(): string
     {

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0077b6">
     <title>@yield('title', config('rayarent.nama'))</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     @stack('head')
     <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
 </head>
@@ -44,17 +47,24 @@
         </a>
 
         @guest
-            <nav class="guest-nav" aria-label="Menu utama" data-guest-nav>
+            <nav class="guest-nav" id="menu-tamu" aria-label="Menu utama" data-guest-nav>
                 <span class="guest-nav__pill" aria-hidden="true"></span>
                 <a href="{{ route('home') }}#armada" data-spy="armada">Armada</a>
                 <a href="{{ route('home') }}#harga" data-spy="harga">Harga</a>
                 <a href="{{ route('tentang') }}" @class(['is-active' => request()->routeIs('tentang')])>Tentang</a>
                 <a href="{{ route('kontak') }}" @class(['is-active' => request()->routeIs('kontak')])>Kontak</a>
+                <div class="guest-nav__auth">
+                    <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn">Daftar</a>
+                </div>
             </nav>
             <div class="guest-actions">
                 @unless (request()->routeIs('login'))<a href="{{ route('login') }}" class="btn btn-outline btn-sm">Masuk</a>@endunless
                 @unless (request()->routeIs('register'))<a href="{{ route('register') }}" class="btn btn-sm">Daftar</a>@endunless
             </div>
+            <button type="button" class="nav-toggle nav-toggle--icon" data-nav-toggle aria-expanded="false" aria-controls="menu-tamu" aria-label="Buka menu">
+                <span></span><span></span><span></span>
+            </button>
         @endguest
 
         @if ($user)
@@ -80,44 +90,84 @@
     </div>
 </main>
 
+@php
+    $ig = ltrim((string) config('rayarent.instagram'), '@');
+    $mapsQ = config('rayarent.maps') ?: config('rayarent.alamat');
+    $alamatPendek = trim(preg_replace(['/^[2-9CFGHJMPQRVWX]{4,8}\+[2-9CFGHJMPQRVWX]{2,3},?\s*/i', '/,?\s*Indonesia$/i'], '', (string) config('rayarent.alamat')));
+    $showWa = $wa && ! $user?->isAdmin() && ! request()->routeIs('login', 'register', 'password.*');
+    $waText = html_entity_decode(trim($__env->yieldContent('wa_text'))) ?: 'Halo '.config('rayarent.nama').', saya mau tanya sewa kendaraan.';
+@endphp
 <footer class="site-footer">
     <div class="container">
-        <div class="site-footer__grid">
-            <div>
-                <strong>{{ config('rayarent.nama') }}</strong><br>
-                {{ config('rayarent.tagline') }}
+        <div class="ft-grid">
+            <div class="ft-brand">
+                <a class="brand" href="{{ $home }}">
+                    @if ($logo) <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true"> @else <span class="brand__mark" aria-hidden="true">R</span> @endif
+                    <span>{{ config('rayarent.nama') }}</span>
+                </a>
+                <p>{{ config('rayarent.tagline') }}{{ config('rayarent.kota') ? ' di '.config('rayarent.kota') : '' }}.</p>
+                <div class="ft-social">
+                    @if ($wa) <a href="https://wa.me/{{ $wa }}" rel="noopener" aria-label="WhatsApp"><x-social-icon name="whatsapp" /></a> @endif
+                    @if ($ig) <a href="https://instagram.com/{{ $ig }}" rel="noopener" aria-label="Instagram"><x-social-icon name="instagram" /></a> @endif
+                    @if (config('rayarent.email')) <a href="mailto:{{ config('rayarent.email') }}" aria-label="Email"><x-social-icon name="mail" /></a> @endif
+                    @if ($mapsQ) <a href="https://www.google.com/maps/search/?api=1&query={{ rawurlencode($mapsQ) }}" target="_blank" rel="noopener" aria-label="Google Maps"><x-social-icon name="pin" /></a> @endif
+                </div>
             </div>
-            @if (config('rayarent.whatsapp') || config('rayarent.email'))
-                <div>
-                    <strong>Hubungi kami</strong><br>
-                    @if ($wa) WhatsApp: <a href="https://wa.me/{{ $wa }}" rel="noopener">+{{ $wa }}</a><br> @endif
-                    @if (config('rayarent.email')) Email: <a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a> @endif
-                </div>
-            @endif
-            @if (config('rayarent.alamat') || config('rayarent.jam_operasional'))
-                <div>
-                    @if (config('rayarent.alamat')) <strong>Alamat</strong><br>{{ config('rayarent.alamat') }}<br> @endif
-                    @if (config('rayarent.jam_operasional')) <span class="small">{{ config('rayarent.jam_operasional') }}</span> @endif
-                </div>
-            @endif
+
+            <nav class="ft-col" aria-label="Layanan">
+                <h2>Layanan</h2>
+                @foreach (\App\Models\RentalPackage::SERVICES as $label)
+                    <a href="{{ route('home') }}#harga">{{ $label }}</a>
+                @endforeach
+                <a href="{{ route('home') }}#armada">Semua armada</a>
+            </nav>
+
+            <nav class="ft-col" aria-label="Perusahaan">
+                <h2>{{ config('rayarent.nama') }}</h2>
+                <a href="{{ route('tentang') }}">Tentang kami</a>
+                <a href="{{ route('home') }}#cara-sewa">Cara sewa</a>
+                <a href="{{ route('home') }}#ketentuan">Ketentuan</a>
+                <a href="{{ route('kontak') }}">Kontak &amp; lokasi</a>
+            </nav>
+
+            <div class="ft-col">
+                <h2>Kontak</h2>
+                @if ($wa) <a href="https://wa.me/{{ $wa }}" rel="noopener">+{{ $wa }}</a> @endif
+                @if (config('rayarent.email')) <a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a> @endif
+                @if ($alamatPendek) <span>{{ $alamatPendek }}</span> @endif
+                @if (config('rayarent.jam_operasional')) <span class="ft-hours">{{ config('rayarent.jam_operasional') }}</span> @endif
+            </div>
         </div>
-        <nav class="site-footer__links" aria-label="Tautan footer">
-            <a href="{{ route('home') }}#harga">Harga</a>
-            <a href="{{ route('tentang') }}">Tentang</a>
-            <a href="{{ route('kontak') }}">Kontak &amp; lokasi</a>
-        </nav>
-        <div class="site-footer__copy">© {{ date('Y') }} {{ config('rayarent.nama') }}. Semua hak dilindungi.</div>
+        <div class="site-footer__copy">
+            <span>© {{ date('Y') }} {{ config('rayarent.nama') }}. Semua hak dilindungi.</span>
+            @guest <a href="{{ route('login') }}">Masuk admin / pelanggan</a> @endguest
+        </div>
     </div>
 </footer>
+
+@if ($showWa)
+    <a class="wa-float" href="https://wa.me/{{ $wa }}?text={{ rawurlencode($waText) }}" target="_blank" rel="noopener" aria-label="Chat WhatsApp {{ config('rayarent.nama') }}">
+        <x-social-icon name="whatsapp" />
+        <span class="wa-float__label">Chat WhatsApp</span>
+    </a>
+@endif
 
 <script>
     const siteHeader = document.querySelector('[data-site-header]');
     const navToggle = document.querySelector('[data-nav-toggle]');
 
-    navToggle?.addEventListener('click', () => {
-        const open = siteHeader.classList.toggle('is-open');
-        navToggle.setAttribute('aria-expanded', String(open));
+    const setMenu = (open) => {
+        siteHeader?.classList.toggle('is-open', open);
+        navToggle?.setAttribute('aria-expanded', String(open));
+        navToggle?.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    };
+    navToggle?.addEventListener('click', () => setMenu(!siteHeader.classList.contains('is-open')));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+    document.addEventListener('click', (e) => {
+        if (!siteHeader?.classList.contains('is-open')) return;
+        if (!siteHeader.contains(e.target) || e.target.closest('.guest-nav a')) setMenu(false);
     });
+    addEventListener('resize', () => { if (innerWidth > 900) setMenu(false); });
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
         toggle.addEventListener('click', () => {

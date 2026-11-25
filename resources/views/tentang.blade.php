@@ -44,7 +44,7 @@
             <div><dt>Kapasitas</dt><dd>{{ $kursiMin }}–{{ $kursiMax }}<small>kursi</small></dd></div>
         </dl>
     </div>
-    <div class="lp-road" aria-hidden="true"><span class="lp-road__car">🚐</span></div>
+    <div class="lp-road" aria-hidden="true"><x-car-icon type="van" class="lp-road__car" /></div>
 </section>
 
 <section class="lp-section">

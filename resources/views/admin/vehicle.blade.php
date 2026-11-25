@@ -9,7 +9,7 @@
             @if ($vehicle->photo_url)
                 <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}">
             @else
-                <span class="media-placeholder" style="font-size:5rem">{{ $vehicle->capacity >= 14 ? '🚐' : ($vehicle->capacity <= 4 ? '🚗' : '🚙') }}</span>
+                <span class="media-placeholder" ><x-car-icon :type="$vehicle->icon" /></span>
             @endif
         </div>
 

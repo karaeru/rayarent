@@ -112,40 +112,68 @@
 </section>
 
 {{-- ============ ARMADA ============ --}}
+@php $awal = 8; @endphp
 <section class="lp-section" id="armada">
     <div class="lp-head" data-reveal>
-        <h2>Armada</h2>
-        <p class="muted">Diurutkan dari harga termurah. Jumlah unit tidak termasuk yang sedang perawatan.</p>
+        <div>
+            <h2>Armada</h2>
+            <p class="muted">{{ $models->count() }} model, {{ $totalUnit }} unit siap jalan. Diurutkan dari harga termurah.</p>
+        </div>
     </div>
 
-    @if ($vehicles->isEmpty())
+    @if ($models->isEmpty())
         <div class="card empty"><strong>Daftar armada sedang diperbarui</strong>Silakan hubungi kami untuk info ketersediaan.</div>
     @else
-    <div class="vgrid">
-        @foreach ($vehicles as $v)
-            <article class="vcard" data-reveal data-tilt>
-                <a class="vcard__media" href="{{ route('armada', $v->slug) }}" tabindex="-1" aria-hidden="true">
-                    @if ($v->photo_url)
-                        <img src="{{ $v->photo_url }}" alt="" loading="lazy">
-                    @else
-                        <span class="media-placeholder">{{ $v->capacity >= 14 ? '🚐' : ($v->capacity <= 4 ? '🚗' : '🚙') }}</span>
-                    @endif
-                </a>
-                <div class="vcard__body">
-                    <h3><a class="vcard__title" href="{{ route('armada', $v->slug) }}">{{ $v->name }}</a></h3>
-                    <div class="vcard__chips">
-                        <span class="chip">{{ $v->seat_label }} kursi</span>
-                        @if ($v->transmission) <span class="chip">{{ $v->transmission }}</span> @endif
-                        <span class="chip">{{ $v->units_count }} unit</span>
+    <div data-fleet>
+        @if ($categories->count() > 1)
+            <div class="fleet-filter" role="group" aria-label="Saring kategori" data-reveal>
+                <button type="button" class="is-active" aria-pressed="true" data-filter="semua">Semua <span>{{ $models->count() }}</span></button>
+                @foreach ($categories as $cat)
+                    <button type="button" aria-pressed="false" data-filter="{{ $cat['key'] }}">{{ $cat['label'] }} <span>{{ $cat['count'] }}</span></button>
+                @endforeach
+            </div>
+        @endif
+
+        <div class="vgrid" data-fleet-grid>
+            @foreach ($models as $n => $m)
+                <article @class(['vcard', 'is-extra' => $n >= $awal]) data-cat="{{ $m->category }}" data-reveal data-tilt>
+                    <a class="vcard__media" href="{{ route('armada', $m->main->slug) }}" tabindex="-1" aria-hidden="true">
+                        @if ($m->photo)
+                            <img src="{{ $m->photo }}" alt="" loading="lazy">
+                        @else
+                            <span class="media-placeholder"><x-car-icon :type="$m->icon" /></span>
+                        @endif
+                        <span class="vcard__cat">{{ \App\Models\Vehicle::CATEGORIES[$m->category] }}</span>
+                    </a>
+                    <div class="vcard__body">
+                        <h3><a class="vcard__title" href="{{ route('armada', $m->main->slug) }}">{{ $m->name }}</a></h3>
+                        <div class="vcard__chips">
+                            <span class="chip">{{ $m->seat }} kursi</span>
+                            <span class="chip">{{ $m->units }} unit</span>
+                            @if ($m->variants->isEmpty() && $m->main->transmission) <span class="chip">{{ $m->main->transmission }}</span> @endif
+                        </div>
+                        @if ($m->variants->isNotEmpty())
+                            <div class="vcard__variants">
+                                @foreach ($m->variants as $var)
+                                    <a href="{{ $var['url'] }}">{{ $var['label'] }}</a>
+                                @endforeach
+                            </div>
+                        @endif
+                        <p class="muted small" style="margin:0">{{ $m->services->implode(' · ') }}</p>
+                        <div class="vcard__foot">
+                            <div class="price"><small>Mulai dari</small>{{ $rp($m->min) }}</div>
+                            <a class="btn btn-sm btn-outline" href="{{ route('armada', $m->main->slug) }}">Detail</a>
+                        </div>
                     </div>
-                    <p class="muted small" style="margin:0">{{ $v->packages->pluck('service_label')->unique()->implode(' · ') }}</p>
-                    <div class="vcard__foot">
-                        <div class="price"><small>Mulai dari</small>{{ $rp($v->min_price) }}</div>
-                        <a class="btn btn-sm btn-outline" href="{{ route('armada', $v->slug) }}">Detail</a>
-                    </div>
-                </div>
-            </article>
-        @endforeach
+                </article>
+            @endforeach
+        </div>
+
+        @if ($models->count() > $awal)
+            <div class="fleet-more">
+                <button type="button" class="btn btn-outline" data-fleet-more>Lihat semua {{ $models->count() }} model</button>
+            </div>
+        @endif
     </div>
     @endif
 </section>
@@ -164,7 +192,7 @@
     ])->filter(fn ($t) => $t['rows']->isNotEmpty())->values();
     $tampil = 8;
 @endphp
-<section class="lp-section" id="harga">
+<section class="lp-section lp-band" id="harga">
     <div class="lp-head" data-reveal>
         <h2>Daftar harga</h2>
         <p class="muted">Harga per paket. 3 hari = 3 × paket 24 jam.</p>
@@ -231,7 +259,7 @@
 </section>
 
 {{-- ============ KETENTUAN ============ --}}
-<section class="lp-section lp-terms" id="ketentuan" data-reveal>
+<section class="lp-section lp-terms lp-band lp-band--soft" id="ketentuan" data-reveal>
     <div class="lp-head" data-reveal><h2>Yang perlu diketahui</h2></div>
     <dl>
         <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa. Anda juga bisa langsung bayar lunas.</dd></div>

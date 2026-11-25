@@ -6,11 +6,11 @@
     $layanan = $vehicle->packages->pluck('service_label')->unique()->values();
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
     $waLink = $wa ? 'https://wa.me/'.$wa.'?text='.rawurlencode('Halo '.$nama.', saya mau tanya sewa '.$vehicle->name.'.') : null;
-    $ikon = $vehicle->capacity >= 14 ? '🚐' : ($vehicle->capacity <= 4 ? '🚗' : '🚙');
     $desc = 'Sewa '.$vehicle->name.($kota ? ' di '.$kota : '').' mulai '.$rp($vehicle->min_price).'. '
         .$vehicle->seat_label.' kursi'.($vehicle->transmission ? ', '.$vehicle->transmission : '').'. '
         .$layanan->implode(', ').'. Cek unit kosong dan pesan online.';
 @endphp
+@section('wa_text', 'Halo '.config('rayarent.nama').', saya mau tanya sewa '.$vehicle->name.'.')
 @section('title', 'Sewa '.$vehicle->name.($kota ? ' '.$kota : '').' · '.$nama)
 @push('head')
     <meta name="description" content="{{ $desc }}">
@@ -52,7 +52,7 @@
         @if ($vehicle->photo_url)
             <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1200">
         @else
-            <span class="media-placeholder" aria-hidden="true">{{ $ikon }}</span>
+            <span class="media-placeholder"><x-car-icon :type="$vehicle->icon" /></span>
         @endif
     </div>
 
@@ -126,7 +126,7 @@
                     @if ($v->photo_url)
                         <img src="{{ $v->photo_url }}" alt="" loading="lazy">
                     @else
-                        <span class="media-placeholder">{{ $v->capacity >= 14 ? '🚐' : ($v->capacity <= 4 ? '🚗' : '🚙') }}</span>
+                        <span class="media-placeholder"><x-car-icon :type="$v->icon" /></span>
                     @endif
                 </a>
                 <div class="vcard__body">

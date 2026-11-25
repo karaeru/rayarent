@@ -46,7 +46,36 @@ class HomeController extends Controller
             ->concat($fotoPelanggan)
             ->push(['type' => 'contact', 'label' => 'Kontak']);
 
+        // Armada: Matic & Manual dari model yang sama digabung jadi satu kartu
+        $models = $vehicles->groupBy(fn ($v) => Vehicle::baseName($v->name))
+            ->map(function ($group) {
+                $group = $group->sortBy(fn ($v) => [$v->min_price, $v->transmission]);
+                $utama = $group->first();
+                $nama = trim(preg_replace('/\s+/', ' ', preg_replace('/\b(matic|manual)\b/i', '', $utama->name)));
+
+                return (object) [
+                    'name' => $nama ?: $utama->name,
+                    'main' => $utama,
+                    'photo' => $group->first(fn ($v) => $v->photo)?->photo_url,
+                    'category' => $utama->category,
+                    'icon' => $utama->icon,
+                    'seat' => $utama->seat_label,
+                    'units' => $group->sum('units_count'),
+                    'min' => $group->min(fn ($v) => $v->min_price),
+                    'services' => $group->flatMap->packages->pluck('service_label')->unique()->values(),
+                    'variants' => $group->count() > 1
+                        ? $group->map(fn ($v) => ['label' => $v->transmission ?: $v->name, 'url' => route('armada', $v->slug)])->values()
+                        : collect(),
+                ];
+            })
+            ->sortBy('min')->values();
+        $categories = collect(Vehicle::CATEGORIES)
+            ->map(fn ($label, $key) => ['key' => $key, 'label' => $label, 'count' => $models->where('category', $key)->count()])
+            ->filter(fn ($c) => $c['count'] > 0)->values();
+
         return view('home', [
+            'models' => $models,
+            'categories' => $categories,
             'showcase' => $showcase,
             'vehicles' => $vehicles,
             'services' => RentalPackage::SERVICES,

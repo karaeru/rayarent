@@ -11,7 +11,7 @@
                     @if ($o->unit->vehicle->photo_url)
                         <img src="{{ $o->unit->vehicle->photo_url }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">
                     @else
-                        <span class="media-placeholder" style="font-size:1.8rem">🚗</span>
+                        <span class="media-placeholder" ><x-car-icon :type="$o->unit->vehicle->icon" /></span>
                     @endif
                 </div>
                 <div>

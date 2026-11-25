@@ -37,6 +37,133 @@
         requestAnimationFrame(tick);
     });
 
+    /* ---------- Scroll halus ke bagian halaman + penanda menu yang ikut bergeser ---------- */
+    (() => {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const header = document.querySelector('[data-site-header]');
+        const offset = () => (header?.offsetHeight || 0) + 12;
+        const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);   // pelan-cepat-pelan
+        let anim = null;
+
+        const scrollToEl = (el) => {
+            const from = window.scrollY;
+            const to = Math.max(0, Math.min(
+                el.getBoundingClientRect().top + from - offset(),
+                document.documentElement.scrollHeight - innerHeight
+            ));
+            const dist = to - from;
+            if (reduce || Math.abs(dist) < 2) { window.scrollTo(0, to); return; }
+
+            const dur = Math.min(1100, Math.max(450, Math.abs(dist) * 0.45));
+            const t0 = performance.now();
+            cancelAnimationFrame(anim);
+            document.documentElement.classList.add('is-autoscroll');
+            const step = (now) => {
+                const p = Math.min(1, (now - t0) / dur);
+                window.scrollTo(0, from + dist * ease(p));
+                if (p < 1) { anim = requestAnimationFrame(step); return; }
+                document.documentElement.classList.remove('is-autoscroll');
+                el.classList.remove('is-arrived'); void el.offsetWidth; el.classList.add('is-arrived');
+            };
+            anim = requestAnimationFrame(step);
+        };
+        // pengguna menggulir sendiri: hentikan animasi
+        ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => {
+            cancelAnimationFrame(anim);
+            document.documentElement.classList.remove('is-autoscroll');
+        }, { passive: true }));
+
+        // semua link ke #bagian di halaman yang sama (menu, tombol pembuka, footer)
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest('a[href*="#"]');
+            if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+            const url = new URL(a.href, location.href);
+            if (url.pathname !== location.pathname || !url.hash) return;
+            const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+            if (!target) return;
+            e.preventDefault();
+            history.pushState(null, '', url.hash);
+            header?.classList.remove('is-open');
+            scrollToEl(target);
+        });
+
+        // datang dari halaman lain (mis. /tentang -> /#harga): mulai dari atas lalu meluncur
+        if (location.hash) {
+            const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+            if (target && !reduce) {
+                history.scrollRestoration = 'manual';
+                window.scrollTo(0, 0);
+                addEventListener('load', () => setTimeout(() => scrollToEl(target), 120), { once: true });
+            }
+        }
+
+        // penanda (pill) di menu: bergeser ke menu bagian yang sedang terlihat
+        const nav = document.querySelector('[data-guest-nav]');
+        if (!nav) return;
+        const pill = nav.querySelector('.guest-nav__pill');
+        const links = [...nav.querySelectorAll('a')];
+        const spyLinks = links.filter((a) => a.dataset.spy && document.getElementById(a.dataset.spy));
+        const movePill = (a) => {
+            if (!a) { pill.style.opacity = 0; return; }
+            pill.style.opacity = 1;
+            pill.style.width = a.offsetWidth + 'px';
+            pill.style.transform = `translateX(${a.offsetLeft}px)`;
+        };
+        const fixed = links.find((a) => a.classList.contains('is-active'));
+        let current = fixed || null;
+        const setCurrent = (a) => {
+            if (fixed || a === current) return;
+            current = a;
+            links.forEach((l) => { l.classList.toggle('is-spy', l === a); a === l ? l.setAttribute('aria-current', 'location') : l.removeAttribute('aria-current'); });
+            movePill(a);
+        };
+        nav.addEventListener('pointerover', (e) => { const a = e.target.closest('a'); if (a) movePill(a); });
+        nav.addEventListener('pointerleave', () => movePill(current));
+        addEventListener('resize', () => movePill(current));
+        requestAnimationFrame(() => { pill.style.transition = 'none'; movePill(current); requestAnimationFrame(() => { pill.style.transition = ''; }); });
+
+        if (!fixed && spyLinks.length) {
+            const onScroll = () => {
+                const y = offset() + innerHeight * 0.25;
+                let hit = null;
+                spyLinks.forEach((a) => {
+                    const r = document.getElementById(a.dataset.spy).getBoundingClientRect();
+                    if (r.top <= y && r.bottom > offset()) hit = a;
+                });
+                setCurrent(hit);
+            };
+            addEventListener('scroll', () => requestAnimationFrame(onScroll), { passive: true });
+            onScroll();
+        }
+    })();
+
+    // Armada: filter kategori + "lihat semua"
+    document.querySelectorAll('[data-fleet]').forEach((box) => {
+        box.classList.add('is-limited');
+        const cards = [...box.querySelectorAll('[data-cat]')];
+        const btns = [...box.querySelectorAll('[data-filter]')];
+        const more = box.querySelector('[data-fleet-more]');
+        const apply = (cat) => {
+            btns.forEach((b) => { const on = b.dataset.filter === cat; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
+            box.classList.toggle('is-filtered', cat !== 'semua');
+            cards.forEach((c) => {
+                const show = cat === 'semua' || c.dataset.cat === cat;
+                c.classList.toggle('is-hidden', !show);
+                if (show) { c.classList.remove('is-pop'); void c.offsetWidth; c.classList.add('is-pop', 'is-in'); }
+            });
+            if (more) more.parentElement.hidden = cat !== 'semua' || !box.classList.contains('is-limited');
+        };
+        btns.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter)));
+        more?.addEventListener('click', () => {
+            box.classList.remove('is-limited');
+            cards.filter((c) => c.classList.contains('is-extra')).forEach((c, i) => {
+                c.style.setProperty('--d', (i % 8) * 50 + 'ms');
+                c.classList.add('is-pop', 'is-in');
+            });
+            more.parentElement.hidden = true;
+        });
+    });
+
     // Daftar harga: tab layanan + tombol "lihat semua"
     document.querySelectorAll('[data-pricetabs]').forEach((box) => {
         box.classList.add('is-tabbed');
@@ -119,7 +246,11 @@
     const sticky = document.querySelector('[data-sticky-buy]');
     const buy = document.querySelector('.ar-buy');
     if (sticky && buy && 'IntersectionObserver' in window) {
-        new IntersectionObserver(([e]) => sticky.classList.toggle('is-on', !e.isIntersecting && e.boundingClientRect.top < 0)).observe(buy);
+        new IntersectionObserver(([e]) => {
+            const on = !e.isIntersecting && e.boundingClientRect.top < 0;
+            sticky.classList.toggle('is-on', on);
+            document.body.classList.toggle('has-sticky-buy', on);
+        }).observe(buy);
     }
 
     if (reduce || !matchMedia('(hover: hover)').matches) return;

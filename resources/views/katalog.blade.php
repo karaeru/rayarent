@@ -38,7 +38,7 @@
                 @if ($v->photo_url)
                     <img src="{{ $v->photo_url }}" alt="" loading="lazy">
                 @else
-                    <span class="media-placeholder">{{ $v->capacity >= 14 ? '🚐' : ($v->capacity <= 4 ? '🚗' : '🚙') }}</span>
+                    <span class="media-placeholder"><x-car-icon :type="$v->icon" /></span>
                 @endif
             </a>
             <div class="vcard__body">
