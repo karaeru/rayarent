@@ -27,8 +27,17 @@ class AdminController extends Controller
         $grafik = collect(range(29, 0))->map(function ($mundur) use ($today, $perHari) {
             $hari = $today->copy()->subDays($mundur);
 
-            return ['label' => $hari->translatedFormat('j M'), 'total' => (int) ($perHari[$hari->toDateString()] ?? 0)];
+            return [
+                'label' => $hari->translatedFormat('j M'),
+                'hari' => $hari->translatedFormat('D, j M'),
+                'akhir_pekan' => $hari->isWeekend(),
+                'total' => (int) ($perHari[$hari->toDateString()] ?? 0),
+            ];
         })->all();
+        // pembanding: 30 hari sebelumnya
+        $total30Lalu = (int) Payment::where('status', 'diterima')
+            ->whereBetween('verified_at', [$today->copy()->subDays(59), $today->copy()->subDays(30)->endOfDay()])
+            ->sum('amount');
 
         $telat = Order::with('user', 'unit.vehicle')
             ->where('status', 'sedang_disewa')->whereNull('returned_at')->where('end_at', '<', now())
@@ -64,8 +73,21 @@ class AdminController extends Controller
         $pembayaranMenunggu = Payment::with('order.user', 'order.unit.vehicle')
             ->where('status', 'menunggu')->latest()->get();
 
+        $bulanLalu = now()->subMonthNoOverflow();
+        $stats['pendapatan_bulan_lalu'] = (int) Payment::where('status', 'diterima')
+            ->whereYear('verified_at', $bulanLalu->year)->whereMonth('verified_at', $bulanLalu->month)
+            ->sum('amount');
+        $stats['menunggu_konfirmasi_lunas'] = Order::where('status', 'menunggu_konfirmasi')
+            ->whereHas('payments', fn ($p) => $p->where('status', 'diterima'))->count();
+
+        // kendaraan yang dijadwalkan kembali hari ini (belum lewat)
+        $kembaliHariIni = Order::with('user', 'unit.vehicle')
+            ->where('status', 'sedang_disewa')->whereNull('returned_at')
+            ->whereBetween('end_at', [now(), now()->endOfDay()])
+            ->orderBy('end_at')->get();
+
         return view('admin.dashboard', compact(
-            'stats', 'grafik', 'telat', 'statusPesanan', 'statusUnit', 'terlaris', 'serahTerima', 'pembayaranMenunggu'
+            'stats', 'grafik', 'telat', 'statusPesanan', 'statusUnit', 'terlaris', 'serahTerima', 'pembayaranMenunggu', 'kembaliHariIni', 'total30Lalu'
         ));
     }
 
