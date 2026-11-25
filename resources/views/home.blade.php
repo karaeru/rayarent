@@ -106,31 +106,60 @@
 </section>
 
 {{-- ============ HARGA ============ --}}
+@php
+    // satu tab per layanan; di tiap tab, satu baris per kendaraan dengan paket yang ada saja
+    $tabs = collect($services)->map(fn ($label, $key) => [
+        'key' => $key,
+        'label' => $label,
+        'rows' => $vehicles
+            ->map(fn ($v) => ['v' => $v, 'pkgs' => $v->packages->where('service', $key)->sortBy('duration_hours')])
+            ->filter(fn ($r) => $r['pkgs']->isNotEmpty())
+            ->sortBy(fn ($r) => $r['pkgs']->min('price'))
+            ->values(),
+    ])->filter(fn ($t) => $t['rows']->isNotEmpty())->values();
+    $tampil = 8;
+@endphp
 <section class="lp-section" id="harga">
     <div class="lp-head" data-reveal>
         <h2>Daftar harga</h2>
-        <p class="muted">Harga per paket. Sewa lebih lama dihitung kelipatan paket, misalnya 3 hari = 3 × paket 24 jam.</p>
+        <p class="muted">Harga per paket. 3 hari = 3 × paket 24 jam.</p>
     </div>
 
-    <div class="lp-pricelist">
-        @foreach ($vehicles->sortBy('capacity') as $v)
-            <div class="lp-pricerow" data-reveal>
-                <div class="lp-pricerow__name">
-                    <a href="{{ route('armada', $v->slug) }}"><strong>{{ $v->name }}</strong></a>
-                    <span class="muted small">{{ $v->seat_label }} kursi{{ $v->transmission ? ' · '.$v->transmission : '' }}</span>
-                </div>
-                <ul class="lp-pricerow__pkgs">
-                    @foreach ($v->packages->sortBy('price') as $p)
-                        <li>
-                            <span>{{ $p->service_label }} · {{ $p->duration_hours }} jam</span>
-                            <b>{{ $rp($p->price) }}</b>
+    <div class="pl" data-pricetabs data-reveal>
+        @if ($tabs->count() > 1)
+            <div class="pl-tabs" role="tablist" aria-label="Jenis layanan">
+                @foreach ($tabs as $i => $t)
+                    <button type="button" role="tab" id="tab-{{ $t['key'] }}" aria-controls="pane-{{ $t['key'] }}"
+                            aria-selected="{{ $i === 0 ? 'true' : 'false' }}" data-tab="{{ $t['key'] }}">
+                        {{ $t['label'] }} <span>{{ $t['rows']->count() }}</span>
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
+        @foreach ($tabs as $i => $t)
+            <div class="pl-pane" role="tabpanel" id="pane-{{ $t['key'] }}" aria-labelledby="tab-{{ $t['key'] }}" data-pane="{{ $t['key'] }}" @if ($i) hidden @endif>
+                <h3 class="pl-pane__title">{{ $t['label'] }}</h3>
+                <ol class="pl-list">
+                    @foreach ($t['rows'] as $n => $r)
+                        <li @class(['pl-row', 'is-extra' => $n >= $tampil])>
+                            <a class="pl-row__name" href="{{ route('armada', $r['v']->slug) }}">{{ $r['v']->name }}</a>
+                            <span class="pl-row__seat">{{ $r['v']->seat_label }} kursi</span>
+                            <span class="pl-row__prices">
+                                @foreach ($r['pkgs'] as $p)
+                                    <span><small>{{ $p->duration_hours }} jam</small> {{ $rp($p->price) }}</span>
+                                @endforeach
+                            </span>
                         </li>
                     @endforeach
-                </ul>
+                </ol>
+                @if ($t['rows']->count() > $tampil)
+                    <button type="button" class="pl-more" data-more>Lihat semua {{ $t['rows']->count() }} kendaraan</button>
+                @endif
             </div>
         @endforeach
     </div>
-    <p class="small muted mt-1">Paket driver belum termasuk BBM, tol, parkir, dan makan driver kecuali tertulis "Driver + BBM". Tol dan parkir tetap ditanggung penyewa.</p>
+    <p class="small muted mt-1">Paket driver belum termasuk BBM, tol, parkir, dan makan driver kecuali tertulis "Driver + BBM".</p>
 </section>
 
 {{-- ============ CARA SEWA ============ --}}

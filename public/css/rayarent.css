@@ -293,20 +293,6 @@ a.pg:hover{background:var(--bg);text-decoration:none}
   .lp-cta{padding:24px}
 }
 
-/* ---------- Daftar harga (per kendaraan) ---------- */
-.lp-pricelist{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.lp-pricerow{display:grid;grid-template-columns:240px 1fr;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);transition:background .2s}
-.lp-pricerow:last-child{border-bottom:0}
-.lp-pricerow:hover{background:var(--brand-soft)}
-.lp-pricerow__name{display:flex;flex-direction:column;line-height:1.3}
-.lp-pricerow__pkgs{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.lp-pricerow__pkgs li{display:flex;flex-direction:column;min-width:150px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);transition:border-color .2s,transform .2s}
-.lp-pricerow:hover .lp-pricerow__pkgs li{border-color:var(--line-strong)}
-.lp-pricerow__pkgs li:hover{transform:translateY(-2px);border-color:var(--brand)}
-.lp-pricerow__pkgs span{font-size:.78rem;color:var(--muted)}
-.lp-pricerow__pkgs b{font-variant-numeric:tabular-nums}
-@media(max-width:700px){.lp-pricerow{grid-template-columns:1fr;gap:10px;padding:14px 16px}.lp-pricerow__pkgs li{flex:1 1 140px}}
-
 /* ---------- Animasi ---------- */
 /* judul pembuka: baris naik satu per satu */
 .lp-hero__text>*{animation:lp-rise .8s cubic-bezier(.2,.7,.2,1) both}
@@ -336,8 +322,6 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 /* muncul saat discroll (hanya bila JS aktif, jadi tanpa JS semua tetap terlihat) */
 .lp-js [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
 .lp-js [data-reveal].is-in{opacity:1;transform:none}
-.lp-js .lp-pricerow[data-reveal]{transform:translateX(-16px)}
-.lp-js .lp-pricerow[data-reveal].is-in{transform:none}
 
 /* kartu armada: setelah muncul, gerak miring dikendalikan JS */
 .vcard[data-tilt].is-in{transition:transform .25s ease-out,box-shadow .2s;will-change:transform}
@@ -531,3 +515,46 @@ a.pg:hover{background:var(--bg);text-decoration:none}
 .lp-stage__dots .is-active span::after{background:var(--brand-gradient)}
 .lp-stage__blob{background:radial-gradient(120% 120% at 30% 20%,#e6fbfa,#cdeefa 60%,#d6e4fb)}
 .lp-eyebrow{background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+
+/* ==========================================================================
+   Daftar harga ringkas: tab per layanan, satu baris per kendaraan
+   ========================================================================== */
+.pl{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.pl-tabs{display:none;gap:4px;padding:6px;border-bottom:1px solid var(--line);background:var(--bg);overflow-x:auto}
+.pl.is-tabbed .pl-tabs{display:flex}
+.pl-tabs button{flex:none;display:flex;align-items:center;gap:8px;padding:8px 14px;border:0;border-radius:var(--radius-sm);background:none;
+  font:600 .9rem var(--font);color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}
+.pl-tabs button span{font-size:.75rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.pl-tabs button:hover{background:var(--surface)}
+.pl-tabs button[aria-selected="true"]{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.pl-tabs button[aria-selected="true"] span{color:var(--brand)}
+
+.pl-pane__title{padding:14px 20px 0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pl.is-tabbed .pl-pane__title{display:none}
+.pl-list{list-style:none;margin:0;padding:4px 0}
+.pl-row{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:baseline;gap:16px;padding:10px 20px;transition:background .15s}
+.pl-row+.pl-row{border-top:1px dashed var(--line)}
+.pl-row:hover{background:var(--brand-soft)}
+.pl-row__name{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-row__name:hover{color:var(--brand);text-decoration:none}
+.pl-row__seat{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.pl-row__prices{display:flex;gap:20px;justify-content:flex-end;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pl-row__prices span{min-width:128px;text-align:right}
+.pl-row__prices small{font-weight:500;color:var(--muted);margin-right:4px}
+
+/* sisanya disembunyikan sampai "Lihat semua" (hanya bila JS aktif) */
+.pl.is-tabbed .pl-row.is-extra{display:none}
+.pl.is-tabbed .pl-pane.is-open .pl-row.is-extra{display:grid;animation:lp-rise .4s ease both}
+.pl-more{display:block;width:100%;padding:12px;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;
+  font:600 .9rem var(--font);color:var(--brand)}
+.pl-more:hover{background:var(--bg)}
+.pl:not(.is-tabbed) .pl-more{display:none}
+.pl-pane:not([hidden]) .pl-list{animation:lp-rise .35s ease both}
+
+@media(max-width:640px){
+  .pl-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name seat" "prices prices";gap:2px 12px;padding:10px 16px}
+  .pl-row__name{grid-area:name}
+  .pl-row__seat{grid-area:seat}
+  .pl-row__prices{grid-area:prices;justify-content:flex-start;gap:16px}
+  .pl-row__prices span{min-width:0;text-align:left}
+}

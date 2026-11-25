@@ -37,6 +37,35 @@
         requestAnimationFrame(tick);
     });
 
+    // Daftar harga: tab layanan + tombol "lihat semua"
+    document.querySelectorAll('[data-pricetabs]').forEach((box) => {
+        box.classList.add('is-tabbed');
+        const tabs = [...box.querySelectorAll('[data-tab]')];
+        const panes = [...box.querySelectorAll('[data-pane]')];
+        const pick = (key, focus) => {
+            tabs.forEach((t) => {
+                const on = t.dataset.tab === key;
+                t.setAttribute('aria-selected', on ? 'true' : 'false');
+                t.tabIndex = on ? 0 : -1;
+                if (on && focus) t.focus();
+            });
+            panes.forEach((p) => { p.hidden = p.dataset.pane !== key; });
+        };
+        tabs.forEach((t, i) => {
+            t.addEventListener('click', () => pick(t.dataset.tab));
+            t.addEventListener('keydown', (e) => {
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+                pick(next.dataset.tab, true);
+            });
+        });
+        if (tabs.length) pick(tabs[0].dataset.tab);
+        box.querySelectorAll('[data-more]').forEach((btn) => btn.addEventListener('click', () => {
+            btn.closest('[data-pane]').classList.add('is-open');
+            btn.remove();
+        }));
+    });
+
     // Panggung foto di pembuka: ganti otomatis, berhenti saat disentuh kursor / tab tidak terlihat
     const stage = document.querySelector('[data-stage]');
     const slides = stage ? [...stage.querySelectorAll('[data-slide]')] : [];
