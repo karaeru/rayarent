@@ -3,6 +3,7 @@
     $nama = config('rayarent.nama');
     $kota = config('rayarent.kota');
     $sejak = config('rayarent.tahun_berdiri');
+    $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
 @endphp
 @section('title', 'Tentang · '.$nama)
 @push('head')
@@ -25,12 +26,24 @@
             Setiap unit tercatat di sistem, jadi saat Anda memesan, yang tampil memang unit yang benar-benar kosong di jam itu.
         </p>
     </div>
-    <dl class="lp-facts" data-reveal>
-        @if ($sejak) <div><dt>Beroperasi sejak</dt><dd>{{ $sejak }}</dd></div> @endif
-        <div><dt>Jenis kendaraan</dt><dd><span data-count="{{ $jenis }}">{{ $jenis }}</span></dd></div>
-        <div><dt>Total unit</dt><dd><span data-count="{{ $totalUnit }}">{{ $totalUnit }}</span></dd></div>
-        <div><dt>Kapasitas</dt><dd>{{ $kursiMin }}–{{ $kursiMax }}<small>kursi</small></dd></div>
-    </dl>
+    <div class="tt-side">
+        <div class="tt-logo" data-reveal aria-hidden="true">
+            <span class="tt-logo__blob"></span>
+            <span class="tt-logo__ring"></span>
+            <span class="tt-logo__ring"></span>
+            @if ($logo)
+                <img src="{{ asset('images/logo.'.$logo) }}" alt="">
+            @else
+                <span class="tt-logo__mark">R</span>
+            @endif
+        </div>
+        <dl class="lp-facts tt-facts" data-reveal>
+            @if ($sejak) <div><dt>Beroperasi sejak</dt><dd>{{ $sejak }}</dd></div> @endif
+            <div><dt>Jenis kendaraan</dt><dd><span data-count="{{ $jenis }}">{{ $jenis }}</span></dd></div>
+            <div><dt>Total unit</dt><dd><span data-count="{{ $totalUnit }}">{{ $totalUnit }}</span></dd></div>
+            <div><dt>Kapasitas</dt><dd>{{ $kursiMin }}–{{ $kursiMax }}<small>kursi</small></dd></div>
+        </dl>
+    </div>
     <div class="lp-road" aria-hidden="true"><span class="lp-road__car">🚐</span></div>
 </section>
 

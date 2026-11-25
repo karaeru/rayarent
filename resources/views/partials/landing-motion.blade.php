@@ -72,6 +72,13 @@
     if (slides.length > 1) {
         const dots = [...stage.querySelectorAll('[data-dot]')];
         let cur = 0, timer = null;
+        // slide kontak tampil lebih lama supaya sempat dibaca
+        const dur = (i) => slides[i].classList.contains('lp-slide--contact') ? 7000 : 4500;
+        const restartBar = () => {
+            const d = dots[cur]; if (!d) return;
+            d.style.setProperty('--dur', dur(cur) + 'ms');
+            d.classList.remove('is-active'); void d.offsetWidth; d.classList.add('is-active');
+        };
         const show = (n) => {
             const prev = cur;
             cur = (n + slides.length) % slides.length;
@@ -79,12 +86,19 @@
             slides[prev].classList.remove('is-active');
             slides[prev].classList.add('is-leaving');
             setTimeout(() => slides[prev].classList.remove('is-leaving'), 900);
-            slides.forEach((s, i) => { s.setAttribute('aria-hidden', i === cur ? 'false' : 'true'); s.tabIndex = i === cur ? 0 : -1; });
+            slides.forEach((s, i) => { s.inert = i !== cur; });
             slides[cur].classList.add('is-active');
-            dots.forEach((d, i) => d.classList.toggle('is-active', i === cur));
+            dots.forEach((d, i) => { d.classList.toggle('is-active', i === cur); i === cur ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'); });
+            restartBar();
         };
-        const play = () => { if (!reduce) { clearInterval(timer); timer = setInterval(() => show(cur + 1), 4200); stage.classList.add('is-playing'); } };
-        const stop = () => { clearInterval(timer); stage.classList.remove('is-playing'); };
+        const play = () => {
+            if (reduce) return;
+            clearTimeout(timer);
+            stage.classList.add('is-playing');
+            restartBar();
+            timer = setTimeout(() => { show(cur + 1); play(); }, dur(cur));
+        };
+        const stop = () => { clearTimeout(timer); stage.classList.remove('is-playing'); };
         dots.forEach((d, i) => d.addEventListener('click', () => { show(i); play(); }));
         stage.addEventListener('pointerenter', stop);
         stage.addEventListener('pointerleave', play);

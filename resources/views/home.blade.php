@@ -36,33 +36,73 @@
         </dl>
     </div>
 
-    <div class="lp-stage" data-stage aria-roledescription="carousel" aria-label="Foto armada">
+    <div class="lp-stagewrap" data-stage aria-roledescription="carousel" aria-label="Tentang {{ config('rayarent.nama') }}">
+    <div class="lp-stage">
         <div class="lp-stage__blob" aria-hidden="true"></div>
-        @forelse ($showcase as $i => $s)
-            <a href="{{ $s['url'] }}" @class(['lp-slide', 'is-cover' => $s['cover'], 'is-active' => $i === 0]) data-slide
-               aria-hidden="{{ $i === 0 ? 'false' : 'true' }}" @if ($i) tabindex="-1" @endif>
-                <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" @if ($i) loading="lazy" @endif>
-                <span class="lp-slide__cap">
-                    <b>{{ $s['title'] }}</b>
-                    <span>{{ $s['sub'] }}</span>
-                </span>
-            </a>
-        @empty
-            <div class="lp-slide is-active lp-slide--empty">
-                <span aria-hidden="true">🚙</span>
-                <span class="small muted">Foto armada belum diunggah</span>
-            </div>
-        @endforelse
+        @foreach ($showcase as $i => $s)
+            <div @class(['lp-slide', 'lp-slide--'.$s['type'], 'is-active' => $i === 0]) data-slide
+                 role="group" aria-roledescription="slide" aria-label="{{ $i + 1 }} dari {{ $showcase->count() }}: {{ $s['label'] }}"
+                 @if ($i) inert @endif>
 
-        @if ($showcase->count() > 1)
-            <div class="lp-stage__dots" role="tablist">
-                @foreach ($showcase as $i => $s)
-                    <button type="button" role="tab" data-dot="{{ $i }}" aria-label="Foto {{ $i + 1 }}: {{ $s['title'] }}" @class(['is-active' => $i === 0])>
-                        <span></span>
-                    </button>
-                @endforeach
+                @switch($s['type'])
+                    @case('logo')
+                        <div class="tt-logo lp-slide__logo" aria-hidden="true">
+                            <span class="tt-logo__ring"></span><span class="tt-logo__ring"></span>
+                            @if ($s['src']) <img src="{{ $s['src'] }}" alt=""> @else <span class="tt-logo__mark">R</span> @endif
+                        </div>
+                        <div class="lp-slide__brand">
+                            <b>{{ config('rayarent.nama') }}</b>
+                            <span>{{ config('rayarent.tagline') }}</span>
+                        </div>
+                        @break
+
+                    @case('photo')
+                        <img class="lp-slide__photo" src="{{ $s['src'] }}" alt="{{ $s['title'] }}" loading="lazy">
+                        <div class="lp-slide__overlay">
+                            <span class="lp-slide__tag">Pelanggan kami</span>
+                            <b>{{ $s['title'] }}</b>
+                        </div>
+                        @break
+
+                    @case('car')
+                        <a class="lp-slide__car" href="{{ $s['url'] }}" tabindex="-1">
+                            <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" loading="lazy">
+                        </a>
+                        <a class="lp-slide__cap" href="{{ $s['url'] }}">
+                            <b>{{ $s['title'] }}</b>
+                            <span>{{ $s['sub'] }}</span>
+                        </a>
+                        @break
+
+                    @case('contact')
+                        <div class="lp-contact">
+                            <span class="lp-slide__tag">Hubungi kami</span>
+                            <h3>Siap jalan? Tanya dulu juga boleh.</h3>
+                            <ul>
+                                @if ($wa) <li><span>WhatsApp</span><a href="{{ $waLink }}" rel="noopener">+{{ $wa }}</a></li> @endif
+                                @if (config('rayarent.alamat')) <li><span>Alamat</span>{{ config('rayarent.alamat') }}</li> @endif
+                                @if (config('rayarent.jam_operasional')) <li><span>Jam buka</span>{{ config('rayarent.jam_operasional') }}</li> @endif
+                                @if (config('rayarent.instagram')) <li><span>Instagram</span><a href="https://instagram.com/{{ ltrim(config('rayarent.instagram'), '@') }}" rel="noopener">{{ '@'.ltrim(config('rayarent.instagram'), '@') }}</a></li> @endif
+                                @if (config('rayarent.email')) <li><span>Email</span><a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a></li> @endif
+                            </ul>
+                            <div class="lp-contact__actions">
+                                @if ($waLink) <a class="btn lp-cta__btn" href="{{ $waLink }}" rel="noopener">Chat WhatsApp</a> @endif
+                                <a class="btn lp-cta__ghost" href="{{ route('kontak') }}">Lokasi &amp; peta</a>
+                            </div>
+                        </div>
+                        @break
+                @endswitch
             </div>
-        @endif
+        @endforeach
+    </div>
+
+    <div class="lp-stage__dots" role="group" aria-label="Pilih slide">
+        @foreach ($showcase as $i => $s)
+            <button type="button" data-dot="{{ $i }}" aria-label="Slide {{ $i + 1 }}: {{ $s['label'] }}" @class(['is-active' => $i === 0]) @if ($i === 0) aria-current="true" @endif>
+                <span></span>
+            </button>
+        @endforeach
+    </div>
     </div>
 </section>
 
