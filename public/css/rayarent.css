@@ -872,3 +872,8 @@ body.has-sticky-buy .wa-float{bottom:84px}
 .agree .check{display:flex;gap:10px;align-items:flex-start;margin:0;line-height:1.5;font-size:.92rem}
 .agree input{flex:none;width:18px;height:18px;margin-top:2px;accent-color:var(--brand)}
 .agree a{font-weight:600}
+
+/* menu Syarat & Ketentuan: animasi menu HP untuk link ke-5, dan jarak menu desktop sedikit dirapatkan */
+@media(max-width:900px){.site-header.is-open .guest-nav>a:nth-of-type(5){transition-delay:.16s}}
+@media(min-width:901px) and (max-width:1100px){.guest-nav a{padding:8px 9px;font-size:.9rem}}
+.guest-nav a,.nav a{white-space:nowrap}

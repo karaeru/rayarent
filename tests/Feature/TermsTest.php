@@ -60,4 +60,12 @@ class TermsTest extends TestCase
         $this->assertSame('2026-11-25', $order->terms_version);
         $this->assertNotNull($order->terms_accepted_at);
     }
+
+    public function test_terms_link_appears_in_guest_and_customer_menus(): void
+    {
+        $this->get('/')->assertOk()->assertSee(route('syarat'), false);
+
+        $customer = User::factory()->create(['role' => 'pelanggan']);
+        $this->actingAs($customer)->get('/syarat-ketentuan')->assertOk()->assertSee('aria-current="page"', false);
+    }
 }

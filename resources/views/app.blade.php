@@ -29,6 +29,7 @@
         $menu = [
             ['Katalog', route('pelanggan.katalog'), ['pelanggan.katalog', 'pelanggan.kendaraan', 'pelanggan.pesan', 'pelanggan.pesan.*', 'pelanggan.ketersediaan']],
             ['Pesanan saya', route('pelanggan.pesanan'), ['pelanggan.pesanan', 'pelanggan.pesanan.*']],
+            ['Syarat & Ketentuan', route('syarat'), ['syarat']],
         ];
     }
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
@@ -53,6 +54,7 @@
                 <a href="{{ route('home') }}#harga" data-spy="harga">Harga</a>
                 <a href="{{ route('tentang') }}" @class(['is-active' => request()->routeIs('tentang')])>Tentang</a>
                 <a href="{{ route('kontak') }}" @class(['is-active' => request()->routeIs('kontak')])>Kontak</a>
+                <a href="{{ route('syarat') }}" @class(['is-active' => request()->routeIs('syarat')])>Syarat &amp; Ketentuan</a>
                 <div class="guest-nav__auth">
                     <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                     <a href="{{ route('register') }}" class="btn">Daftar</a>
