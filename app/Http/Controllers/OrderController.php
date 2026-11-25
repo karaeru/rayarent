@@ -23,7 +23,9 @@ class OrderController extends Controller
         // pelanggan hanya boleh melihat pesanannya sendiri
         abort_unless($order->user_id === $request->user()->id, 404);
 
-        $order->load('unit.vehicle', 'package', 'payments');
+        // saat hitung mundur habis halaman dimuat ulang; batalkan yang kedaluwarsa supaya statusnya langsung benar
+        rescue(fn () => Order::cancelExpired(), 0);
+        $order->refresh()->load('unit.vehicle', 'package', 'payments');
 
         return view('show', compact('order'));
     }

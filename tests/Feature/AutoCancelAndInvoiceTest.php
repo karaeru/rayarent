@@ -74,4 +74,19 @@ class AutoCancelAndInvoiceTest extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'admin']))->get(route('invoice', $o))->assertOk();
         $this->actingAs(User::factory()->create(['role' => 'pelanggan']))->get(route('invoice', $o))->assertNotFound();
     }
+
+    public function test_order_page_shows_live_countdown_and_cancels_when_expired(): void
+    {
+        Setting::put('batas_bayar_jam', 2);
+        $user = User::factory()->create(['role' => 'pelanggan']);
+        $o = $this->order($user);
+
+        $this->actingAs($user)->get(route('pelanggan.pesanan.show', $o))
+            ->assertOk()->assertSee('data-deadline', false)->assertSee('detik');
+
+        $o->forceFill(['created_at' => now()->subHours(3)])->save();
+        $this->actingAs($user)->get(route('pelanggan.pesanan.show', $o))
+            ->assertOk()->assertDontSee('data-deadline', false)->assertSee('dibatalkan');
+        $this->assertSame('dibatalkan', $o->fresh()->status);
+    }
 }

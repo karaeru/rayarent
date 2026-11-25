@@ -69,19 +69,60 @@
     </div></div>
     @endif
 
-    @if ($order->pay_deadline)
-        <div class="alert alert-warn" role="status">
-            Unggah bukti transfer sebelum <b>{{ $order->pay_deadline->translatedFormat('d M Y H:i') }}</b>
-            (<span data-countdown="{{ $order->pay_deadline->toIso8601String() }}">{{ $order->pay_deadline->diffForHumans() }}</span>).
-            Lewat dari itu, pesanan batal otomatis.
+@if ($order->pay_deadline)
+        @php
+            $total = max(1, $order->pay_deadline->diffInSeconds($order->created_at, true));
+            $sisa = max(0, (int) now()->diffInSeconds($order->pay_deadline, false));
+            $fmt = sprintf('%02d:%02d:%02d', intdiv($sisa, 3600), intdiv($sisa % 3600, 60), $sisa % 60);
+        @endphp
+        <div class="paytimer" role="timer" aria-live="off"
+             data-deadline="{{ $order->pay_deadline->toIso8601String() }}" data-total="{{ $total }}">
+            <div class="paytimer__clock" aria-hidden="true">
+                <span data-part="h">{{ substr($fmt, 0, 2) }}</span><i>:</i><span data-part="m">{{ substr($fmt, 3, 2) }}</span><i>:</i><span data-part="s">{{ substr($fmt, 6, 2) }}</span>
+                <small><span>jam</span><span>menit</span><span>detik</span></small>
+            </div>
+            <div class="paytimer__text">
+                <b data-timer-title>Selesaikan pembayaran</b>
+                <span>Unggah bukti transfer sebelum <b>{{ $order->pay_deadline->translatedFormat('d M Y, H:i') }}</b>. Lewat dari itu, pesanan batal otomatis dan unitnya dilepas.</span>
+                <span class="sr-only" data-timer-sr>Sisa waktu {{ $fmt }}</span>
+            </div>
+            <div class="paytimer__bar" aria-hidden="true"><span data-timer-bar style="transform:scaleX({{ round($sisa / $total, 4) }})"></span></div>
         </div>
         <script>
             (() => {
-                const el = document.querySelector('[data-countdown]'), end = new Date(el.dataset.countdown);
+                const box = document.querySelector('.paytimer');
+                const end = new Date(box.dataset.deadline).getTime();
+                const total = +box.dataset.total;
+                const parts = { h: box.querySelector('[data-part="h"]'), m: box.querySelector('[data-part="m"]'), s: box.querySelector('[data-part="s"]') };
+                const bar = box.querySelector('[data-timer-bar]');
+                const sr = box.querySelector('[data-timer-sr]');
+                const pad = (n) => String(n).padStart(2, '0');
+                let last = {};
+
+                const set = (key, val) => {
+                    if (last[key] === val) return;
+                    last[key] = val;
+                    const el = parts[key];
+                    el.textContent = val;
+                    el.classList.remove('is-tick'); void el.offsetWidth; el.classList.add('is-tick');   // animasi angka berganti
+                };
+
                 const tick = () => {
-                    const s = Math.max(0, Math.floor((end - new Date()) / 1000));
-                    el.textContent = s ? `sisa ${Math.floor(s / 3600)} jam ${String(Math.floor(s % 3600 / 60)).padStart(2, '0')} menit` : 'waktu habis';
-                    if (s) setTimeout(tick, 15000);
+                    const s = Math.max(0, Math.round((end - Date.now()) / 1000));
+                    set('h', pad(Math.floor(s / 3600)));
+                    set('m', pad(Math.floor(s % 3600 / 60)));
+                    set('s', pad(s % 60));
+                    bar.style.transform = `scaleX(${Math.min(1, s / total)})`;
+                    box.classList.toggle('is-urgent', s > 0 && s <= 900);      // 15 menit terakhir: merah
+                    if (s % 60 === 0) sr.textContent = `Sisa waktu ${pad(Math.floor(s / 3600))} jam ${pad(Math.floor(s % 3600 / 60))} menit`;
+
+                    if (s === 0) {
+                        box.classList.add('is-over');
+                        box.querySelector('[data-timer-title]').textContent = 'Waktu habis, memperbarui status…';
+                        setTimeout(() => location.reload(), 2500);
+                        return;
+                    }
+                    setTimeout(tick, 1000 - (Date.now() % 1000) + 5);   // sinkron dengan pergantian detik
                 };
                 tick();
             })();

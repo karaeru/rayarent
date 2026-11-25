@@ -910,3 +910,36 @@ body.has-sticky-buy .wa-float{bottom:84px}
   .rek__item,.rek__item:has(input){grid-template-columns:auto 1fr;row-gap:8px}
   .rek__copy:not(.rek__copy--inline){grid-column:1/-1;justify-self:stretch}
 }
+
+/* ==========================================================================
+   Hitung mundur batas bayar (halaman pesanan)
+   ========================================================================== */
+.paytimer{position:relative;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:18px;padding:16px 18px 20px;
+  border:1px solid #f5d98b;border-radius:var(--radius);background:var(--warn-bg);color:var(--warn);overflow:hidden;
+  transition:background .4s,border-color .4s,color .4s}
+.paytimer__clock{display:grid;grid-template-columns:auto auto auto auto auto;align-items:baseline;column-gap:2px;
+  font-variant-numeric:tabular-nums;font-weight:800;font-size:2rem;line-height:1;color:var(--ink)}
+.paytimer__clock>span{display:inline-block;min-width:1.25em;padding:6px 4px;border-radius:8px;background:rgba(255,255,255,.75);text-align:center}
+.paytimer__clock i{font-style:normal;color:var(--warn);padding:0 1px;animation:pt-blink 1s steps(1) infinite}
+.paytimer__clock small{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:5px;font-size:.62rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--warn);text-align:center;opacity:.8}
+.paytimer__clock .is-tick{animation:pt-tick .35s cubic-bezier(.2,.7,.2,1)}
+.paytimer__text{display:flex;flex-direction:column;gap:4px;font-size:.92rem;line-height:1.45}
+.paytimer__text>b{color:var(--ink);font-size:1rem}
+.paytimer__bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(146,64,14,.12)}
+.paytimer__bar span{display:block;height:100%;background:currentColor;transform-origin:left;transition:transform 1s linear}
+
+.paytimer.is-urgent{background:var(--danger-bg);border-color:#f3b4b4;color:var(--danger)}
+.paytimer.is-urgent .paytimer__clock>span{animation:pt-pulse 2s ease-in-out infinite}
+.paytimer.is-over{opacity:.75}
+.paytimer.is-over .paytimer__clock i{animation:none}
+
+@keyframes pt-tick{from{transform:translateY(-35%);opacity:.2}to{transform:none;opacity:1}}
+@keyframes pt-blink{50%{opacity:.25}}
+@keyframes pt-pulse{50%{background:#fff}}
+
+@media(max-width:560px){
+  .paytimer{grid-template-columns:1fr;gap:12px;text-align:center}
+  .paytimer__clock{justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.paytimer__clock i,.paytimer__clock .is-tick,.paytimer.is-urgent .paytimer__clock>span{animation:none}.paytimer__bar span{transition:none}}
