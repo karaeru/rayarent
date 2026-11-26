@@ -15,7 +15,7 @@
 {{-- ============ PEMBUKA · blok biru tua, judul besar, kartu kontak terang, kolase 4 foto (tanpa slide) ============ --}}
 @php
 @endphp
-<section class="rr-bleed rr-on-dark -mt-5 grid items-center gap-x-12 gap-y-10 pb-28 pt-8 text-white [--bleed:var(--color-brand-strong)] min-[901px]:-mt-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pb-32 lg:pt-14">
+<section class="rr-bleed rr-on-dark rr-under-header grid items-center gap-x-12 gap-y-10 pb-28 text-white [--bleed:var(--color-brand-strong)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pb-32">
     <div class="min-w-0" data-reveal>
         <h1 class="m-0 max-w-[12ch] text-[clamp(2.4rem,6vw,4.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">Mau ke mana hari ini? Mobilnya sudah siap.</h1>
         <p class="mb-0 mt-6 max-w-[44ch] text-lg leading-relaxed text-white/85">

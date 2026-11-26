@@ -214,3 +214,10 @@
     @media (max-width: 640px) { .rr-collage { height: 26rem; gap: .6rem; } .rr-collage__col { gap: .6rem; } }
     @media (prefers-reduced-motion: reduce) { .rr-collage__col, .rr-collage__ph, .rr-collage__ph img { transition: none; } .rr-collage__ph:hover img { transform: none; } }
 }
+
+/* Blok biru pembuka landing memanjang ke belakang header mengambang (header tetap di atasnya) */
+@layer components {
+    .rr-under-header { margin-top: calc(-1 * (var(--rr-header-h) + 20px)); padding-top: calc(var(--rr-header-h) + 2rem); }
+    @media (min-width: 901px) { .rr-under-header { margin-top: calc(-1 * (var(--rr-header-h) + 28px)); } }
+    @media (min-width: 1024px) { .rr-under-header { padding-top: calc(var(--rr-header-h) + 3.5rem); } }
+}

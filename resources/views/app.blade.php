@@ -46,8 +46,8 @@
 @if (! $twReady)
     <div role="status" style="margin:0;padding:12px 20px;background:#fef3c7;color:#92400e;font:600 15px/1.5 system-ui,sans-serif">Tampilan baru belum dibangun. Jalankan <code>npm install</code> lalu <code>npm run build</code> di folder proyek.</div>
 @endif
-{{-- landing (arah A): header ikut biru tua supaya menyatu dengan blok pembuka --}}
-<header @class(['site-header', 'site-header--dark' => ! $user && request()->routeIs('home')]) data-site-header>
+{{-- header mengambang: pita putih membulat, sama untuk pengunjung, pelanggan, dan admin --}}
+<header class="site-header" data-site-header>
     <div class="rr-container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
             @if ($logo)
