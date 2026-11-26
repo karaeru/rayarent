@@ -95,4 +95,44 @@ class TailwindMigrationTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/class="[^"]*\bdsh-/', $html, 'dasbor masih memakai kelas dsh- lama');
         $this->assertStringNotContainsString('.dsh-plot', File::get(resource_path('css/rayarent/admin.css')));
     }
+
+    public function test_admin_orders_page_is_written_in_tailwind(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $html = $this->actingAs($admin)->get(route('admin.pesanan'))->assertOk()
+            ->assertSee('Pesanan')->assertSee('Cari kode / nama pelanggan')
+            ->getContent();
+
+        $this->assertDoesNotMatchRegularExpression('/class="[^"]*\b(ot-|tbl\b|table-wrap|page-head)/', $html, 'halaman pesanan masih memakai kelas lama');
+    }
+
+    public function test_admin_vehicle_pages_are_written_in_tailwind(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $v = Vehicle::create(['name' => 'Brio Matic', 'seat_label' => '4', 'capacity' => 4, 'transmission' => 'Matic', 'is_active' => true]);
+        $v->units()->create(['plate_number' => 'AB 1000 RA', 'status' => 'tersedia']);
+        $v->packages()->create(['service' => 'lepas_kunci', 'duration_hours' => 24, 'price' => 300000]);
+        $this->actingAs($admin);
+
+        foreach ([route('admin.kendaraan') => 'Tambah kendaraan', route('admin.kendaraan.baru') => 'Langkah berikutnya', route('admin.kendaraan.ubah', $v) => 'Paket harga'] as $url => $text) {
+            $html = $this->get($url)->assertOk()->assertSee($text)->getContent();
+            $this->assertDoesNotMatchRegularExpression('/class="[^"]*\b(fl-|dsh-|ot-|lp-crumbs|tbl\b)/', $html, "{$url}: masih memakai kelas lama");
+        }
+    }
+
+    public function test_admin_report_and_settings_are_written_in_tailwind(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+
+        foreach ([route('admin.laporan') => 'Transaksi', route('admin.pengaturan') => 'Simpan pengaturan'] as $url => $text) {
+            $html = $this->get($url)->assertOk()->assertSee($text)->getContent();
+            $this->assertDoesNotMatchRegularExpression('/class="[^"]*\b(rp-|st-|dsh-|ot-|fl-|tbl\b|table-wrap|page-head)/', $html, "{$url}: masih memakai kelas lama");
+        }
+
+        $admin = File::get(resource_path('css/rayarent/admin.css'));
+        foreach (['.dsh-', '.ot-', '.fl-', '.rp-', '.st-'] as $old) {
+            $this->assertStringNotContainsString($old, $admin, "{$old} masih tersisa di admin.css");
+        }
+    }
 }

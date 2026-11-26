@@ -28,7 +28,8 @@ class ConfirmDialogTest extends TestCase
             $this->assertStringNotContainsString('confirm(', $src, "{$view}: masih memakai confirm() bawaan browser");
 
             foreach ($routes as $route) {
-                preg_match_all('/<form\b[^>]*route\(\''.preg_quote($route, '/').'\'[^>]*>/', $src, $forms);
+                // satu baris <form ...>: atribut berisi "->" dari Blade, jadi jangan berhenti di ">" pertama
+                preg_match_all('/<form\b[^\n]*route\(\''.preg_quote($route, '/').'\'[^\n]*/', $src, $forms);
                 $this->assertNotEmpty($forms[0], "{$view}: form {$route} tidak ditemukan");
                 foreach ($forms[0] as $form) {
                     $this->assertStringContainsString('data-confirm=', $form, "{$view}: {$route} langsung jalan tanpa konfirmasi");

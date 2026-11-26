@@ -1,11 +1,7 @@
-/* RAYARENT · Kerangka halaman: header, menu, footer, tombol WhatsApp
- * Dipindah dari public/css/rayarent.css (v1.2 paket 3). Dimuat di layer "legacy" lewat app.css,
- * jadi kelas Tailwind di halaman selalu menang. */
-
 /* ---------- Layout ---------- */
 .rr-container{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
 .site-main{min-height:60vh;padding:28px 0 56px}
-.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+
 .page-sub{color:var(--muted);margin:4px 0 0}
 /* ---------- Header ---------- */
 .site-header{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -34,7 +30,7 @@
 }
 /* ---------- Footer ---------- */
 .site-footer{background:var(--surface);border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem}
-.site-footer__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+
 .site-footer strong{color:var(--ink)}
 .site-footer__copy{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:.8rem}
 /* ---------- Pagination ---------- */
@@ -53,8 +49,7 @@
    Tentang & Kontak
    ========================================================================== */
 .guest-nav a.is-active{background:var(--brand-soft);color:var(--brand)}
-.site-footer__links{display:flex;gap:20px;flex-wrap:wrap;margin-top:20px}
-.site-footer__links a{color:var(--ink-2);font-weight:600}
+
 /* ==========================================================================
    Menu pengunjung: penanda bergeser + scroll halus
    ========================================================================== */
@@ -145,7 +140,7 @@
 .site-main--wide .rr-container{max-width:1360px}
 /* cetak: hanya isi laporan */
 @media print{
-  .site-header,.site-footer,.wa-float,.rp-filter,.dsh-head .row,.pager,.ot-icon{display:none!important}
+  .site-header,.site-footer,.wa-float,.pager{display:none!important}
   .site-main{padding:0}
 }
 .page-sub a,.hint a,.au-legal a,.agree a{text-decoration:underline;text-underline-offset:2px}

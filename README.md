@@ -50,7 +50,7 @@ menunggu_konfirmasi ──(bayar diverifikasi + dikonfirmasi)──► dikonfirm
 - PHP 8.3, **Laravel 13**
 - MySQL / MariaDB
 - Blade + **Tailwind CSS v4** (dibangun dengan Vite) dan JavaScript murni
-- Semua halaman memakai satu stylesheet hasil build: `resources/css/app.css`. Halaman publik dan pelanggan ditulis dengan kelas Tailwind; halaman admin memakai kelas komponen di `resources/css/rayarent/admin.css`
+- Semua halaman memakai satu stylesheet hasil build: `resources/css/app.css`. Semua halaman (publik, pelanggan, admin) ditulis dengan kelas Tailwind; `resources/css/rayarent/` hanya berisi komponen bersama (tombol, badge, plat nomor, header/footer, rekening, form masuk/daftar)
 - PHPUnit untuk test
 
 ---

@@ -181,9 +181,9 @@
 
 /* Kotak konfirmasi: muncul sedikit membesar dari tengah (menandai lapisan baru di atas halaman) */
 @layer components {
-    .rr-confirm[open] { animation: rr-confirm-in .18s var(--ease-soft); }
-    .rr-confirm[open]::backdrop { animation: rr-fade .18s ease; }
+    .rr-confirm[open], .rr-dialog[open] { animation: rr-confirm-in .18s var(--ease-soft); }
+    .rr-confirm[open]::backdrop, .rr-dialog[open]::backdrop { animation: rr-fade .18s ease; }
     @keyframes rr-confirm-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
     @keyframes rr-fade { from { opacity: 0; } }
-    @media (prefers-reduced-motion: reduce) { .rr-confirm[open], .rr-confirm[open]::backdrop { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .rr-confirm[open], .rr-confirm[open]::backdrop, .rr-dialog[open], .rr-dialog[open]::backdrop { animation: none; } }
 }
