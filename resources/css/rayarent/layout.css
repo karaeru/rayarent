@@ -153,3 +153,23 @@
   .guest-nav__account{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:2px}
   .guest-nav__account .user-box__name{text-align:left}
 }
+
+/* Header biru tua di landing (arah A). Di HP panel menu tetap putih dengan teks gelap. */
+.site-header--dark{background:var(--brand-strong);border-bottom-color:transparent}
+.site-header--dark .brand{color:#fff}
+.site-header--dark .guest-nav>a{color:#d8eef6}
+.site-header--dark .guest-nav a.is-active,.site-header--dark .guest-nav a.is-spy{color:#fff}
+.site-header--dark .guest-nav__pill{background:rgba(255,255,255,.14)}
+.site-header--dark .guest-nav__pill::after{background:#fff}
+.site-header--dark .guest-actions .btn{background:#fff;color:var(--brand-strong);border-color:#fff}
+.site-header--dark .guest-actions .btn:hover{background:var(--brand-soft);color:var(--brand-strong)}
+.site-header--dark .guest-actions .btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.site-header--dark .guest-actions .btn-outline:hover{background:rgba(255,255,255,.12);color:#fff}
+.site-header--dark .nav-toggle--icon{border-color:rgba(255,255,255,.55)}
+.site-header--dark .nav-toggle--icon span{background:#fff}
+.site-header--dark :focus-visible{outline-color:#fff}
+@media(max-width:900px){
+  .site-header--dark .guest-nav>a{color:var(--ink-2)}
+  .site-header--dark .guest-nav a.is-active,.site-header--dark .guest-nav a.is-spy{color:var(--brand-strong)}
+  .site-header--dark .guest-nav :focus-visible{outline-color:var(--brand-strong)}
+}

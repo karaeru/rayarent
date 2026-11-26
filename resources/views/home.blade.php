@@ -8,157 +8,198 @@
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
     $waLink = $wa ? 'https://wa.me/'.$wa.'?text='.rawurlencode('Halo '.config('rayarent.nama').', saya mau tanya sewa kendaraan.') : null;
-    $kategori = \App\Models\Vehicle::CATEGORIES;
+    $mulaiDefault = old('mulai', request('mulai', now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')));
+    $rombongan = collect([1 => '1–4 orang', 5 => '5–7 orang', 8 => '8–14 orang', 15 => '15 orang atau lebih'])->filter(fn ($l, $n) => $n <= max(1, $kursiTerbanyak));
+    $sorotKeys = $sorot ? $sorot->group->pluck('id')->all() : [];
 @endphp
 @section('content')
 
-{{-- ============ PEMBUKA (ENERGY 3: judul besar, satu titik fokus) ============ --}}
-<section class="grid items-center gap-8 pb-14 pt-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12 lg:pt-6">
-    <div class="order-2 lg:order-1" data-reveal>
-        <h1 class="m-0 max-w-[14ch] text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl">Mau ke mana hari ini? Mobilnya sudah siap.</h1>
-        <p class="mb-0 mt-5 max-w-[48ch] text-lg leading-relaxed text-ink-2">
-            Sewa per 12 atau 24 jam, setir sendiri atau pakai driver.
-            Pilih tanggal, lihat unit yang kosong, dan bayar DP {{ $dpPercent }}% saja di awal.
+{{-- ============ PEMBUKA · blok biru tua, judul besar, kartu kontak terang, kolase 4 foto (tanpa slide) ============ --}}
+@php
+@endphp
+<section class="rr-bleed rr-on-dark -mt-5 grid items-center gap-x-12 gap-y-10 pb-28 pt-8 text-white [--bleed:var(--color-brand-strong)] min-[901px]:-mt-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pb-32 lg:pt-14">
+    <div class="min-w-0" data-reveal>
+        <h1 class="m-0 max-w-[12ch] text-[clamp(2.4rem,6vw,4.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">Mau ke mana hari ini? Mobilnya sudah siap.</h1>
+        <p class="mb-0 mt-6 max-w-[44ch] text-lg leading-relaxed text-white/85">
+            {{ $totalUnit }} unit, setir sendiri atau pakai driver, per 12 atau 24 jam.
+            Pilih tanggal dan lihat unit yang masih kosong sebelum membayar DP {{ $dpPercent }}%.
         </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-            <a href="#armada" class="btn btn-lg">Pilih kendaraan</a>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#cek-unit" class="btn btn-lg bg-white text-brand-strong hover:bg-brand-soft hover:text-brand-strong">Cek unit kosong</a>
             @if ($waLink)
-                <a href="{{ $waLink }}" class="btn btn-lg btn-outline" rel="noopener">Tanya via WhatsApp</a>
-            @else
-                <a href="#harga" class="btn btn-lg btn-outline">Lihat harga</a>
+                <a href="{{ $waLink }}" rel="noopener" class="btn btn-lg border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white">Chat WhatsApp</a>
             @endif
         </div>
-        <dl class="m-0 mt-9 flex flex-wrap gap-x-10 gap-y-3 border-t border-line pt-5">
-            <div><dt class="text-sm text-muted">Armada</dt><dd class="m-0 text-xl font-extrabold tabular-nums">{{ $totalUnit }} unit</dd></div>
-            <div><dt class="text-sm text-muted">Mulai dari</dt><dd class="m-0 text-xl font-extrabold tabular-nums">{{ $rp($hargaTermurah) }}</dd></div>
-            <div><dt class="text-sm text-muted">Kapasitas</dt><dd class="m-0 text-xl font-extrabold tabular-nums">s.d. {{ $kursiTerbanyak }} kursi</dd></div>
-        </dl>
     </div>
 
-    {{-- slide: logo · foto pelanggan (izin tertulis) atau foto armada · kontak --}}
-    <div class="order-1 flex flex-col gap-3.5 lg:order-2" data-stage aria-roledescription="carousel" aria-label="Tentang {{ config('rayarent.nama') }}">
-        <div class="relative aspect-[16/11] overflow-hidden rounded-3xl bg-brand-soft lg:aspect-[5/4]">
-            @foreach ($showcase as $i => $s)
-                <div @class(['rr-slide flex flex-col', 'is-active' => $i === 0]) data-slide data-type="{{ $s['type'] }}"
-                     role="group" aria-roledescription="slide" aria-label="{{ $i + 1 }} dari {{ $showcase->count() }}: {{ $s['label'] }}"
-                     @if ($i) inert @endif>
-                    @switch($s['type'])
-                        @case('logo')
-                            <div class="flex h-full flex-col items-center justify-center gap-5 text-center">
-                                <div class="grid aspect-square w-[min(240px,52%)] place-items-center rounded-full bg-white" data-slide-media>
-                                    @if ($s['src'])
-                                        <img src="{{ $s['src'] }}" alt="" width="260" height="260" fetchpriority="high" class="h-auto w-[62%]">
-                                    @else
-                                        <span class="text-6xl font-extrabold text-brand-strong">R</span>
-                                    @endif
-                                </div>
-                                <p class="m-0" data-slide-cap>
-                                    <span class="block text-2xl font-extrabold tracking-wide text-ink">{{ config('rayarent.nama') }}</span>
-                                    <span class="text-ink-2">{{ config('rayarent.tagline') }}</span>
-                                </p>
-                            </div>
-                            @break
+    {{-- kolase 4 foto: dua kolom bertingkat. Kursor di satu foto: foto itu membesar, foto lain mengecil dan sedikit redup --}}
+    <div class="relative min-w-0 py-6 lg:pl-6" data-reveal>
+        {{--
+            Lapisan latar di belakang kolase (gaya flat: bentuk sederhana, warna solid dari palet brand, tanpa gradasi/bayangan, statis).
+            Garis putus-putus = rute perjalanan. Semua bentuk berada utuh di dalam wadah (tidak terpotong).
+        --}}
+        <div class="pointer-events-none absolute -inset-3 overflow-hidden sm:-inset-5 xl:-inset-10" aria-hidden="true">
+            {{-- lingkaran besar biru brand di kanan atas --}}
+            <span class="absolute right-2 top-2 size-44 rounded-full bg-brand sm:size-56"></span>
+            {{-- cincin konsentris di kiri bawah --}}
+            <span class="absolute bottom-2 left-2 size-40 rounded-full border border-white/15"></span>
+            <span class="absolute bottom-10 left-10 size-24 rounded-full border border-white/15"></span>
+            {{-- kotak toska muda tipis di kanan bawah --}}
+            <span class="absolute bottom-8 right-8 size-16 rotate-12 rounded-2xl bg-brand-soft/15"></span>
+            {{-- pola titik di kiri atas --}}
+            <svg class="absolute left-2 top-2 h-28 w-40 text-white/25">
+                <defs><pattern id="rr-dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.6" fill="currentColor"/></pattern></defs>
+                <rect width="100%" height="100%" fill="url(#rr-dots)"/>
+            </svg>
+            {{-- rute putus-putus dari kiri bawah ke kanan atas, dengan titik tujuan --}}
+            <svg class="absolute inset-0 h-full w-full" viewBox="0 0 600 600" preserveAspectRatio="none" fill="none">
+                <path d="M30 560 C 140 470, 90 330, 230 300 S 420 330, 470 180 S 540 70, 575 40" stroke="rgb(255 255 255 / .35)" stroke-width="2" stroke-dasharray="2 12" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            </svg>
+        </div>
 
-                        @case('photo')
-                            <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" width="1200" height="960" loading="lazy" data-slide-media
-                                 class="absolute inset-0 h-full w-full object-cover">
-                            <div class="absolute inset-x-0 bottom-0 bg-ink/75 px-6 py-5 text-white" data-slide-cap>
-                                <span class="mb-1.5 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide">Pelanggan kami</span>
-                                <p class="m-0 max-w-[26ch] text-xl font-bold leading-snug">{{ $s['title'] }}</p>
-                            </div>
-                            @break
+        <div class="rr-collage relative">
+            @php $tumbuh = [1.15, 0.85, 0.9, 1.1]; @endphp
+            @foreach ([[0, 1], [2, 3]] as $c => $idx)
+                <div class="rr-collage__col">
+                    @if ($c === 1)
+                        {{-- logo + nama usaha: teks boleh dua baris, tidak dipotong --}}
+                        <div class="flex flex-none items-center gap-3 rounded-2xl bg-white px-3.5 py-3 text-ink">
+                            <span class="grid size-10 flex-none place-items-center rounded-full bg-brand-soft">
+                                @if ($logoUrl) <img src="{{ $logoUrl }}" alt="" width="26" height="26" class="size-[26px]"> @else <span class="font-extrabold text-brand-strong">R</span> @endif
+                            </span>
+                            <span class="min-w-0 leading-tight">
+                                <b class="block">{{ config('rayarent.nama') }}</b>
+                                <span class="block text-xs leading-snug text-muted">{{ config('rayarent.tagline') }}</span>
+                            </span>
+                        </div>
+                    @endif
 
-                        @case('car')
-                            <a href="{{ $s['url'] }}" tabindex="-1" class="flex h-[78%] items-center" data-slide-media>
-                                <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" width="1200" height="960" loading="lazy" class="h-full w-full object-contain p-[4%]">
-                            </a>
-                            <a href="{{ $s['url'] }}" class="ml-[6%] w-fit rounded-xl bg-white px-4 py-2.5 leading-snug text-ink hover:no-underline" data-slide-cap>
-                                <span class="block font-bold">{{ $s['title'] }}</span>
-                                <span class="text-sm text-muted">{{ $s['sub'] }}</span>
-                            </a>
-                            @break
+                    @foreach ($idx as $n)
+                        @php $f = $kolase[$n] ?? null; @endphp
+                        @if ($f)
+                            <figure class="rr-collage__ph m-0 bg-white" style="--g: {{ $tumbuh[$n] }}">
+                                @if ($f['url']) <a href="{{ $f['url'] }}" class="block h-full" aria-label="{{ $f['title'] }}"> @endif
+                                <img src="{{ $f['src'] }}" alt="{{ $f['title'] }}" width="800" height="800" @if ($n === 0) fetchpriority="high" @else loading="lazy" @endif
+                                     @class(['h-full w-full', 'object-cover' => $f['type'] === 'photo', 'object-contain p-3' => $f['type'] === 'car'])>
+                                @if ($f['url']) </a> @endif
+                                <figcaption class="pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-lg bg-white/95 px-2.5 py-1 text-xs font-semibold text-ink" title="{{ $f['title'] }}">{{ $f['title'] }}</figcaption>
+                            </figure>
+                        @endif
+                    @endforeach
 
-                        @case('contact')
-                            @php
-                                // alamat pendek untuk slide: buang plus code Google dan ", Indonesia"
-                                $alamatPendek = trim(preg_replace(['/^[2-9CFGHJMPQRVWX]{4,8}\+[2-9CFGHJMPQRVWX]{2,3},?\s*/i', '/,?\s*Indonesia$/i'], '', (string) config('rayarent.alamat')));
-                                $ig = ltrim((string) config('rayarent.instagram'), '@');
-                            @endphp
-                            <div class="flex h-full flex-col justify-center bg-brand-strong px-6 py-6 text-white sm:px-9">
-                                <span class="mb-2.5 w-fit rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide" data-slide-cap>Hubungi kami</span>
-                                <h2 class="m-0 mb-4 max-w-[18ch] text-2xl font-bold leading-tight text-white" data-slide-cap>Siap jalan? Tanya dulu juga boleh.</h2>
-                                <dl class="m-0 mb-5 grid grid-cols-2 gap-x-5 gap-y-3 border-y border-white/25 py-3.5" data-slide-cap>
-                                    @if ($wa) <div class="min-w-0"><dt class="text-xs font-semibold uppercase tracking-wide text-white/80">WhatsApp</dt><dd class="m-0 truncate font-semibold"><a href="{{ $waLink }}" rel="noopener" class="text-white underline decoration-white/50 underline-offset-2">+{{ $wa }}</a></dd></div> @endif
-                                    @if (config('rayarent.jam_operasional')) <div class="min-w-0"><dt class="text-xs font-semibold uppercase tracking-wide text-white/80">Jam buka</dt><dd class="m-0 truncate font-semibold">{{ config('rayarent.jam_operasional') }}</dd></div> @endif
-                                    @if ($alamatPendek) <div class="col-span-2 hidden min-w-0 sm:block"><dt class="text-xs font-semibold uppercase tracking-wide text-white/80">Alamat</dt><dd class="m-0 line-clamp-2 font-semibold">{{ $alamatPendek }}</dd></div> @endif
-                                    @if ($ig) <div class="hidden min-w-0 sm:block"><dt class="text-xs font-semibold uppercase tracking-wide text-white/80">Instagram</dt><dd class="m-0 truncate font-semibold"><a href="https://instagram.com/{{ $ig }}" rel="noopener" class="text-white underline decoration-white/50 underline-offset-2">{{ '@'.$ig }}</a></dd></div> @endif
-                                    @if (config('rayarent.email')) <div class="hidden min-w-0 sm:block"><dt class="text-xs font-semibold uppercase tracking-wide text-white/80">Email</dt><dd class="m-0 truncate font-semibold"><a href="mailto:{{ config('rayarent.email') }}" class="text-white underline decoration-white/50 underline-offset-2">{{ config('rayarent.email') }}</a></dd></div> @endif
-                                </dl>
-                                <div class="flex flex-wrap gap-2.5" data-slide-cap>
-                                    @if ($waLink) <a class="btn bg-white text-brand-strong hover:bg-brand-soft hover:text-brand-strong" href="{{ $waLink }}" rel="noopener">Chat WhatsApp</a> @endif
-                                    <a class="btn border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white" href="{{ route('kontak') }}">Lokasi &amp; peta</a>
-                                </div>
-                            </div>
-                            @break
-                    @endswitch
                 </div>
             @endforeach
         </div>
-        <div class="flex justify-center gap-2" role="group" aria-label="Pilih slide">
-            @foreach ($showcase as $i => $s)
-                <button type="button" data-dot="{{ $i }}" aria-label="Slide {{ $i + 1 }}: {{ $s['label'] }}" @class(['rr-dot', 'is-active' => $i === 0]) @if ($i === 0) aria-current="true" @endif><span></span></button>
-            @endforeach
-        </div>
+
     </div>
 </section>
 
-{{-- ============ ARMADA (latar halaman, kartu) ============ --}}
-@php $awal = 8; @endphp
-<section id="armada" class="py-14">
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2" data-reveal>
-        <div>
-            <h2 class="m-0 text-3xl font-extrabold tracking-tight" data-arrive>Armada</h2>
-            <p class="mb-0 mt-1.5 text-muted">{{ $models->count() }} model, {{ $totalUnit }} unit siap jalan. Diurutkan dari harga termurah.</p>
-        </div>
+{{-- kotak cek unit kosong: mengambang di batas bawah blok biru --}}
+<form method="GET" action="{{ route('home') }}#armada" id="cek-unit" aria-label="Cek unit kosong"
+      class="rr-card relative z-10 -mt-16 grid scroll-mt-28 gap-3 p-4 shadow-xl sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto] lg:items-end">
+    <div class="min-w-0">
+        <label for="cek-mulai" class="mb-1.5 block text-xs font-semibold text-muted">Mulai sewa</label>
+        <input id="cek-mulai" type="datetime-local" name="mulai" value="{{ $mulaiDefault }}" min="{{ now()->addHour()->format('Y-m-d\TH:i') }}" required class="rr-input font-semibold">
     </div>
+    <div class="min-w-0">
+        <label for="cek-layanan" class="mb-1.5 block text-xs font-semibold text-muted">Layanan</label>
+        <select id="cek-layanan" name="layanan" class="rr-input font-semibold">
+            <option value="">Semua layanan</option>
+            @foreach ($services as $k => $label) <option value="{{ $k }}" @selected(request('layanan') === $k)>{{ $label }}</option> @endforeach
+        </select>
+    </div>
+    <div class="min-w-0">
+        <label for="cek-orang" class="mb-1.5 block text-xs font-semibold text-muted">Jumlah orang</label>
+        <select id="cek-orang" name="orang" class="rr-input font-semibold">
+            <option value="">Berapa saja</option>
+            @foreach ($rombongan as $n => $l) <option value="{{ $n }}" @selected((int) request('orang') === $n)>{{ $l }}</option> @endforeach
+        </select>
+    </div>
+    <button class="btn btn-lg sm:col-span-2 lg:col-span-1">Cek unit kosong</button>
+    @error('mulai') <p class="rr-err m-0 sm:col-span-2 lg:col-span-4">{{ $message }}</p> @enderror
+</form>
 
-    @if ($models->isEmpty())
-        <div class="rounded-xl border border-line bg-white px-5 py-10 text-center text-muted"><strong class="mb-1 block text-ink">Daftar armada sedang diperbarui</strong>Silakan hubungi kami untuk info ketersediaan.</div>
+{{-- ============ PALING SERING DISEWA / HASIL CEK (arah A) ============ --}}
+@php $awalHasil = 6; @endphp
+<section id="armada" class="scroll-mt-24 py-14">
+    @if ($cek)
+        @php $daftar = $cek['hasil']; @endphp
+        <div class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2" data-reveal>
+            <div>
+                <h2 class="m-0 text-[clamp(1.5rem,2.6vw,2rem)] font-extrabold tracking-tight" data-arrive>
+                    {{ $daftar->count() ? $daftar->count().' kendaraan punya unit kosong' : 'Belum ada unit kosong' }}
+                </h2>
+                <p class="mb-0 mt-1.5 text-ink-2">
+                    Mulai {{ $cek['mulai']->translatedFormat('l, d M Y · H.i') }}{{ $cek['layanan'] ? ' · '.$services[$cek['layanan']] : '' }}{{ $cek['orang'] ? ' · minimal '.$cek['orang'].' kursi' : '' }}.
+                    Dicek untuk paket terpendek tiap kendaraan.
+                </p>
+            </div>
+            {{-- Reset memakai form GET, bukan link: klik link #… dicegat skrip scroll halus, sedangkan form selalu memuat ulang halaman tanpa ?mulai=… --}}
+            <form method="GET" action="{{ route('home') }}#cek-unit">
+                <button class="inline-flex min-h-11 items-center border-0 bg-transparent px-0 font-semibold text-brand-strong underline underline-offset-2 hover:text-ink">Reset pencarian</button>
+            </form>
+        </div>
+        @if ($daftar->isEmpty())
+            <div class="rr-card px-5 py-10 text-center text-ink-2"><strong class="mb-1 block text-ink">Semua unit sudah terpesan di jam itu</strong>Coba jam lain, layanan lain, atau tanya kami lewat WhatsApp.</div>
+        @endif
     @else
-    <div data-fleet>
-        @if ($categories->count() > 1)
-            <div class="mb-5 flex flex-wrap gap-2" role="group" aria-label="Saring kategori" data-reveal>
-                <button type="button" class="group is-active inline-flex items-center gap-2 rounded-full border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-ink-2 transition hover:border-brand-strong aria-pressed:border-brand-strong aria-pressed:bg-brand-strong aria-pressed:text-white" aria-pressed="true" data-filter="semua">
-                    Semua <span class="text-xs tabular-nums text-muted group-aria-pressed:text-white/85">{{ $models->count() }}</span>
-                </button>
-                @foreach ($categories as $cat)
-                    <button type="button" class="group inline-flex items-center gap-2 rounded-full border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-ink-2 transition hover:border-brand-strong aria-pressed:border-brand-strong aria-pressed:bg-brand-strong aria-pressed:text-white" aria-pressed="false" data-filter="{{ $cat['key'] }}">
-                        {{ $cat['label'] }} <span class="text-xs tabular-nums text-muted group-aria-pressed:text-white/85">{{ $cat['count'] }}</span>
-                    </button>
+        @php $daftar = $populer->map(fn ($m) => (object) ['model' => $m, 'kosong' => null, 'pilihan' => null]); @endphp
+        <div class="mb-6" data-reveal>
+            <h2 class="m-0 text-[clamp(1.5rem,2.6vw,2rem)] font-extrabold tracking-tight" data-arrive>{{ $populerAsli ? 'Paling sering disewa bulan ini' : 'Mulai dari yang paling hemat' }}</h2>
+        </div>
+    @endif
+
+    @if ($daftar->isNotEmpty())
+        <div data-collapse>
+            {{-- 3 kartu: kartu pertama lebih lebar (1,4 : 1 : 1). Hasil cek lebih dari 3: grid rata --}}
+            <div @class(['grid gap-4', 'md:grid-cols-[1.4fr_1fr_1fr]' => $daftar->count() <= 3, 'sm:grid-cols-2 lg:grid-cols-3' => $daftar->count() > 3])>
+                @foreach ($daftar as $i => $d)
+                    @php
+                        $m = $d->model;
+                        $utama = $d->pilihan['vehicle'] ?? $m->main;
+                        $pesan = $d->pilihan ? route('pelanggan.pesan', [$utama, 'paket' => $d->pilihan['paket']->id, 'mulai' => $cek['mulai']->format('Y-m-d\TH:i')]) : null;
+                    @endphp
+                    <article @class(['group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-white transition-colors hover:border-line-strong', 'is-extra' => $i >= $awalHasil]) data-reveal>
+                        {{-- foto armada berlatar putih: bidang foto juga putih supaya tidak tampak kotak di dalam bingkai berwarna --}}
+                        <a href="{{ route('armada', $utama->slug) }}" tabindex="-1" aria-hidden="true" class="flex aspect-[16/10] items-center justify-center border-b border-line bg-white p-4 text-brand">
+                            @if ($m->photo)
+                                <img src="{{ $m->photo }}" alt="" width="800" height="500" loading="lazy" class="h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+                            @else
+                                <span class="w-3/4 opacity-50 [&>svg]:w-full"><x-car-icon :type="$m->icon" /></span>
+                            @endif
+                        </a>
+                        <div class="flex flex-1 flex-col gap-1 px-4 py-3.5">
+                            <div class="flex items-start justify-between gap-3">
+                                <h3 class="m-0 text-[1.05rem] font-bold leading-snug"><a href="{{ route('armada', $utama->slug) }}" class="text-ink hover:text-brand-strong hover:no-underline">{{ $m->name }}</a></h3>
+                                <p class="m-0 flex-none text-right font-extrabold leading-tight tabular-nums">
+                                    <small class="block text-xs font-medium text-muted">{{ $d->pilihan ? 'paket ini' : 'mulai' }}</small>
+                                    {{ $rp($d->pilihan ? $d->pilihan['paket']->price : $m->min) }}
+                                </p>
+                            </div>
+                            <p class="m-0 text-sm text-muted">{{ $m->seat }} kursi{{ $m->transmisi ? ' · '.$m->transmisi : '' }}</p>
+                            @if ($d->kosong)
+                                <p class="m-0 mt-1 text-sm"><span class="font-semibold text-ok">{{ $d->kosong }} unit kosong</span> <span class="text-muted">· {{ $d->pilihan['paket']->service_label }} {{ $d->pilihan['paket']->duration_hours }} jam</span></p>
+                            @endif
+                        </div>
+                        @if ($pesan)
+                            <div class="px-4 pb-4"><a href="{{ $pesan }}" class="btn btn-sm btn-block">Pesan untuk jam ini</a></div>
+                        @endif
+                    </article>
                 @endforeach
             </div>
-        @endif
-
-        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($models as $n => $m)
-                <x-vehicle-card
-                    :href="route('armada', $m->main->slug)" :name="$m->name" :photo="$m->photo" :icon="$m->icon"
-                    :category="$kategori[$m->category]" :cat="$m->category" :extra="$n >= $awal"
-                    :chips="array_filter([$m->seat.' kursi', $m->units.' unit', $m->variants->isEmpty() ? $m->main->transmission : null])"
-                    :variants="$m->variants" :services="$m->services->implode(' · ')" :price="$m->min" />
-            @endforeach
+            @if ($daftar->count() > $awalHasil)
+                <div class="mt-6 flex justify-center">
+                    <button type="button" class="btn btn-outline bg-white" aria-expanded="false" data-collapse-toggle
+                            data-label-open="Tampilkan semua {{ $daftar->count() }} kendaraan" data-label-close="Tampilkan lebih sedikit">Tampilkan semua {{ $daftar->count() }} kendaraan</button>
+                </div>
+            @endif
         </div>
-
-        @if ($models->count() > $awal)
-            <div class="mt-6 flex justify-center">
-                <button type="button" class="btn btn-outline" data-fleet-more>Lihat semua {{ $models->count() }} model</button>
-            </div>
-        @endif
-    </div>
     @endif
+    <p class="mb-0 mt-5 text-ink-2">Semua {{ $models->count() }} model ada di <a href="#harga" class="font-semibold text-brand-strong underline underline-offset-2">daftar harga</a> di bawah.</p>
 </section>
 
-{{-- ============ HARGA (pita putih, padat) ============ --}}
+{{-- ============ HARGA · arah B: judul besar + papan harga (permukaan terang, satu warna aksen) ============ --}}
 @php
     // satu tab per layanan; di tiap tab, satu baris per kendaraan dengan paket yang ada saja
     $tabs = collect($services)->map(fn ($label, $key) => [
@@ -169,67 +210,96 @@
             ->filter(fn ($r) => $r['pkgs']->isNotEmpty())
             ->sortBy(fn ($r) => $r['pkgs']->min('price'))
             ->values(),
+        // kolom durasi hanya yang benar-benar ada di layanan ini (Dengan Driver tidak punya 12 jam)
+        'jam' => $vehicles->flatMap(fn ($v) => $v->packages->where('service', $key)->pluck('duration_hours'))->unique()->sort()->values(),
     ])->filter(fn ($t) => $t['rows']->isNotEmpty())->values();
-    $tampil = 8;
+    $tampil = 6;
 @endphp
-<section id="harga" class="rr-bleed py-14 [--bleed:#fff]">
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2" data-reveal>
-        <h2 class="m-0 text-3xl font-extrabold tracking-tight" data-arrive>Daftar harga</h2>
-        <p class="m-0 text-muted">Harga per paket. 3 hari = 3 × paket 24 jam.</p>
+<section id="harga" class="rr-bleed grid items-start gap-x-12 gap-y-8 py-16 [--bleed:#fff] lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)]">
+    <div class="min-w-0" data-reveal>
+        <h2 class="m-0 text-[clamp(2rem,4.4vw,3.6rem)] font-extrabold leading-[1.04] tracking-[-0.035em]" data-arrive>Harga sewa tertulis jelas, tanpa tanya-tanya dulu.</h2>
+        <p class="mb-6 mt-5 max-w-[40ch] text-lg leading-relaxed text-ink-2">Semua paket 12 dan 24 jam tampil di sini, sama dengan yang ditagihkan. Pilih kendaraan, cek unit kosong, bayar DP {{ $dpPercent }}%.</p>
+        <div class="flex flex-wrap gap-3">
+            <a href="#cek-unit" class="btn btn-lg">Pesan sekarang</a>
+            @if ($waLink) <a href="{{ $waLink }}" class="btn btn-lg btn-outline" rel="noopener">Tanya via WhatsApp</a> @endif
+        </div>
+        <dl class="m-0 mt-8 flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-5">
+            <div><dt class="text-sm text-muted">Armada</dt><dd class="m-0 text-xl font-extrabold tabular-nums">{{ $totalUnit }} unit</dd></div>
+            <div><dt class="text-sm text-muted">Model</dt><dd class="m-0 text-xl font-extrabold tabular-nums">{{ $models->count() }}</dd></div>
+            <div><dt class="text-sm text-muted">Kapasitas</dt><dd class="m-0 text-xl font-extrabold tabular-nums">s.d. {{ $kursiTerbanyak }}</dd></div>
+        </dl>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-line bg-white" data-pricetabs data-reveal>
-        @if ($tabs->count() > 1)
-            <div class="flex gap-1 overflow-x-auto border-b border-line bg-canvas p-1.5" role="tablist" aria-label="Jenis layanan">
-                @foreach ($tabs as $i => $t)
-                    <button type="button" role="tab" id="tab-{{ $t['key'] }}" aria-controls="pane-{{ $t['key'] }}"
-                            aria-selected="{{ $i === 0 ? 'true' : 'false' }}" data-tab="{{ $t['key'] }}"
-                            class="group flex flex-none items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white aria-selected:bg-white aria-selected:text-brand-strong aria-selected:shadow-sm">
-                        {{ $t['label'] }} <span class="text-xs tabular-nums text-muted group-aria-selected:text-brand-strong">{{ $t['rows']->count() }}</span>
-                    </button>
-                @endforeach
-            </div>
-        @endif
+    <div class="min-w-0 overflow-hidden rounded-2xl border border-line bg-white" data-pricetabs data-reveal>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-4 py-3 sm:px-5">
+            <p class="m-0 font-bold">Daftar harga per paket</p>
+            @if ($tabs->count() > 1)
+                <div class="flex max-w-full gap-0.5 overflow-x-auto rounded-lg border border-line bg-white p-1" role="tablist" aria-label="Jenis layanan">
+                    @foreach ($tabs as $i => $t)
+                        <button type="button" role="tab" id="tab-{{ $t['key'] }}" aria-controls="pane-{{ $t['key'] }}"
+                                aria-selected="{{ $i === 0 ? 'true' : 'false' }}" data-tab="{{ $t['key'] }}"
+                                class="min-h-9 flex-none whitespace-nowrap rounded-md border-0 bg-transparent px-3 text-sm font-semibold text-ink-2 transition-colors hover:bg-canvas aria-selected:bg-brand-strong aria-selected:text-white">{{ $t['label'] }}</button>
+                    @endforeach
+                </div>
+            @endif
+        </div>
 
         @foreach ($tabs as $i => $t)
-            <div role="tabpanel" id="pane-{{ $t['key'] }}" aria-labelledby="tab-{{ $t['key'] }}" data-pane="{{ $t['key'] }}" @if ($i) hidden @endif>
-                <h3 class="m-0 px-5 pt-4 text-xs font-bold uppercase tracking-wider text-muted" data-pane-title>{{ $t['label'] }}</h3>
-                <ol class="m-0 list-none p-0 py-1">
-                    @foreach ($t['rows'] as $n => $r)
-                        <li @class(['grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-0.5 px-4 py-2.5 transition-colors hover:bg-brand-soft sm:grid-cols-[minmax(0,1fr)_96px_auto] sm:px-5 [&+li]:border-t [&+li]:border-dashed [&+li]:border-line', 'is-extra' => $n >= $tampil])>
-                            <a class="truncate font-semibold text-ink hover:text-brand-strong hover:no-underline" href="{{ route('armada', $r['v']->slug) }}">{{ $r['v']->name }}</a>
-                            <span class="whitespace-nowrap text-sm text-muted">{{ $r['v']->seat_label }} kursi</span>
-                            <span class="col-span-2 flex flex-wrap gap-x-5 font-bold tabular-nums sm:col-span-1 sm:justify-end">
-                                @foreach ($r['pkgs'] as $p)
-                                    <span class="sm:min-w-32 sm:text-right"><small class="mr-1 font-medium text-muted">{{ $p->duration_hours }} jam</small>{{ $rp($p->price) }}</span>
-                                @endforeach
-                            </span>
-                        </li>
-                    @endforeach
-                </ol>
-                @if ($t['rows']->count() > $tampil)
-                    <button type="button" class="block w-full border-0 border-t border-line bg-transparent px-4 py-3 text-sm font-semibold text-brand-strong hover:bg-canvas" data-more>Lihat semua {{ $t['rows']->count() }} kendaraan</button>
-                @endif
+            <div role="tabpanel" id="pane-{{ $t['key'] }}" aria-labelledby="tab-{{ $t['key'] }}" data-pane="{{ $t['key'] }}" class="group" @if ($i) hidden @endif>
+                <h3 class="m-0 px-5 pt-3 text-xs font-bold uppercase tracking-wider text-muted" data-pane-title>{{ $t['label'] }}</h3>
+                {{-- saat "Lihat semua": tabel tetap setinggi ±9 baris dan digulir di dalam kotak, judul kolom menempel --}}
+                <div class="px-4 group-[.is-open]:max-h-[29rem] group-[.is-open]:overflow-y-auto sm:px-5" data-scroll-box tabindex="-1">
+                    <table class="w-full border-collapse">
+                        <thead class="sticky top-0 z-[1] bg-white">
+                            <tr class="text-left text-xs font-semibold uppercase tracking-wide text-muted [&>th]:border-b [&>th]:border-line [&>th]:px-1.5 [&>th]:py-2.5">
+                                <th>Kendaraan</th><th>Kursi</th>
+                                @foreach ($t['jam'] as $jam) <th class="text-right">{{ $jam }} jam</th> @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($t['rows'] as $n => $r)
+                                @php $per = $r['pkgs']->keyBy('duration_hours'); $hi = $populerAsli && in_array($r['v']->id, $sorotKeys, true); @endphp
+                                <tr @class(['transition-colors hover:bg-canvas [&>td]:border-b [&>td]:border-line/70 [&>td]:px-1.5 [&>td]:py-3', 'bg-brand-soft hover:bg-brand-soft' => $hi, 'is-extra' => $n >= $tampil])>
+                                    <td class="text-[0.95rem]">
+                                        <a href="{{ route('armada', $r['v']->slug) }}" class="font-semibold text-ink hover:text-brand-strong hover:underline">{{ $r['v']->name }}</a>
+                                        @if ($hi) <span class="ml-1.5 whitespace-nowrap text-xs font-semibold text-brand-strong">terlaris</span> @endif
+                                    </td>
+                                    <td class="text-sm text-muted">{{ $r['v']->seat_label }}</td>
+                                    @foreach ($t['jam'] as $jam)
+                                        <td class="whitespace-nowrap text-right font-bold tabular-nums">{!! isset($per[$jam]) ? e($rp($per[$jam]->price)) : '<span class="font-normal text-muted" aria-label="tidak tersedia">–</span>' !!}</td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-2 text-sm text-muted">
+                    <span><span class="group-[.is-open]:hidden">{{ min($tampil, $t['rows']->count()) }} dari </span>{{ $t['rows']->count() }} kendaraan · 3 hari = 3 × paket 24 jam</span>
+                    @if ($t['rows']->count() > $tampil)
+                        <button type="button" class="min-h-11 border-0 bg-transparent px-1 font-semibold text-brand-strong underline underline-offset-2" aria-expanded="false" data-more
+                                data-label-open="Lihat semua {{ $t['rows']->count() }} kendaraan" data-label-close="Tampilkan lebih sedikit">Lihat semua {{ $t['rows']->count() }} kendaraan</button>
+                    @endif
+                </div>
             </div>
         @endforeach
     </div>
-    <p class="mb-0 mt-3 text-sm text-muted">Paket driver belum termasuk BBM, tol, parkir, dan makan driver kecuali tertulis "Driver + BBM".</p>
+    <p class="m-0 text-sm text-muted lg:col-start-2">Paket driver belum termasuk BBM, tol, parkir, dan makan driver kecuali tertulis "Driver + BBM".</p>
 </section>
 
-{{-- ============ CARA SEWA (lega, angka besar) ============ --}}
-<section id="cara-sewa" class="py-16">
-    <h2 class="m-0 mb-8 text-3xl font-extrabold tracking-tight" data-reveal data-arrive>Cara sewa</h2>
-    <ol class="rr-steps m-0 grid list-none gap-0 p-0 pt-6 md:grid-cols-4" data-reveal>
+{{-- ============ CARA SEWA · arah B: empat langkah bergaris ============ --}}
+<section id="cara-sewa" class="pb-14 pt-4">
+    <h2 class="sr-only">Cara sewa</h2>
+    <ol class="rr-steps m-0 grid list-none border-t border-line p-0 pt-7 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
         @foreach ([
-            ['Buat akun', 'Cukup nama, email, dan nomor HP yang aktif. Kami menghubungi nomor ini untuk konfirmasi.'],
-            ['Pilih paket & tanggal', 'Sistem menampilkan unit yang masih kosong di jam yang Anda pilih, jadi tidak ada pesanan dobel.'],
-            ['Transfer DP '.$dpPercent.'%', 'Unggah foto bukti transfer di halaman pesanan. Admin mengecek lalu mengonfirmasi pesanan Anda.'],
-            ['Ambil kendaraan', 'Lunasi sisa tagihan saat serah terima, tunai atau transfer. Kembalikan tepat waktu.'],
+            ['Buat akun', 'Nama, email, dan nomor HP aktif.'],
+            ['Pilih paket & tanggal', 'Hanya unit yang kosong yang bisa dipilih.'],
+            ['Transfer DP '.$dpPercent.'%', 'Unggah bukti, admin mengonfirmasi.'],
+            ['Ambil kendaraan', 'Lunasi sisanya saat serah terima.'],
         ] as $i => [$judul, $isi])
-            <li class="border-line py-4 md:pr-6 [&+li]:border-t md:[&+li]:border-l md:[&+li]:border-t-0 md:[&+li]:pl-6">
-                <span class="block text-4xl font-extrabold tabular-nums text-brand">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                <h3 class="m-0 mt-3 text-lg font-bold">{{ $judul }}</h3>
-                <p class="mb-0 mt-1.5 text-[0.95rem] leading-relaxed text-ink-2">{{ $isi }}</p>
+            <li class="min-w-0 py-3 pr-5 sm:[&:nth-child(even)]:border-l sm:[&:nth-child(even)]:border-line sm:[&:nth-child(even)]:pl-5 lg:[&+li]:border-l lg:[&+li]:border-line lg:[&+li]:pl-5">
+                <span class="font-mono text-sm font-semibold text-brand-strong">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                <h3 class="m-0 mt-1.5 text-base font-bold">{{ $judul }}</h3>
+                <p class="mb-0 mt-1 text-sm leading-relaxed text-muted">{{ $isi }}</p>
             </li>
         @endforeach
     </ol>
@@ -256,16 +326,5 @@
     </dl>
 </section>
 
-{{-- ============ PENUTUP (bidang brand solid, PB-8) ============ --}}
-<section class="mt-16 flex flex-wrap items-center justify-between gap-6 rounded-2xl bg-brand-strong p-7 text-white sm:p-10" data-reveal>
-    <div>
-        <h2 class="m-0 text-3xl font-extrabold tracking-tight text-white">Sudah tahu mau sewa apa?</h2>
-        <p class="mb-0 mt-2 text-white/90">Pesan sekarang dan cek unit yang kosong{{ config('rayarent.jam_operasional') ? '. '.config('rayarent.jam_operasional') : '' }}.</p>
-    </div>
-    <div class="flex flex-wrap gap-3">
-        <a href="{{ route('register') }}" class="btn btn-lg bg-white text-brand-strong hover:bg-brand-soft hover:text-brand-strong">Daftar &amp; pesan</a>
-        @if ($waLink) <a href="{{ $waLink }}" class="btn btn-lg border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white" rel="noopener">WhatsApp</a> @endif
-    </div>
-</section>
 @include('partials.landing-motion')
 @endsection

@@ -51,7 +51,7 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label for="start" class="rr-label">Mulai sewa</label>
-                    <input id="start" type="datetime-local" name="start_at" min="{{ $minStart }}" value="{{ old('start_at', now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')) }}" required class="rr-input">
+                    <input id="start" type="datetime-local" name="start_at" min="{{ $minStart }}" value="{{ old('start_at', $mulaiAwal ?? now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')) }}" required class="rr-input">
                     @error('start_at') <p class="rr-err">{{ $message }}</p> @enderror
                 </div>
                 <div>

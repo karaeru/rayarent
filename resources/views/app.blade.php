@@ -44,7 +44,8 @@
 @if (! $twReady)
     <div role="status" style="margin:0;padding:12px 20px;background:#fef3c7;color:#92400e;font:600 15px/1.5 system-ui,sans-serif">Tampilan baru belum dibangun. Jalankan <code>npm install</code> lalu <code>npm run build</code> di folder proyek.</div>
 @endif
-<header class="site-header" data-site-header>
+{{-- landing (arah A): header ikut biru tua supaya menyatu dengan blok pembuka --}}
+<header @class(['site-header', 'site-header--dark' => ! $user && request()->routeIs('home')]) data-site-header>
     <div class="rr-container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
             @if ($logo)
@@ -246,7 +247,7 @@
             const a = e.target.closest('a[href*="#"]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
             const url = new URL(a.href, location.href);
-            if (url.pathname !== location.pathname || !url.hash) return;
+            if (url.pathname !== location.pathname || url.search !== location.search || !url.hash || a.hasAttribute('data-reload')) return;   // link yang mengubah query harus memuat ulang halaman
             const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
             if (!target) return;
             e.preventDefault();

@@ -73,12 +73,13 @@
 
     /* armada: filter kategori dan "lihat semua" */
     [data-fleet].is-limited:not(.is-filtered) .is-extra, [data-fleet] .is-hidden { display: none; }
+    [data-collapse].is-limited .is-extra { display: none; }
     .is-pop { animation: rr-pop .45s var(--ease-soft) var(--d, 0ms) both; }
 
     /* daftar harga: tab layanan */
     [data-pricetabs]:not(.is-tabbed) [role='tablist'], [data-pricetabs]:not(.is-tabbed) [data-more], .is-tabbed [data-pane-title] { display: none; }
     .is-tabbed [data-pane]:not(.is-open) .is-extra { display: none; }
-    .is-tabbed [data-pane]:not([hidden]) ol { animation: rr-rise .35s var(--ease-soft) both; }
+    .is-tabbed [data-pane]:not([hidden]) ol, .is-tabbed [data-pane]:not([hidden]) tbody { animation: rr-rise .35s var(--ease-soft) both; }
 
     /* cara sewa: garis urutan terisi saat terlihat */
     .rr-steps { position: relative; }
@@ -105,7 +106,7 @@
     @media (prefers-reduced-motion: reduce) {
         .lp-js [data-reveal], .lp-js .rr-steps > li { opacity: 1; transform: none; transition: none; }
         .rr-slide, .rr-slide [data-slide-media], .rr-slide [data-slide-cap], [data-sticky-buy], .rr-steps::before { transition: none; }
-        .is-arrived [data-arrive], .is-pop, .is-tabbed [data-pane]:not([hidden]) ol, [data-stage].is-playing .rr-dot.is-active span::after { animation: none; }
+        .is-arrived [data-arrive], .is-pop, .is-tabbed [data-pane]:not([hidden]) ol, .is-tabbed [data-pane]:not([hidden]) tbody, [data-stage].is-playing .rr-dot.is-active span::after { animation: none; }
     }
 }
 
@@ -186,4 +187,30 @@
     @keyframes rr-confirm-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
     @keyframes rr-fade { from { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .rr-confirm[open], .rr-confirm[open]::backdrop, .rr-dialog[open], .rr-dialog[open]::backdrop { animation: none; } }
+}
+
+/* Permukaan gelap (pembuka biru): ring fokus dan titik slide memakai putih supaya tetap terlihat */
+@layer components {
+    .rr-on-dark :focus-visible { outline-color: #fff; }
+    .rr-on-dark .rr-dot span { background: rgb(255 255 255 / .3); }
+    .rr-on-dark .rr-dot.is-active span::after { background: #fff; }
+}
+
+/*
+ * Kolase pembuka (landing). Dua kolom foto bertingkat; tinggi awal tiap foto berbeda (--g).
+ * Kursor atau fokus di satu foto: foto itu dan kolomnya melebar, foto lain mengecil dan sedikit redup.
+ * flex-grow bisa dianimasikan, jadi tidak perlu JavaScript. Reduced motion: langsung tanpa transisi.
+ */
+@layer components {
+    .rr-collage { display: flex; gap: .9rem; height: clamp(24rem, 44vw, 34rem); }
+    .rr-collage__col { display: flex; flex: 1 1 0; flex-direction: column; gap: .9rem; min-width: 0; transition: flex-grow .55s var(--ease-soft); }
+    .rr-collage__ph { position: relative; flex: var(--g, 1) 1 0; min-height: 0; overflow: hidden; border-radius: 1.1rem;
+        transition: flex-grow .55s var(--ease-soft), filter .35s ease; }
+    .rr-collage__ph img { transition: transform .7s var(--ease-soft); }
+    .rr-collage__col:has(.rr-collage__ph:hover, .rr-collage__ph:focus-within) { flex-grow: 1.5; }
+    .rr-collage__ph:hover, .rr-collage__ph:focus-within { flex-grow: calc(var(--g, 1) * 2); }
+    .rr-collage__ph:hover img { transform: scale(1.04); }
+    .rr-collage:has(.rr-collage__ph:hover, .rr-collage__ph:focus-within) .rr-collage__ph:not(:hover):not(:focus-within) { filter: brightness(.78) saturate(.85); }
+    @media (max-width: 640px) { .rr-collage { height: 26rem; gap: .6rem; } .rr-collage__col { gap: .6rem; } }
+    @media (prefers-reduced-motion: reduce) { .rr-collage__col, .rr-collage__ph, .rr-collage__ph img { transition: none; } .rr-collage__ph:hover img { transform: none; } }
 }

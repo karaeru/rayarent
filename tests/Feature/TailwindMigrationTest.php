@@ -135,4 +135,75 @@ class TailwindMigrationTest extends TestCase
             $this->assertStringNotContainsString($old, $admin, "{$old} masih tersisa di admin.css");
         }
     }
+
+    public function test_landing_hero_is_full_blue_block(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('[--bleed:var(--color-brand-strong)]', false)
+            ->assertSee('Mau ke mana hari ini? Mobilnya sudah siap.')
+            ->assertSee('Daftar harga');
+    }
+
+    public function test_landing_check_shows_vehicles_with_free_units_only(): void
+    {
+        $kosong = Vehicle::create(['name' => 'Innova Zenix', 'seat_label' => '7', 'capacity' => 7, 'is_active' => true]);
+        $kosong->units()->create(['plate_number' => 'AB 1000 RA', 'status' => 'tersedia']);
+        $kosong->packages()->create(['service' => 'lepas_kunci', 'duration_hours' => 24, 'price' => 900000]);
+
+        $penuh = Vehicle::create(['name' => 'Brio Matic', 'seat_label' => '4', 'capacity' => 4, 'is_active' => true]);
+        $unit = $penuh->units()->create(['plate_number' => 'AB 2000 RA', 'status' => 'tersedia']);
+        $pkg = $penuh->packages()->create(['service' => 'lepas_kunci', 'duration_hours' => 24, 'price' => 300000]);
+        $mulai = now()->addDays(2)->setTime(8, 0);
+        \App\Models\Order::create([
+            'code' => 'RR-0001', 'user_id' => \App\Models\User::factory()->create()->id, 'vehicle_unit_id' => $unit->id, 'rental_package_id' => $pkg->id,
+            'quantity' => 1, 'start_at' => $mulai->copy()->subHours(2), 'end_at' => $mulai->copy()->addHours(20), 'total_price' => 300000,
+            'pay_mode' => 'lunas', 'status' => 'dikonfirmasi',
+        ]);
+
+        $html = $this->get('/?mulai='.$mulai->format('Y-m-d\TH:i').'&layanan=lepas_kunci')->assertOk()
+            ->assertSee('1 kendaraan punya unit kosong')
+            ->assertSee('Pesan untuk jam ini')
+            ->assertSee('Reset pencarian')
+            ->getContent();
+
+        $this->assertStringContainsString('mulai='.urlencode($mulai->format('Y-m-d\TH:i')), $html, 'tombol pesan membawa jam mulai');
+        $this->assertDoesNotMatchRegularExpression('/<h3[^>]*>\s*<a[^>]*>Brio<\/a>/', $html, 'kendaraan yang penuh tidak boleh tampil di hasil');
+    }
+
+    public function test_booking_form_prefills_start_time_from_landing(): void
+    {
+        $customer = \App\Models\User::factory()->create(['role' => 'pelanggan']);
+        $v = Vehicle::create(['name' => 'Innova Zenix', 'seat_label' => '7', 'capacity' => 7, 'is_active' => true]);
+        $v->packages()->create(['service' => 'lepas_kunci', 'duration_hours' => 24, 'price' => 900000]);
+        $mulai = now()->addDays(3)->setTime(9, 30)->format('Y-m-d\TH:i');
+
+        $this->actingAs($customer)->get(route('pelanggan.pesan', [$v, 'mulai' => $mulai]))
+            ->assertOk()->assertSee('value="'.$mulai.'"', false);
+    }
+
+    public function test_price_board_only_shows_durations_that_exist_and_can_collapse(): void
+    {
+        $v = Vehicle::create(['name' => 'Alphard', 'seat_label' => '6', 'capacity' => 6, 'is_active' => true]);
+        $v->units()->create(['plate_number' => 'AB 3000 RA', 'status' => 'tersedia']);
+        $v->packages()->create(['service' => 'driver', 'duration_hours' => 24, 'price' => 3000000]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+        preg_match('/id="pane-driver".*?<\/thead>/s', $html, $head);
+        $this->assertStringContainsString('24 jam', $head[0]);
+        $this->assertStringNotContainsString('12 jam', $head[0], 'layanan driver tidak punya paket 12 jam');
+        preg_match('/<div class="([^"]*)" data-pricetabs/', $html, $board);
+        $this->assertStringNotContainsString('bg-ink', $board[1], 'papan harga tidak lagi berlatar gelap');
+    }
+
+    public function test_landing_hero_is_a_static_collage_with_two_buttons(): void
+    {
+        config(['rayarent.whatsapp' => '6285893120699']);
+        $html = $this->get('/')->assertOk()
+            ->assertSee('href="#cek-unit"', false)
+            ->assertSee('Chat WhatsApp')
+            ->getContent();
+
+        $this->assertStringNotContainsString('data-stage', $html, 'pembuka tidak lagi memakai slide');
+        $this->assertStringNotContainsString('+62 858-9312-0699', $html, 'kartu kontak di pembuka sudah dihapus');
+    }
 }

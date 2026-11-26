@@ -19,10 +19,14 @@ class BookingController extends Controller
     {
         abort_unless($vehicle->is_active, 404);
 
+        // dari kotak "Cek unit kosong" di landing: ?mulai=2026-11-27T08:00 mengisi jam mulai otomatis
+        $mulai = rescue(fn () => request()->filled('mulai') ? Carbon::parse(request('mulai')) : null, null, false);
+
         return view('booking', [
             'vehicle' => $vehicle->load('packages'),
             'dpPercent' => (int) Setting::get('dp_percent', 30),
             'minStart' => now()->addHour()->format('Y-m-d\TH:i'),
+            'mulaiAwal' => ($mulai && $mulai->isFuture() ? $mulai : now()->addDay()->setTime(8, 0))->format('Y-m-d\TH:i'),
         ]);
     }
 

@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\RentalPackage;
 use App\Models\Setting;
 use App\Models\Vehicle;
 use App\Models\VehicleUnit;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
-/** Halaman depan publik: armada, daftar harga, cara sewa. Tanpa login. */
+/** Halaman depan publik: pembuka + cek unit kosong, kendaraan populer, papan harga, cara sewa. Tanpa login. */
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         if ($user) {
@@ -18,35 +22,28 @@ class HomeController extends Controller
         }
 
         $vehicles = Vehicle::where('is_active', true)
-            ->with('packages')
+            ->with(['packages', 'units' => fn ($q) => $q->where('status', '!=', 'perawatan')->orderBy('plate_number')])
             ->withCount(['units' => fn ($q) => $q->where('status', '!=', 'perawatan')])
             ->get()
             ->filter(fn ($v) => $v->packages->isNotEmpty())
             ->sortBy(fn ($v) => $v->min_price)
             ->values();
 
-        // Panggung di pembuka: 1 logo · 2-5 foto pelanggan · 6 kontak.
-        // Foto pelanggan dari public/images/pelanggan/ (urut nama file, maks. 4).
-        // Bila folder itu kosong, diisi foto kendaraan supaya panggung tidak sepi.
+        // Kolase pembuka: 4 foto. Foto pelanggan berizin dari public/images/pelanggan/ (urut nama file,
+        // nama file jadi keterangan); bila kurang dari 4, sisanya diisi foto armada dari kendaraan terbesar.
         $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
-        $fotoPelanggan = collect(glob(public_path('images/pelanggan/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG}'), GLOB_BRACE) ?: [])
+        $kolase = collect(glob(public_path('images/pelanggan/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG}'), GLOB_BRACE) ?: [])
             ->sort()->take(4)->values()
-            ->map(fn ($f) => ['type' => 'photo', 'label' => 'Foto pelanggan',
-                'src' => asset('images/pelanggan/' . rawurlencode(basename($f))) . '?v=' . filemtime($f),
-                'title' => $this->captionFromFile($f)]);
-        if ($fotoPelanggan->isEmpty()) {
-            $fotoPelanggan = $vehicles->filter(fn ($v) => $v->photo)
+            ->map(fn ($f) => ['type' => 'photo', 'src' => asset('images/pelanggan/' . rawurlencode(basename($f))) . '?v=' . filemtime($f),
+                'title' => $this->captionFromFile($f), 'url' => null]);
+        if ($kolase->count() < 4) {
+            $kolase = $kolase->concat($vehicles->filter(fn ($v) => $v->photo)
                 ->unique(fn ($v) => Vehicle::baseName($v->name))
-                ->sortByDesc('capacity')->take(4)->values()
-                ->map(fn ($v) => ['type' => 'car', 'label' => $v->name, 'src' => $v->photo_url, 'title' => $v->name,
-                    'sub' => $v->seat_label . ' kursi · mulai Rp' . number_format($v->min_price, 0, ',', '.'),
-                    'url' => route('armada', $v->slug)]);
+                ->sortByDesc('capacity')->take(4 - $kolase->count())->values()
+                ->map(fn ($v) => ['type' => 'car', 'src' => $v->photo_url, 'title' => $v->name, 'url' => route('armada', $v->slug)]))->values();
         }
-        $showcase = collect([['type' => 'logo', 'label' => 'Logo', 'src' => $logo ? asset('images/logo.' . $logo) : null]])
-            ->concat($fotoPelanggan)
-            ->push(['type' => 'contact', 'label' => 'Kontak']);
 
-        // Armada: Matic & Manual dari model yang sama digabung jadi satu kartu
+        // Model: Matic & Manual dari kendaraan yang sama digabung jadi satu kartu
         $models = $vehicles->groupBy(fn ($v) => Vehicle::baseName($v->name))
             ->map(function ($group) {
                 $group = $group->sortBy(fn ($v) => [$v->min_price, $v->transmission]);
@@ -54,37 +51,100 @@ class HomeController extends Controller
                 $nama = trim(preg_replace('/\s+/', ' ', preg_replace('/\b(matic|manual)\b/i', '', $utama->name)));
 
                 return (object) [
+                    'key' => Vehicle::baseName($utama->name),
                     'name' => $nama ?: $utama->name,
                     'main' => $utama,
+                    'group' => $group->values(),
                     'photo' => $group->first(fn ($v) => $v->photo)?->photo_url,
-                    'category' => $utama->category,
                     'icon' => $utama->icon,
                     'seat' => $utama->seat_label,
+                    'capacity' => (int) $group->max('capacity'),
                     'units' => $group->sum('units_count'),
                     'min' => $group->min(fn ($v) => $v->min_price),
-                    'services' => $group->flatMap->packages->pluck('service_label')->unique()->values(),
-                    'variants' => $group->count() > 1
-                        ? $group->map(fn ($v) => ['label' => $v->transmission ?: $v->name, 'url' => route('armada', $v->slug)])->values()
-                        : collect(),
+                    'transmisi' => $group->pluck('transmission')->filter()->unique()->implode(' & '),
                 ];
             })
             ->sortBy('min')->values();
-        $categories = collect(Vehicle::CATEGORIES)
-            ->map(fn ($label, $key) => ['key' => $key, 'label' => $label, 'count' => $models->where('category', $key)->count()])
-            ->filter(fn ($c) => $c['count'] > 0)->values();
+
+        // "Paling sering disewa bulan ini": jumlah pesanan 30 hari terakhir per model (tanpa yang dibatalkan).
+        // Bila belum ada pesanan, tampil 3 model termurah dengan judul yang jujur.
+        $hitung = Order::query()
+            ->join('vehicle_units', 'vehicle_units.id', '=', 'orders.vehicle_unit_id')
+            ->where('orders.status', '!=', 'dibatalkan')
+            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->selectRaw('vehicle_units.vehicle_id, count(*) as total')
+            ->groupBy('vehicle_units.vehicle_id')
+            ->pluck('total', 'vehicle_id');
+        $laris = $models->map(fn ($m) => tap($m, fn ($m) => $m->pesanan = (int) $m->group->sum(fn ($v) => $hitung[$v->id] ?? 0)))
+            ->filter(fn ($m) => $m->pesanan > 0)
+            ->sortByDesc('pesanan')->values();
+        $adaData = $laris->isNotEmpty();
+        $populer = ($adaData ? $laris : $models)->take(3)->values();
+        $sorot = $populer->first();
+
+        // Kotak "Cek unit kosong": cari unit yang tidak bentrok jadwal untuk paket terpendek tiap kendaraan
+        $cek = $this->cekUnitKosong($request, $models);
 
         return view('home', [
             'models' => $models,
-            'categories' => $categories,
-            'showcase' => $showcase,
+            'kolase' => $kolase,
+            'logoUrl' => $logo ? asset('images/logo.' . $logo) : null,
+            'populer' => $populer,
+            'populerAsli' => $adaData,
+            'sorot' => $sorot,
+            'cek' => $cek,
             'vehicles' => $vehicles,
             'services' => RentalPackage::SERVICES,
             'totalUnit' => $vehicles->sum('units_count'),
-            'hargaTermurah' => (int) $vehicles->min(fn ($v) => $v->min_price),
             'kursiTerbanyak' => (int) $vehicles->max('capacity'),
             'dpPercent' => (int) Setting::get('dp_percent', 30),
             'lateFee' => (int) Setting::get('late_fee_per_hour', 50000),
         ]);
+    }
+
+    /**
+     * Cek unit kosong dari pembuka landing: ?mulai=2026-11-27T08:00&layanan=lepas_kunci&orang=5
+     * Hasil null bila belum dicari. Tiap kendaraan dicek untuk paket terpendek layanan itu (12 atau 24 jam).
+     */
+    private function cekUnitKosong(Request $request, $models): ?array
+    {
+        if (! $request->filled('mulai')) {
+            return null;
+        }
+        $data = $request->validate([
+            'mulai' => ['required', 'date', 'after:now'],
+            'layanan' => ['nullable', Rule::in(array_keys(RentalPackage::SERVICES))],
+            'orang' => ['nullable', 'integer', 'min:1', 'max:60'],
+        ], ['mulai.after' => 'Waktu mulai sewa harus setelah sekarang.']);
+
+        rescue(fn () => Order::cancelExpired(), 0, false);
+        $mulai = Carbon::parse($data['mulai']);
+        $layanan = $data['layanan'] ?? null;
+        $orang = (int) ($data['orang'] ?? 0);
+
+        $hasil = $models->map(function ($m) use ($mulai, $layanan, $orang) {
+            if ($orang && $m->capacity < $orang) {
+                return null;
+            }
+            $cocok = $m->group->map(function ($v) use ($mulai, $layanan) {
+                $pkg = $v->packages->when($layanan, fn ($c) => $c->where('service', $layanan))->sortBy('duration_hours')->first();
+                if (! $pkg) {
+                    return null;
+                }
+                $kosong = VehicleUnit::where('vehicle_id', $v->id)
+                    ->availableBetween($mulai, $mulai->copy()->addHours($pkg->duration_hours))->count();
+
+                return $kosong ? ['vehicle' => $v, 'paket' => $pkg, 'kosong' => $kosong] : null;
+            })->filter()->sortBy(fn ($x) => $x['paket']->price)->values();
+
+            return $cocok->isEmpty() ? null : (object) [
+                'model' => $m,
+                'kosong' => $cocok->sum('kosong'),
+                'pilihan' => $cocok->first(),
+            ];
+        })->filter()->values();
+
+        return ['mulai' => $mulai, 'layanan' => $layanan, 'orang' => $orang, 'hasil' => $hasil];
     }
 
     /** Halaman detail kendaraan publik: /armada/innova-zenix */

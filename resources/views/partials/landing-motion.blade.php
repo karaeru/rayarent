@@ -64,7 +64,8 @@
             const a = e.target.closest('a[href*="#"]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
             const url = new URL(a.href, location.href);
-            if (url.pathname !== location.pathname || !url.hash) return;
+            // link yang mengubah query (mis. "Hapus pencarian" menghapus ?mulai=…) harus memuat ulang halaman
+            if (url.pathname !== location.pathname || url.search !== location.search || !url.hash || a.hasAttribute('data-reload')) return;
             const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
             if (!target) return;
             e.preventDefault();
@@ -173,10 +174,40 @@
             });
         });
         if (tabs.length) pick(tabs[0].dataset.tab);
+        // "Lihat semua" ⇄ "Tampilkan lebih sedikit": saat dibuka, tabel digulir di dalam kotak (tidak memanjangkan halaman)
         box.querySelectorAll('[data-more]').forEach((btn) => btn.addEventListener('click', () => {
-            btn.closest('[data-pane]').classList.add('is-open');
-            btn.remove();
+            const pane = btn.closest('[data-pane]');
+            const open = pane.classList.toggle('is-open');
+            btn.setAttribute('aria-expanded', String(open));
+            btn.textContent = open ? btn.dataset.labelClose : btn.dataset.labelOpen;
+            const scroller = pane.querySelector('[data-scroll-box]');
+            if (scroller) scroller.scrollTop = 0;
+            if (!open && box.getBoundingClientRect().top < 0) box.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
         }));
+        // ganti tab: tutup lagi daftar panjang di tab sebelumnya
+        tabs.forEach((t) => t.addEventListener('click', () => panes.forEach((p) => {
+            if (p.dataset.pane === t.dataset.tab) return;
+            p.classList.remove('is-open');
+            const b = p.querySelector('[data-more]');
+            if (b) { b.setAttribute('aria-expanded', 'false'); b.textContent = b.dataset.labelOpen; }
+        })));
+    });
+
+    // Daftar kartu panjang (hasil cek unit kosong): 6 kartu dulu, tombol buka/tutup
+    document.querySelectorAll('[data-collapse]').forEach((box) => {
+        const btn = box.querySelector('[data-collapse-toggle]');
+        if (!btn) return;
+        box.classList.add('is-limited');
+        btn.addEventListener('click', () => {
+            const open = box.classList.toggle('is-limited') === false;
+            btn.setAttribute('aria-expanded', String(open));
+            btn.textContent = open ? btn.dataset.labelClose : btn.dataset.labelOpen;
+            if (open) {
+                box.querySelectorAll('.is-extra').forEach((c, i) => { c.style.setProperty('--d', (i % 6) * 50 + 'ms'); c.classList.add('is-pop', 'is-in'); });
+            } else if (box.getBoundingClientRect().top < 0) {
+                box.closest('section')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+            }
+        });
     });
 
     // Panggung foto di pembuka: ganti otomatis, berhenti saat disentuh kursor / tab tidak terlihat
@@ -186,7 +217,7 @@
         const dots = [...stage.querySelectorAll('[data-dot]')];
         let cur = 0, timer = null;
         // slide kontak tampil lebih lama supaya sempat dibaca
-        const dur = (i) => slides[i].dataset.type === 'contact' ? 7000 : 4500;
+        const dur = (i) => slides[i].dataset.type === 'contact' ? 9000 : 4500;
         const restartBar = () => {
             const d = dots[cur]; if (!d) return;
             d.style.setProperty('--dur', dur(cur) + 'ms');
@@ -204,8 +235,10 @@
             dots.forEach((d, i) => { d.classList.toggle('is-active', i === cur); i === cur ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'); });
             restartBar();
         };
+        const pauseBtn = stage.querySelector('[data-pause]');
+        let paused = reduce;   // reduced motion: mulai dalam keadaan dijeda
         const play = () => {
-            if (reduce) return;
+            if (paused) return;
             clearTimeout(timer);
             stage.classList.add('is-playing');
             restartBar();
@@ -213,9 +246,20 @@
         };
         const stop = () => { clearTimeout(timer); stage.classList.remove('is-playing'); };
         dots.forEach((d, i) => d.addEventListener('click', () => { show(i); play(); }));
+        const setPaused = (v) => {
+            paused = v;
+            if (!pauseBtn) return;
+            pauseBtn.setAttribute('aria-pressed', String(v));
+            pauseBtn.setAttribute('aria-label', v ? 'Putar slide otomatis' : 'Jeda slide otomatis');
+            pauseBtn.querySelector('[data-icon-pause]').classList.toggle('hidden', v);
+            pauseBtn.querySelector('[data-icon-play]').classList.toggle('hidden', !v);
+            v ? stop() : play();
+        };
+        pauseBtn?.addEventListener('click', () => setPaused(!paused));
+        if (reduce) setPaused(true);
         stage.addEventListener('pointerenter', stop);
         stage.addEventListener('pointerleave', play);
-        stage.addEventListener('focusin', stop);
+        stage.addEventListener('focusin', (e) => { if (e.target !== pauseBtn) stop(); });
         document.addEventListener('visibilitychange', () => document.hidden ? stop() : play());
         // geser di HP
         let x0 = null;
