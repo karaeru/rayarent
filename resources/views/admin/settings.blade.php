@@ -31,7 +31,7 @@
 </div>
 
 <div class="st-layout">
-<form method="POST" action="{{ route('admin.pengaturan.simpan') }}" class="st-main" id="st-form" data-st-form>
+<form method="POST" action="{{ route('admin.pengaturan.simpan') }}" class="st-main" id="st-form" data-st-form data-confirm-title="Simpan pengaturan?" data-confirm="DP, denda telat, dan batas waktu bayar yang baru langsung dipakai sistem sejak disimpan." data-confirm-ok="Ya, simpan" data-confirm-tone="brand">
     @csrf @method('PUT')
 
     {{-- ============ PEMBAYARAN ============ --}}

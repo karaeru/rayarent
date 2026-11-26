@@ -84,4 +84,15 @@ class TailwindMigrationTest extends TestCase
             $this->get(route($r))->assertOk()->assertSee('rr-container', false)->assertDontSee('css/rayarent.css', false);
         }
     }
+
+    public function test_admin_dashboard_is_written_in_tailwind(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $html = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk()
+            ->assertSee('Dashboard')->assertSee('Pendapatan diterima')->assertSee('data-plot', false)
+            ->getContent();
+
+        $this->assertDoesNotMatchRegularExpression('/class="[^"]*\bdsh-/', $html, 'dasbor masih memakai kelas dsh- lama');
+        $this->assertStringNotContainsString('.dsh-plot', File::get(resource_path('css/rayarent/admin.css')));
+    }
 }

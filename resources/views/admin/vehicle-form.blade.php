@@ -99,7 +99,7 @@
                     </td>
                     <td class="text-right">
                         @unless (in_array($p->id, $usedPackageIds, true))
-                            <form method="POST" action="{{ route('admin.paket.hapus', $p) }}" onsubmit="return confirm('Hapus paket ini?')">
+                            <form method="POST" action="{{ route('admin.paket.hapus', $p) }}" data-confirm-title="Hapus paket ini?" data-confirm="Paket {{ $p->service_label }} {{ $p->duration_hours }} jam ({{ 'Rp'.number_format($p->price, 0, ',', '.') }}) dihapus dari {{ $vehicle->name }}. Tidak bisa dibatalkan." data-confirm-ok="Ya, hapus paket" data-confirm-tone="danger">
                                 @csrf @method('DELETE') <button class="fl-icon-btn" aria-label="Hapus paket {{ $p->service_label }} {{ $p->duration_hours }} jam" title="Hapus">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
                             </form>
@@ -146,9 +146,9 @@
                         @if ($u->status === 'disewa')
                             <span class="fl-dotlabel is-out">Sedang disewa</span>
                         @else
-                            <form method="POST" action="{{ route('admin.unit.status', $u) }}">
+                            <form method="POST" action="{{ route('admin.unit.status', $u) }}" data-confirm-title="Ubah status {{ $u->plate_number }}?" data-confirm="Status unit diubah menjadi :pilihan. Unit berstatus Perawatan tidak muncul saat pelanggan memesan." data-confirm-ok="Ya, ubah" data-confirm-tone="brand">
                                 @csrf @method('PATCH')
-                                <select name="status" class="fl-select fl-select--{{ $u->status }}" onchange="this.form.submit()" aria-label="Status {{ $u->plate_number }}">
+                                <select name="status" class="fl-select fl-select--{{ $u->status }}" onchange="this.form.requestSubmit()" aria-label="Status {{ $u->plate_number }}">
                                     <option value="tersedia" @selected($u->status === 'tersedia')>Tersedia</option>
                                     <option value="perawatan" @selected($u->status === 'perawatan')>Perawatan</option>
                                 </select>
@@ -158,7 +158,7 @@
                     <td class="fl-num fl-muted">{{ $u->orders_count }} pesanan</td>
                     <td class="text-right">
                         @if ($u->orders_count === 0)
-                            <form method="POST" action="{{ route('admin.unit.hapus', $u) }}" onsubmit="return confirm('Hapus unit {{ $u->plate_number }}?')">
+                            <form method="POST" action="{{ route('admin.unit.hapus', $u) }}" data-confirm-title="Hapus unit {{ $u->plate_number }}?" data-confirm="Unit ini dihapus dari {{ $vehicle->name }} dan tidak bisa dipesan lagi. Tidak bisa dibatalkan." data-confirm-ok="Ya, hapus unit" data-confirm-tone="danger">
                                 @csrf @method('DELETE') <button class="fl-icon-btn" aria-label="Hapus unit {{ $u->plate_number }}" title="Hapus">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
                             </form>
@@ -216,7 +216,7 @@
             </div>
         </form>
         @if ($vehicle->photo)
-            <form method="POST" action="{{ route('admin.foto.hapus', $vehicle) }}" onsubmit="return confirm('Hapus foto ini?')" class="fl-photo__del">
+            <form method="POST" action="{{ route('admin.foto.hapus', $vehicle) }}" class="fl-photo__del" data-confirm-title="Hapus foto {{ $vehicle->name }}?" data-confirm="Kartu kendaraan akan tampil dengan ikon mobil sampai foto baru diunggah." data-confirm-ok="Ya, hapus foto" data-confirm-tone="danger">
                 @csrf @method('DELETE') <button class="fl-textbtn is-danger">Hapus foto</button>
             </form>
         @endif

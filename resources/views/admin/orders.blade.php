@@ -111,15 +111,15 @@
                     @if ($pending->isNotEmpty())
                         <button type="button" class="btn btn-sm btn-warn" data-open="cek-{{ $o->id }}">Cek bukti bayar</button>
                     @elseif ($o->status === 'menunggu_konfirmasi')
-                        <form method="POST" action="{{ route('admin.pesanan.konfirmasi', $o) }}">@csrf @method('PATCH')
+                        <form method="POST" action="{{ route('admin.pesanan.konfirmasi', $o) }}" data-confirm-title="Konfirmasi {{ $o->code }}?" data-confirm="{{ $o->unit->vehicle->name }} ({{ $o->unit->plate_number }}) untuk {{ $o->user->name }}, {{ $o->start_at->translatedFormat('d M H:i') }} sampai {{ $o->end_at->translatedFormat('d M H:i') }}. Pelanggan melihat pesanan siap diambil." data-confirm-ok="Ya, konfirmasi" data-confirm-tone="brand">@csrf @method('PATCH')
                             <button @class(['btn btn-sm', 'btn-outline' => $o->paid_amount <= 0]) @disabled($o->paid_amount <= 0) title="{{ $o->paid_amount <= 0 ? 'Belum ada pembayaran yang diterima' : '' }}">Konfirmasi</button></form>
                     @elseif ($o->status === 'dikonfirmasi')
-                        <form method="POST" action="{{ route('admin.pesanan.mulai', $o) }}">@csrf @method('PATCH')
+                        <form method="POST" action="{{ route('admin.pesanan.mulai', $o) }}" data-confirm-title="Serah terima {{ $o->code }}?" data-confirm="{{ $o->unit->vehicle->name }} ({{ $o->unit->plate_number }}) diserahkan ke {{ $o->user->name }}. Status pesanan menjadi Sedang disewa." data-confirm-ok="Ya, serahkan" data-confirm-tone="brand">@csrf @method('PATCH')
                             <button class="btn btn-sm">Serah terima</button></form>
                     @elseif ($o->status === 'sedang_disewa' && ! $o->returned_at)
                         <button type="button" class="btn btn-sm" data-open="kembali-{{ $o->id }}">Catat kembali</button>
                     @elseif ($o->status === 'sedang_disewa' && $o->due_amount > 0)
-                        <form method="POST" action="{{ route('admin.pesanan.tunai', $o) }}" onsubmit="return confirm('Catat pelunasan tunai {{ $rp($o->due_amount) }}?')">@csrf
+                        <form method="POST" action="{{ route('admin.pesanan.tunai', $o) }}" data-confirm-title="Catat pelunasan tunai?" data-confirm="{{ $rp($o->due_amount) }} diterima tunai dari {{ $o->user->name }} untuk {{ $o->code }}. Sisa tagihan menjadi Rp0." data-confirm-ok="Ya, catat lunas" data-confirm-tone="ok">@csrf
                             <button class="btn btn-sm">Lunasi {{ $rp($o->due_amount) }}</button></form>
                     @endif
 
@@ -141,7 +141,7 @@
                                     <span class="ot-menu__info">Kembali {{ $o->returned_at->translatedFormat('d M H:i') }} · denda {{ $rp($o->late_fee) }} · rusak {{ $rp($o->damage_fee) }}</span>
                                 @endif
                                 @if ($bisaBatal)
-                                    <form method="POST" action="{{ route('admin.pesanan.batal', $o) }}" onsubmit="return confirm('Batalkan pesanan {{ $o->code }}?')">@csrf @method('PATCH')
+                                    <form method="POST" action="{{ route('admin.pesanan.batal', $o) }}" data-confirm-title="Batalkan pesanan {{ $o->code }}?" data-confirm="Pesanan {{ $o->user->name }} dibatalkan dan unit {{ $o->unit->plate_number }} dilepas untuk penyewa lain. Tidak bisa dibatalkan." data-confirm-ok="Ya, batalkan pesanan" data-confirm-tone="danger">@csrf @method('PATCH')
                                         <button class="is-danger">Batalkan pesanan</button></form>
                                 @endif
                             </div>
@@ -168,9 +168,9 @@
                                 @endif
                             </div>
                             <div class="ot-dialog__actions">
-                                <form method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}" onsubmit="return confirm('Tolak pembayaran ini?')">@csrf @method('PATCH')
+                                <form method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}" data-confirm-title="Tolak pembayaran ini?" data-confirm="{{ $rp($p->amount) }} dari {{ $o->user->name }} untuk {{ $o->code }} ditandai ditolak. Pelanggan perlu mengunggah bukti baru." data-confirm-ok="Ya, tolak" data-confirm-tone="danger">@csrf @method('PATCH')
                                     <input type="hidden" name="action" value="ditolak"><button class="btn btn-danger-outline">Tolak</button></form>
-                                <form method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}">@csrf @method('PATCH')
+                                <form method="POST" action="{{ route('admin.bayar.verifikasi', $p) }}" data-confirm-title="Terima pembayaran ini?" data-confirm="{{ $rp($p->amount) }}{{ $p->bank ? ' ke '.$p->bank : '' }} dari {{ $o->user->name }} untuk {{ $o->code }} dicatat sebagai diterima. Pastikan dana sudah masuk ke rekening." data-confirm-ok="Ya, terima" data-confirm-tone="ok">@csrf @method('PATCH')
                                     <input type="hidden" name="action" value="diterima"><button class="btn btn-success">Terima pembayaran</button></form>
                             </div>
                         @endforeach
@@ -180,7 +180,7 @@
                 {{-- dialog: catat pengembalian --}}
                 @if ($o->status === 'sedang_disewa' && ! $o->returned_at)
                     <dialog class="ot-dialog" id="kembali-{{ $o->id }}" aria-labelledby="kembali-{{ $o->id }}-t">
-                        <form method="POST" action="{{ route('admin.pesanan.pengembalian', $o) }}">@csrf
+                        <form method="POST" action="{{ route('admin.pesanan.pengembalian', $o) }}" data-confirm-title="Simpan pengembalian {{ $o->code }}?" data-confirm="Waktu kembali, kondisi, dan biaya kerusakan dicatat. Denda telat dihitung otomatis dan ditambahkan ke tagihan {{ $o->user->name }}." data-confirm-ok="Ya, simpan" data-confirm-tone="brand">@csrf
                             <div class="ot-dialog__head">
                                 <h3 id="kembali-{{ $o->id }}-t">Pengembalian {{ $o->code }}</h3>
                                 <button type="button" class="ot-dialog__x" data-close aria-label="Tutup">×</button>

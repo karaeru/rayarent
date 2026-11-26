@@ -33,6 +33,9 @@
 :where(h1){font-size:2em}
 :where(h1,h2,h3,h4,h5,h6){font-weight:700}
 :where(.site-main) :where(svg){display:inline-block;vertical-align:middle}
+/* Preflight Tailwind juga menghapus margin:auto bawaan <dialog>, sehingga dialog menempel di pojok kiri atas.
+   Kembalikan supaya semua dialog (cek bukti bayar, catat kembali, dll.) tampil di tengah layar. */
+dialog:modal{margin:auto;max-height:calc(100dvh - 32px);overflow:auto}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font);-webkit-font-smoothing:antialiased}

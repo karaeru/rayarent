@@ -297,5 +297,6 @@
         }
     })();
 </script>
+<x-confirm-dialog />
 </body>
 </html>

@@ -148,3 +148,42 @@
         [data-timer-bar] { transition: none; }
     }
 }
+
+/*
+ * Paket 4 · admin. Grafik batang dasbor: tinggi batang dari data (style inline), garis bantu dan label sumbu dalam HTML.
+ * Disorot: batang lain meredup, batang aktif penuh (umpan balik arah kursor/keyboard).
+ */
+@layer components {
+    .rr-plot { position: relative; height: 240px; padding: 0 0 24px 64px; }
+    .rr-plot__grid { position: absolute; inset: 0 0 24px 64px; }
+    .rr-plot__line { position: absolute; left: 0; right: 0; border-top: 1px solid #eef1f4; }
+    .rr-plot__line:last-child { border-top-color: #d5dbe2; }
+    .rr-plot__line span { position: absolute; right: calc(100% + 10px); top: -.55em; font-size: .72rem; line-height: 1; color: var(--color-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .rr-plot__bars { position: relative; display: flex; align-items: flex-end; gap: 3px; height: 100%; margin: 0; padding: 0; list-style: none; border-radius: 4px; }
+    .rr-plot__bars li { position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; }
+    .rr-plot__bars li::before { content: ''; position: absolute; inset: 0 -1.5px; border-radius: 3px; transition: background .12s; }
+    .rr-plot__bars li.is-active::before { background: #f3f5f8; }
+    .rr-plot__bar { position: relative; display: block; width: 100%; max-width: 22px; margin: 0 auto; border-radius: 2px 2px 0 0; background: var(--color-brand); opacity: .82; transition: opacity .12s; }
+    .rr-plot__bars li.is-today .rr-plot__bar, .rr-plot__bars li.is-active .rr-plot__bar { opacity: 1; }
+    .rr-plot__bars:hover li:not(.is-active) .rr-plot__bar { opacity: .4; }
+    .rr-plot__x { position: absolute; left: 64px; right: 0; bottom: 0; display: flex; gap: 3px; height: 18px; }
+    .rr-plot__x span { flex: 1; display: flex; justify-content: center; min-width: 0; font-size: .72rem; color: var(--color-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .rr-plot__x span:last-child { justify-content: flex-end; }
+    @media (max-width: 600px) {
+        .rr-plot { height: 200px; padding-left: 52px; }
+        .rr-plot__grid { left: 52px; }
+        .rr-plot__x { left: 52px; }
+        .rr-plot__bars, .rr-plot__x { gap: 1px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .rr-plot__bar, .rr-plot__bars li::before { transition: none; } }
+    @media print { .rr-card { break-inside: avoid; } }
+}
+
+/* Kotak konfirmasi: muncul sedikit membesar dari tengah (menandai lapisan baru di atas halaman) */
+@layer components {
+    .rr-confirm[open] { animation: rr-confirm-in .18s var(--ease-soft); }
+    .rr-confirm[open]::backdrop { animation: rr-fade .18s ease; }
+    @keyframes rr-confirm-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes rr-fade { from { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .rr-confirm[open], .rr-confirm[open]::backdrop { animation: none; } }
+}

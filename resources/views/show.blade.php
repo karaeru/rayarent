@@ -252,10 +252,10 @@
     </section>
 
     @if ($order->status === 'menunggu_konfirmasi' && $order->paid_amount === 0 && ! $menungguVerifikasi)
-        <form method="POST" action="{{ route('pelanggan.pesanan.batal', $order) }}" class="flex flex-col items-center gap-1 text-center text-sm text-muted">
+        <form method="POST" action="{{ route('pelanggan.pesanan.batal', $order) }}" class="flex flex-col items-center gap-1 text-center text-sm text-muted" data-confirm-title="Batalkan pesanan {{ $order->code }}?" data-confirm="{{ $order->unit->vehicle->name }} pada {{ $order->start_at->translatedFormat('d M Y, H:i') }} dilepas untuk penyewa lain. Pesanan yang dibatalkan tidak bisa diaktifkan lagi." data-confirm-ok="Ya, batalkan" data-confirm-tone="danger">
             @csrf
             @method('DELETE')
-            <button class="btn btn-block border-bad bg-white text-bad hover:border-bad hover:bg-bad-soft hover:text-bad" onclick="return confirm('Yakin ingin membatalkan pesanan {{ $order->code }}?')">Batalkan Pesanan</button>
+            <button class="btn btn-block border-bad bg-white text-bad hover:border-bad hover:bg-bad-soft hover:text-bad">Batalkan Pesanan</button>
             <span>Gratis selama belum ada pembayaran.</span>
         </form>
     @elseif ($order->status === 'menunggu_konfirmasi')
