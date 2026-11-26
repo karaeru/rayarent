@@ -33,7 +33,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Dashboard</h2>
+        <h1>Dashboard</h1>
         <p class="page-sub">{{ now()->translatedFormat('l, d F Y') }}</p>
     </div>
     <div class="row">
@@ -216,7 +216,7 @@
                         <b>{{ $stats['menunggu_konfirmasi_lunas'] }} pesanan sudah dibayar</b>
                         <span>Pembayaran diterima, tinggal dikonfirmasi</span>
                     </div>
-                    <span class="dsh-task__meta">Buka →</span>
+                    <span class="dsh-task__meta">Buka</span>
                 </a>
             @endif
 

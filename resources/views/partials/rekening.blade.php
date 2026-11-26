@@ -19,7 +19,7 @@
 
                 <span class="rek__logo">
                     @if ($r['logo'])
-                        <img src="{{ $r['logo'] }}" alt="{{ $r['bank'] }}">
+                        <img src="{{ $r['logo'] }}" alt="{{ $r['bank'] }}" width="160" height="56">
                     @else
                         <span class="rek__logo-text">{{ $r['bank'] }}</span>
                     @endif

@@ -15,7 +15,7 @@
 @section('content')
 <div class="page-head">
     <div>
-        <h2>Pesanan</h2>
+        <h1>Pesanan</h1>
         <p class="page-sub">
             {{ $orders->total() }} pesanan{{ request()->hasAny(['search', 'status']) ? ' sesuai filter' : '' }}
             @if ($perluTindakan) · <a href="{{ route('admin.pesanan', ['status' => 'menunggu_konfirmasi']) }}" class="ot-alert">{{ $perluTindakan }} bukti bayar menunggu dicek</a> @endif

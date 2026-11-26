@@ -7,13 +7,13 @@
     <div>
         <div class="media-hero">
             @if ($vehicle->photo_url)
-                <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}">
+                <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1200">
             @else
                 <span class="media-placeholder" ><x-car-icon :type="$vehicle->icon" /></span>
             @endif
         </div>
 
-        <h2>{{ $vehicle->name }}</h2>
+        <h1>{{ $vehicle->name }}</h1>
         <p class="page-sub">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</p>
 
         <div class="specs">

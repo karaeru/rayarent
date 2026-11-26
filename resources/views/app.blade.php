@@ -39,7 +39,7 @@
     <div class="container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
             @if ($logo)
-                <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true">
+                <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true" width="36" height="36">
                 <span>{{ config('rayarent.nama') }}</span>
             @else
                 <span class="brand__mark" aria-hidden="true">R</span>
@@ -104,7 +104,7 @@
         <div class="ft-grid">
             <div class="ft-brand">
                 <a class="brand" href="{{ $home }}">
-                    @if ($logo) <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true"> @else <span class="brand__mark" aria-hidden="true">R</span> @endif
+                    @if ($logo) <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true" width="36" height="36"> @else <span class="brand__mark" aria-hidden="true">R</span> @endif
                     <span>{{ config('rayarent.nama') }}</span>
                 </a>
                 <p>{{ config('rayarent.tagline') }}{{ config('rayarent.kota') ? ' di '.config('rayarent.kota') : '' }}.</p>

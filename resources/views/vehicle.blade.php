@@ -14,7 +14,7 @@
 <div class="ar-top">
     <div class="ar-media">
         @if ($vehicle->photo_url)
-            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}">
+            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1000" fetchpriority="high">
         @else
             <span class="media-placeholder"><x-car-icon :type="$vehicle->icon" /></span>
         @endif
@@ -48,7 +48,7 @@
                 <span class="ar-pkg__dur">{{ $p->duration_hours }} jam per periode</span>
                 <b class="ar-pkg__price">{{ $rp($p->price) }}</b>
                 <span class="small muted">{{ $keterangan[$p->service] ?? '' }}</span>
-                <span class="cu-pkg__go">Pilih paket ini →</span>
+                <span class="cu-pkg__go">Pilih paket ini</span>
             </a>
         @endforeach
     </div>

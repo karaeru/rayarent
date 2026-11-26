@@ -11,7 +11,7 @@
   --brand-gradient:linear-gradient(120deg,#00808a 0%,#007f9e 45%,#3d6fd1 100%);
 
   /* NETRAL */
-  --bg:#f5f7fa; --surface:#fff; --ink:#111827; --ink-2:#374151; --muted:#6b7280;
+  --bg:#f5f7fa; --surface:#fff; --ink:#111827; --ink-2:#374151; --muted:#4b5563;
   --line:#e5e7eb; --line-strong:#cfd5dd;
 
   /* STATUS */
@@ -786,13 +786,13 @@ h2{font-size:clamp(1.5rem,2.4vw,1.9rem)}
 
 /* --- tombol WhatsApp melayang --- */
 .wa-float{position:fixed;right:20px;bottom:20px;z-index:45;display:flex;align-items:center;gap:0;height:56px;padding:0 16px;border-radius:999px;
-  background:#25d366;color:#fff;box-shadow:0 8px 24px rgba(18,140,70,.35);text-decoration:none;
+  background:#0e7a40;color:#fff;box-shadow:0 8px 24px rgba(18,140,70,.35);text-decoration:none;
   animation:wa-in .6s cubic-bezier(.2,.8,.2,1) 1.2s both;transition:gap .3s,bottom .3s cubic-bezier(.2,.7,.2,1),background .2s}
 .wa-float .social-icon{width:26px;height:26px;flex:none}
 .wa-float__label{max-width:0;overflow:hidden;white-space:nowrap;font-weight:700;transition:max-width .35s cubic-bezier(.2,.7,.2,1)}
-.wa-float:hover{gap:10px;background:#1ebe5b;color:#fff;text-decoration:none}
+.wa-float:hover{gap:10px;background:#0b6634;color:#fff;text-decoration:none}
 .wa-float:hover .wa-float__label{max-width:160px}
-.wa-float::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid #25d366;animation:wa-ring 2.4s ease-out 2s 3}
+.wa-float::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid #0e7a40;animation:wa-ring 2.4s ease-out 2s 3}
 @keyframes wa-in{from{opacity:0;transform:translateY(24px) scale(.6)}to{opacity:1;transform:none}}
 @keyframes wa-ring{from{transform:scale(1);opacity:.7}to{transform:scale(1.5);opacity:0}}
 body.has-sticky-buy .wa-float{bottom:84px}
@@ -1010,8 +1010,8 @@ body.has-sticky-buy .wa-float{bottom:84px}
 .ot-actions{width:1%;white-space:nowrap;text-align:right}
 .ot-actions__row{display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .ot-actions form{display:inline}
-.btn-warn{background:#d97706;color:#fff}
-.btn-warn:hover{background:#b45309;color:#fff}
+.btn-warn{background:#b45309;color:#fff}
+.btn-warn:hover{background:#92400e;color:#fff}
 .ot-menu{position:relative}
 .ot-menu summary{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;list-style:none;color:var(--ink-2)}
 .ot-menu summary::-webkit-details-marker{display:none}
@@ -1686,3 +1686,70 @@ a.dsh-kpi:hover{background:#fafbfc;text-decoration:none;color:var(--ink)}
   .au{margin-top:0;border-radius:var(--radius)}
   .au-grid{grid-template-columns:1fr}
 }
+
+/* ==========================================================================
+   Fase 1 · Hard Gate (PRD): kontras, fokus, judul halaman, tab tombol
+   ========================================================================== */
+/* H3: teks brand di atas latar toska muda memakai brand gelap (7,3:1 di putih, 6,6:1 di #e2f6fa) */
+.ot-tabs a.is-active,.ot-tabs button.is-active,.guest-nav a.is-active,.guest-nav a.is-spy,.nav a.is-active,
+.cu-active span,.vcard__variants a,.fleet-filter button.is-active span,.bk-step__no,.od-label span,
+.dsh-list li>a.is-current,.fl-drop b,.bk-now b{color:var(--brand-strong)}
+.ot-tabs a.is-active span,.ot-tabs button.is-active span{background:var(--brand-strong)}
+
+/* H5 / AD-2: indikator fokus yang jelas (minimal 3:1) pada semua kolom isian dan kontrol */
+input:focus-visible,select:focus-visible,textarea:focus-visible,
+.field input:focus,.field select:focus,.field textarea:focus,.input:focus,
+.ot-search input:focus,.rp-field input:focus,.rp-field select:focus,
+.fl-add select:focus,.fl-plate-input:focus,.fl-confirm:focus,.fl-select:focus{
+  outline:2px solid var(--brand-strong);outline-offset:1px;border-color:var(--brand-strong)}
+.fl-money:focus-within,.st-input:focus-within,.bk-qty:focus-within{outline:2px solid var(--brand-strong);outline-offset:1px;border-color:var(--brand-strong)}
+button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--brand-strong);outline-offset:2px}
+
+/* PL-1 / AD-1: judul halaman kini h1, ukurannya sama dengan judul sebelumnya */
+.dsh-head h1,.page-head h1{font-size:1.6rem;letter-spacing:-.02em;line-height:1.25}
+.od-title{font-size:1.6rem}
+
+/* PB-6: tab filter berupa button, tampil sama seperti tab tautan */
+.ot-tabs button{display:flex;align-items:center;gap:7px;padding:7px 12px;border:0;border-radius:var(--radius-sm);background:none;
+  color:var(--ink-2);font:600 .88rem var(--font);white-space:nowrap;cursor:pointer;transition:background .15s,color .15s}
+.ot-tabs button span{min-width:22px;padding:0 6px;border-radius:999px;background:var(--bg);font-size:.72rem;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.6}
+.ot-tabs button:hover{background:var(--bg)}
+.ot-tabs button.is-active{background:var(--brand-soft)}
+.ot-tabs button.is-active span{color:#fff}
+
+/* AX-3: area sentuh minimal 44 px untuk kontrol kecil di layar sentuh */
+@media (pointer:coarse){
+  .btn-sm,.ot-tabs a,.ot-tabs button,.fleet-filter button,.rp-presets a,.od-chips button,.rek__copy,.fl-icon-btn,.ot-menu summary,.ot-icon{min-height:44px;min-width:44px}
+  .check input,.agree input{width:22px;height:22px}
+}
+
+/* AX-2: tautan di dalam paragraf tidak hanya dibedakan dengan warna */
+.sk-body a,.lp-lead a,.page-sub a,.hint a,.au-legal a,.au-foot a,.agree a{text-decoration:underline;text-underline-offset:2px}
+
+/* PB-1: gambar yang kini punya width/height tetap mengikuti ukuran tampilannya */
+img{height:auto}
+.vcard__media img,.lp-slide__photo,.ar-media img,.fl-thumb img,.fl-photo img,.od-car__media img,.lp-slide--car .lp-slide__car img{height:100%}
+.brand__logo{height:36px;width:auto}
+.au-side__brand img{height:30px;width:auto}
+.rek__logo img{width:auto;height:auto;max-width:100%;max-height:100%}
+.st-acc__bank img{width:auto;height:auto;max-width:100%;max-height:100%}
+
+/* ==========================================================================
+   Fase 2 · Purpose-Gate (PRD). Setiap pola yang dipertahankan punya alasan di DESIGN.md
+   ========================================================================== */
+/* R-12: bayangan hanya untuk elemen yang benar-benar terangkat (menu, dialog, bar simpan, tombol WA). Kartu cukup border. */
+.vcard,.card,.dsh-card,.dsh-kpis,.table-wrap,.lp-pricelist,.pl,.rek__item,.kt-map,.au,.co-item,.ar-pkg{box-shadow:none}
+.vcard:hover,.co-item:hover,.ar-pkg:hover{box-shadow:none;border-color:var(--line-strong)}
+.vcard:hover{transform:none}
+
+/* R-01: gradasi logo hanya di kotak ajakan dan slide kontak; tempat lain memakai warna solid */
+.lp-steps::before,.lp-stage__dots .is-active span::after,.guest-nav__pill::after{background:var(--brand)}
+.lp-eyebrow{background:none;color:var(--brand-strong)}
+
+/* R-19: animasi tanpa makna dihapus; yang tersisa membawa informasi (muncul saat scroll, slide, hitung mundur) */
+.tt-logo img,.tt-logo__mark{animation:none}
+.tt-logo__ring{display:none}
+.lp-road{display:none}
+.lp-cta::before{display:none}
+.wa-float::before{display:none}
+.db-dot.is-danger{animation:none}

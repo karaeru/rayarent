@@ -50,7 +50,7 @@
 <div class="ar-top">
     <div class="ar-media" data-hero>
         @if ($vehicle->photo_url)
-            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1200">
+            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1000" fetchpriority="high">
         @else
             <span class="media-placeholder"><x-car-icon :type="$vehicle->icon" /></span>
         @endif
@@ -109,7 +109,7 @@
 <section class="lp-section lp-terms" data-reveal>
     <div class="lp-head">
         <h2>Ketentuan singkat</h2>
-        <a href="{{ route('syarat') }}">Syarat &amp; Ketentuan lengkap →</a>
+        <a href="{{ route('syarat') }}">Syarat &amp; Ketentuan lengkap</a>
     </div>
     <dl>
         <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa, atau langsung lunas.</dd></div>
@@ -124,10 +124,10 @@
     <div class="lp-head" data-reveal><h2>Kendaraan serupa</h2></div>
     <div class="vgrid">
         @foreach ($lainnya as $v)
-            <article class="vcard" data-reveal data-tilt>
+            <article class="vcard" data-reveal>
                 <a class="vcard__media" href="{{ route('armada', $v->slug) }}" tabindex="-1" aria-hidden="true">
                     @if ($v->photo_url)
-                        <img src="{{ $v->photo_url }}" alt="" loading="lazy">
+                        <img src="{{ $v->photo_url }}" alt="" width="800" height="500" loading="lazy">
                     @else
                         <span class="media-placeholder"><x-car-icon :type="$v->icon" /></span>
                     @endif

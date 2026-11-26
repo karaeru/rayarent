@@ -29,7 +29,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Laporan</h2>
+        <h1>Laporan</h1>
         <p class="page-sub">{{ $periode }}{{ $status ? ' · '.$statusLabel[$status] : '' }} · berdasarkan tanggal mulai sewa</p>
     </div>
     <div class="row">

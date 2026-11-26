@@ -8,6 +8,12 @@ dan admin mengelola pesanan, pembayaran, armada, serta laporan pendapatan.
 
 ---
 
+## Arah desain
+
+Panduan warna, tipografi, gerak, dan aturan aksesibilitas ada di [`DESIGN.md`](DESIGN.md). Baca file itu sebelum mengubah tampilan.
+
+---
+
 ## Fitur
 
 ### Pengunjung (tanpa login)

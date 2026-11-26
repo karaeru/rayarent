@@ -26,7 +26,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Pesanan saya</h2>
+        <h1>Pesanan saya</h1>
         <p class="page-sub">{{ $orders->count() }} pesanan · status dan langkah berikutnya untuk tiap pesanan</p>
     </div>
     <a class="btn btn-sm" href="{{ route('pelanggan.katalog') }}">Sewa kendaraan</a>
@@ -40,12 +40,12 @@
         <a class="btn btn-sm" href="{{ route('pelanggan.katalog') }}">Lihat katalog</a>
     </div>
 @else
-    <nav class="ot-tabs co-tabs" aria-label="Saring pesanan">
+    <div class="ot-tabs co-tabs" role="group" aria-label="Saring pesanan">
         @foreach (['aktif' => 'Berjalan', 'selesai' => 'Selesai', 'batal' => 'Dibatalkan', 'semua' => 'Semua'] as $k => $l)
             @php $n = $k === 'semua' ? $orders->count() : ($hitung[$k] ?? 0); @endphp
-            <a href="#{{ $k }}" data-tab="{{ $k }}" @class(['is-active' => $awal === $k])>{{ $l }} <span>{{ $n }}</span></a>
+            <button type="button" data-tab="{{ $k }}" aria-pressed="{{ $awal === $k ? 'true' : 'false' }}" @class(['is-active' => $awal === $k])>{{ $l }} <span>{{ $n }}</span></button>
         @endforeach
-    </nav>
+    </div>
 
     <div class="co-list" data-list>
         @foreach ($orders as $o)
@@ -54,7 +54,7 @@
                @class(['co-item', 'is-attention' => in_array($nada, ['warn', 'danger'], true), 'is-cancelled' => $o->status === 'dibatalkan'])>
                 <span class="fl-thumb co-item__thumb">
                     @if ($o->unit->vehicle->photo_url)
-                        <img src="{{ $o->unit->vehicle->photo_url }}" alt="" loading="lazy">
+                        <img src="{{ $o->unit->vehicle->photo_url }}" alt="" width="168" height="108" loading="lazy">
                     @else
                         <x-car-icon :type="$o->unit->vehicle->icon" />
                     @endif
@@ -94,7 +94,7 @@
         let n = 0;
         items.forEach((i) => { const ok = k === 'semua' || i.dataset.group === k; i.hidden = !ok; n += ok; });
         none.hidden = n > 0;
-        tabs.forEach((t) => { const on = t.dataset.tab === k; t.classList.toggle('is-active', on); on ? t.setAttribute('aria-current', 'true') : t.removeAttribute('aria-current'); });
+        tabs.forEach((t) => { const on = t.dataset.tab === k; t.classList.toggle('is-active', on); t.setAttribute('aria-pressed', on); });
     };
     tabs.forEach((t) => t.addEventListener('click', (e) => { e.preventDefault(); history.replaceState(null, '', '#' + t.dataset.tab); pilih(t.dataset.tab); }));
     const dariUrl = location.hash.slice(1);

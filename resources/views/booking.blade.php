@@ -18,7 +18,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Pesan {{ $vehicle->name }}</h2>
+        <h1>Pesan {{ $vehicle->name }}</h1>
         <p class="page-sub">Lengkapi 4 langkah di bawah. Unit yang kosong dicek otomatis setiap kali Anda mengubah jadwal.</p>
     </div>
 </div>
@@ -126,7 +126,7 @@
         <div class="dsh-card bk-summary">
             <div class="bk-car">
                 <span class="fl-thumb bk-car__thumb">
-                    @if ($vehicle->photo_url) <img src="{{ $vehicle->photo_url }}" alt=""> @else <x-car-icon :type="$vehicle->icon" /> @endif
+                    @if ($vehicle->photo_url) <img src="{{ $vehicle->photo_url }}" alt="" width="168" height="108"> @else <x-car-icon :type="$vehicle->icon" /> @endif
                 </span>
                 <span>
                     <b>{{ $vehicle->name }}</b>

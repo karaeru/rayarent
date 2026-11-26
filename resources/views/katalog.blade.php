@@ -10,7 +10,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Pilih kendaraan</h2>
+        <h1>Pilih kendaraan</h1>
         <p class="page-sub">{{ $vehicles->count() }} kendaraan{{ $f ? ' sesuai pencarian' : ' siap disewa' }} · ketersediaan unit dicek saat Anda memilih tanggal</p>
     </div>
     <a class="btn btn-outline btn-sm" href="{{ route('pelanggan.pesanan') }}">Pesanan saya</a>
@@ -56,7 +56,7 @@
         <article class="vcard">
             <a class="vcard__media" href="{{ route('pelanggan.kendaraan', $v) }}" tabindex="-1" aria-hidden="true">
                 @if ($v->photo_url)
-                    <img src="{{ $v->photo_url }}" alt="" loading="lazy">
+                    <img src="{{ $v->photo_url }}" alt="" width="800" height="500" loading="lazy">
                 @else
                     <span class="media-placeholder"><x-car-icon :type="$v->icon" /></span>
                 @endif

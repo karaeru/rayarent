@@ -10,13 +10,13 @@
 <div @class(['au', 'au--wide' => $wide])>
     <aside class="au-side" aria-hidden="true">
         <div class="au-side__brand">
-            @if ($logo) <img src="{{ asset('images/logo.'.$logo) }}" alt=""> @endif
+            @if ($logo) <img src="{{ asset('images/logo.'.$logo) }}" alt="" width="30" height="30"> @endif
             <span>{{ $nama }}</span>
         </div>
 
         <div class="au-side__media">
             @if ($foto)
-                <img src="{{ $foto }}" alt="">
+                <img src="{{ $foto }}" alt="" width="800" height="500">
             @else
                 <x-car-icon type="mpv" />
             @endif

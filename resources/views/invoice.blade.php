@@ -44,6 +44,7 @@
         .muted{color:#6b7280}
         footer{margin-top:40px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;display:flex;justify-content:space-between;gap:24px}
         .rek-inv{width:auto;margin:4px 0 8px}
+        .inv-bank{height:16px;width:56px;object-fit:contain;object-position:left;vertical-align:middle}
         .rek-inv td{padding:2px 16px 2px 0;border:0;color:#111827;font-size:12px}
         @media print{
             body{background:#fff}
@@ -63,7 +64,7 @@
 <main class="sheet">
     <header>
         <div class="brand">
-            @if ($logo) <img src="{{ asset('images/logo.'.$logo) }}" alt=""> @endif
+            @if ($logo) <img src="{{ asset('images/logo.'.$logo) }}" alt="" width="44" height="44"> @endif
             <div>
                 <b>{{ $nama }}</b>
                 <small>{{ config('rayarent.alamat') }}</small>
@@ -132,7 +133,7 @@
                     @foreach (config('rayarent.rekening') as $r)
                         @php $lg = collect(['svg', 'png', 'webp'])->first(fn ($e) => file_exists(public_path('images/bank/'.strtolower($r['bank']).'.'.$e))); @endphp
                         <tr>
-                            <td>@if ($lg)<img src="{{ asset('images/bank/'.strtolower($r['bank']).'.'.$lg) }}" alt="{{ $r['bank'] }}" style="height:16px;width:56px;object-fit:contain;object-position:left;vertical-align:middle">@else<b>{{ $r['bank'] }}</b>@endif</td>
+                            <td>@if ($lg)<img src="{{ asset('images/bank/'.strtolower($r['bank']).'.'.$lg) }}" alt="{{ $r['bank'] }}" width="56" height="16" class="inv-bank">@else<b>{{ $r['bank'] }}</b>@endif</td>
                             <td>{{ trim(chunk_split($r['nomor'], 4, ' ')) }}</td><td>a.n. {{ $r['nama'] }}</td>
                         </tr>
                     @endforeach

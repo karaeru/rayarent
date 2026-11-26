@@ -14,7 +14,6 @@
 {{-- ============ PEMBUKA ============ --}}
 <section class="lp-hero">
     <div class="lp-hero__text" data-hero>
-        <p class="lp-eyebrow">Rental mobil &amp; minibus{{ config('rayarent.kota') ? ' · '.config('rayarent.kota') : '' }}</p>
         <h1>Mau ke mana hari ini? Mobilnya sudah siap.</h1>
         <p class="lp-lead">
             Sewa per 12 atau 24 jam, setir sendiri atau pakai driver.
@@ -47,8 +46,8 @@
                 @switch($s['type'])
                     @case('logo')
                         <div class="tt-logo lp-slide__logo" aria-hidden="true">
-                            <span class="tt-logo__ring"></span><span class="tt-logo__ring"></span>
-                            @if ($s['src']) <img src="{{ $s['src'] }}" alt=""> @else <span class="tt-logo__mark">R</span> @endif
+                            
+                            @if ($s['src']) <img src="{{ $s['src'] }}" alt="" width="260" height="260" fetchpriority="high"> @else <span class="tt-logo__mark">R</span> @endif
                         </div>
                         <div class="lp-slide__brand">
                             <b>{{ config('rayarent.nama') }}</b>
@@ -57,7 +56,7 @@
                         @break
 
                     @case('photo')
-                        <img class="lp-slide__photo" src="{{ $s['src'] }}" alt="{{ $s['title'] }}" loading="lazy">
+                        <img class="lp-slide__photo" src="{{ $s['src'] }}" alt="{{ $s['title'] }}" width="1200" height="960" loading="lazy">
                         <div class="lp-slide__overlay">
                             <span class="lp-slide__tag">Pelanggan kami</span>
                             <b>{{ $s['title'] }}</b>
@@ -66,7 +65,7 @@
 
                     @case('car')
                         <a class="lp-slide__car" href="{{ $s['url'] }}" tabindex="-1">
-                            <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" loading="lazy">
+                            <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" width="1200" height="960" loading="lazy">
                         </a>
                         <a class="lp-slide__cap" href="{{ $s['url'] }}">
                             <b>{{ $s['title'] }}</b>
@@ -136,10 +135,10 @@
 
         <div class="vgrid" data-fleet-grid>
             @foreach ($models as $n => $m)
-                <article @class(['vcard', 'is-extra' => $n >= $awal]) data-cat="{{ $m->category }}" data-reveal data-tilt>
+                <article @class(['vcard', 'is-extra' => $n >= $awal]) data-cat="{{ $m->category }}" data-reveal>
                     <a class="vcard__media" href="{{ route('armada', $m->main->slug) }}" tabindex="-1" aria-hidden="true">
                         @if ($m->photo)
-                            <img src="{{ $m->photo }}" alt="" loading="lazy">
+                            <img src="{{ $m->photo }}" alt="" width="800" height="500" loading="lazy">
                         @else
                             <span class="media-placeholder"><x-car-icon :type="$m->icon" /></span>
                         @endif
@@ -262,7 +261,7 @@
 <section class="lp-section lp-terms lp-band lp-band--soft" id="ketentuan" data-reveal>
     <div class="lp-head" data-reveal>
         <h2>Yang perlu diketahui</h2>
-        <a href="{{ route('syarat') }}">Baca Syarat &amp; Ketentuan lengkap →</a>
+        <a href="{{ route('syarat') }}">Baca Syarat &amp; Ketentuan lengkap</a>
     </div>
     <dl>
         <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa. Anda juga bisa langsung bayar lunas.</dd></div>
@@ -273,7 +272,7 @@
 </section>
 
 {{-- ============ PENUTUP ============ --}}
-<section class="lp-cta" data-reveal data-spot>
+<section class="lp-cta" data-reveal>
     <div>
         <h2>Sudah tahu mau sewa apa?</h2>
         <p>Pesan sekarang dan cek unit yang kosong{{ config('rayarent.jam_operasional') ? '. '.config('rayarent.jam_operasional') : '' }}.</p>

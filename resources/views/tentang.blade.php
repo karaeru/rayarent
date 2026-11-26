@@ -18,7 +18,6 @@
 
 <section class="lp-hero tt-hero">
     <div class="lp-hero__text">
-        <p class="lp-eyebrow">Tentang {{ $nama }}</p>
         <h1>Rental kendaraan{{ $kota ? ' di '.$kota : '' }} yang mengurus semuanya lewat jadwal, bukan tebak-tebakan.</h1>
         {{-- Ganti paragraf ini dengan cerita singkat usaha Anda --}}
         <p class="lp-lead">
@@ -29,10 +28,8 @@
     <div class="tt-side">
         <div class="tt-logo" data-reveal aria-hidden="true">
             <span class="tt-logo__blob"></span>
-            <span class="tt-logo__ring"></span>
-            <span class="tt-logo__ring"></span>
             @if ($logo)
-                <img src="{{ asset('images/logo.'.$logo) }}" alt="">
+                <img src="{{ asset('images/logo.'.$logo) }}" alt="" width="260" height="260" fetchpriority="high">
             @else
                 <span class="tt-logo__mark">R</span>
             @endif
@@ -44,7 +41,6 @@
             <div><dt>Kapasitas</dt><dd>{{ $kursiMin }}–{{ $kursiMax }}<small>kursi</small></dd></div>
         </dl>
     </div>
-    <div class="lp-road" aria-hidden="true"><x-car-icon type="van" class="lp-road__car" /></div>
 </section>
 
 <section class="lp-section">
@@ -68,7 +64,7 @@
 <section class="lp-section">
     <div class="lp-head" data-reveal>
         <h2>Layanan</h2>
-        <a href="{{ route('home') }}#harga">Lihat daftar harga →</a>
+        <a href="{{ route('home') }}#harga">Lihat daftar harga</a>
     </div>
     <ul class="tt-services" data-reveal>
         @foreach ($layanan as $l)
@@ -81,7 +77,7 @@
 <section class="lp-section">
     <div class="lp-head" data-reveal>
         <h2>Lokasi</h2>
-        <a href="{{ route('kontak') }}">Kontak lengkap →</a>
+        <a href="{{ route('kontak') }}">Kontak lengkap</a>
     </div>
     @include('partials.map')
 </section>

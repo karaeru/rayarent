@@ -10,7 +10,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Kendaraan</h2>
+        <h1>Kendaraan</h1>
         <p class="page-sub">{{ $vehicles->count() }} kendaraan · {{ $unit->sum() }} unit</p>
     </div>
     <a class="btn btn-sm" href="{{ route('admin.kendaraan.baru') }}">Tambah kendaraan</a>
@@ -28,15 +28,15 @@
 </section>
 
 <div class="ot-toolbar">
-    <nav class="ot-tabs" aria-label="Saring kategori">
-        <a href="#" class="is-active" data-filter-btn="">Semua <span>{{ $vehicles->count() }}</span></a>
+    <div class="ot-tabs" role="group" aria-label="Saring kategori">
+        <button type="button" class="is-active" aria-pressed="true" data-filter-btn="">Semua <span>{{ $vehicles->count() }}</span></button>
         @foreach (\App\Models\Vehicle::CATEGORIES as $key => $label)
             @if ($kategori->has($key))
-                <a href="#" data-filter-btn="{{ $key }}">{{ $label }} <span>{{ $kategori[$key]->count() }}</span></a>
+                <button type="button" aria-pressed="false" data-filter-btn="{{ $key }}">{{ $label }} <span>{{ $kategori[$key]->count() }}</span></button>
             @endif
         @endforeach
-        <a href="#" data-filter-btn="kurang">Perlu dilengkapi <span>{{ $kurang->count() }}</span></a>
-    </nav>
+        <button type="button" aria-pressed="false" data-filter-btn="kurang">Perlu dilengkapi <span>{{ $kurang->count() }}</span></button>
+    </div>
     <div class="ot-search" role="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input type="search" placeholder="Cari nama kendaraan" aria-label="Cari kendaraan" data-search>
@@ -72,7 +72,7 @@
                 <a class="fl-item" href="{{ route('admin.kendaraan.ubah', $v) }}">
                     <span class="fl-thumb">
                         @if ($v->photo_url)
-                            <img src="{{ $v->photo_url }}" alt="" loading="lazy">
+                            <img src="{{ $v->photo_url }}" alt="" width="160" height="105" loading="lazy">
                         @else
                             <x-car-icon :type="$v->icon" />
                         @endif
@@ -169,7 +169,7 @@
         rows.forEach((r) => { r.hidden = true; });
         cocok.slice(awal, akhir).forEach((r) => { r.hidden = false; });
         empty.hidden = cocok.length > 0 || !rows.length;
-        tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.filterBtn === filter));
+        tabs.forEach((t) => { const on = t.dataset.filterBtn === filter; t.classList.toggle('is-active', on); t.setAttribute('aria-pressed', on); });
 
         // pager: tampil bila hasil lebih dari satu halaman (atau sedang "tampilkan semua")
         pager.hidden = cocok.length <= PER_HALAMAN;

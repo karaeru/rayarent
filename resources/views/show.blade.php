@@ -26,7 +26,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2 class="od-title">{{ $order->code }} <x-order-status :status="$order->status" /> @if ($order->status !== 'dibatalkan') <x-payment-status :status="$order->payment_status" /> @endif</h2>
+        <h1 class="od-title">{{ $order->code }} <x-order-status :status="$order->status" /> @if ($order->status !== 'dibatalkan') <x-payment-status :status="$order->payment_status" /> @endif</h1>
         <p class="page-sub">Dipesan {{ $order->created_at->translatedFormat('d M Y, H:i') }}</p>
     </div>
     @if ($order->status !== 'dibatalkan')
@@ -218,7 +218,7 @@
     <section class="dsh-card od-car">
         <div class="od-car__media">
             @if ($order->unit->vehicle->photo_url)
-                <img src="{{ $order->unit->vehicle->photo_url }}" alt="{{ $order->unit->vehicle->name }}">
+                <img src="{{ $order->unit->vehicle->photo_url }}" alt="{{ $order->unit->vehicle->name }}" width="1600" height="1000">
             @else
                 <x-car-icon :type="$order->unit->vehicle->icon" />
             @endif

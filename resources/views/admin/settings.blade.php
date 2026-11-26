@@ -25,7 +25,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>Pengaturan</h2>
+        <h1>Pengaturan</h1>
         <p class="page-sub">Aturan pembayaran dan denda. Berlaku untuk pesanan dan pengembalian berikutnya, pesanan lama tidak berubah.</p>
     </div>
 </div>
@@ -116,7 +116,7 @@
             <div class="st-acc">
                 <span class="st-acc__bank" style="--bank: {{ $r['warna'] ?? 'var(--brand)' }}">
                     @if ($r['logo'])
-                        <img src="{{ $r['logo'] }}" alt="{{ $r['bank'] }}">
+                        <img src="{{ $r['logo'] }}" alt="{{ $r['bank'] }}" width="160" height="56">
                     @else
                         {{ $r['bank'] }}
                     @endif

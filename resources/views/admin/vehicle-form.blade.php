@@ -13,7 +13,7 @@
 
 <div class="dsh-head">
     <div>
-        <h2>{{ $vehicle->exists ? $vehicle->name : 'Tambah kendaraan' }}</h2>
+        <h1>{{ $vehicle->exists ? $vehicle->name : 'Tambah kendaraan' }}</h1>
         @if ($vehicle->exists)
             <p class="page-sub fl-meta">
                 <span>{{ \App\Models\Vehicle::CATEGORIES[$vehicle->category] }}</span>
@@ -193,7 +193,7 @@
         <header class="dsh-card__head"><h3>Foto</h3></header>
         <div class="fl-photo">
             @if ($vehicle->photo_url)
-                <img src="{{ $vehicle->photo_url }}" alt="Foto {{ $vehicle->name }}">
+                <img src="{{ $vehicle->photo_url }}" alt="Foto {{ $vehicle->name }}" width="1600" height="1000">
             @else
                 <span class="fl-photo__empty"><x-car-icon :type="$vehicle->icon" /><span>Belum ada foto</span></span>
             @endif
