@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @section('title', $vehicle->name.' · '.config('rayarent.nama'))
 @php
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');

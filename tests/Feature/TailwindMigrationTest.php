@@ -61,13 +61,27 @@ class TailwindMigrationTest extends TestCase
         }
     }
 
-    public function test_legacy_stylesheet_no_longer_has_rules_for_migrated_pages(): void
+    public function test_one_stylesheet_for_every_page_without_gradients(): void
     {
-        $css = File::get(public_path('css/rayarent.css'));
+        $layout = File::get(resource_path('views/app.blade.php'));
+        $this->assertStringNotContainsString('css/rayarent.css', $layout, 'layout tidak boleh memuat CSS lama lagi');
+        $this->assertStringContainsString("@vite('resources/css/app.css')", $layout);
 
-        foreach (['.lp-hero', '.vcard', '.bk-opt', '.od-steps', '.paytimer', '.au-side'] as $old) {
-            $this->assertStringNotContainsString($old, $css, "{$old} seharusnya sudah dihapus");
+        $legacy = collect(File::files(resource_path('css/rayarent')))->map->getContents()->implode("\n");
+        $this->assertStringNotContainsString('gradient(', $legacy);
+        foreach (['.lp-hero', '.vcard', '.bk-opt', '.od-steps', '.paytimer', '.au-side', '.container{', '.mt-2{'] as $old) {
+            $this->assertStringNotContainsString($old, $legacy, "{$old} seharusnya sudah dihapus atau diganti");
         }
-        $this->assertStringContainsString('.badge', $css, 'badge masih dipakai admin');
+        $this->assertStringContainsString('var(--color-brand)', $legacy, 'variabel lama harus menunjuk token Tailwind');
+    }
+
+    public function test_admin_pages_render_with_the_shared_layout(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+
+        foreach (['admin.dashboard', 'admin.pesanan', 'admin.laporan', 'admin.kendaraan', 'admin.kendaraan.baru', 'admin.pengaturan'] as $r) {
+            $this->get(route($r))->assertOk()->assertSee('rr-container', false)->assertDontSee('css/rayarent.css', false);
+        }
     }
 }

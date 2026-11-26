@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @php
     $nama = config('rayarent.nama');
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));

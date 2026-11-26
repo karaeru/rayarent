@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @section('title', config('rayarent.nama').' · '.config('rayarent.tagline'))
 @push('head')
     <meta name="description" content="Sewa mobil dan minibus {{ config('rayarent.nama') }}: lepas kunci atau dengan driver, paket 12 dan 24 jam. Lihat harga dan cek unit kosong langsung di website.">

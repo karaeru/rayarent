@@ -50,7 +50,7 @@ menunggu_konfirmasi ──(bayar diverifikasi + dikonfirmasi)──► dikonfirm
 - PHP 8.3, **Laravel 13**
 - MySQL / MariaDB
 - Blade + **Tailwind CSS v4** (dibangun dengan Vite) dan JavaScript murni
-- Migrasi bertahap: halaman publik, Masuk/Daftar, dan halaman pelanggan sudah Tailwind; halaman admin masih memakai `public/css/rayarent.css`
+- Semua halaman memakai satu stylesheet hasil build: `resources/css/app.css`. Halaman publik dan pelanggan ditulis dengan kelas Tailwind; halaman admin memakai kelas komponen di `resources/css/rayarent/admin.css`
 - PHPUnit untuk test
 
 ---
@@ -68,7 +68,7 @@ npm run build                 # wajib: membangun tampilan Tailwind ke public/bui
 ```
 
 > Saat sedang mengubah tampilan, jalankan `npm run dev` dan biarkan terminalnya terbuka, supaya perubahan langsung terlihat.
-> Bila halaman publik menampilkan pita kuning "Tampilan baru belum dibangun", jalankan `npm run build`.
+> Bila halaman menampilkan pita kuning "Tampilan baru belum dibangun", jalankan `npm run build`.
 
 1. Buat database **`rayarent`** (untuk aplikasi) dan **`rayarent_test`** (untuk test) di phpMyAdmin.
 2. Sesuaikan `DB_USERNAME` / `DB_PASSWORD` di `.env` bila perlu.
@@ -239,7 +239,7 @@ resources/views/
 └── admin/
 resources/css/app.css        Tailwind: token warna/font dari DESIGN.md + komponen bergerak
 resources/views/components/  vehicle-card, crumbs, section-head, page-head, auth-shell, car-icon
-public/css/rayarent.css      gaya lama untuk halaman yang belum dimigrasi (ikut dimuat lewat app.css)
+resources/css/rayarent/      kelas komponen: base, layout (header/footer), rekening, admin
 ```
 
 ---

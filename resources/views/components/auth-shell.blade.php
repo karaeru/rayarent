@@ -7,7 +7,6 @@
     $unit = (int) rescue(fn () => \App\Models\VehicleUnit::where('status', '!=', 'perawatan')->count(), 0, false);
     $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
 @endphp
-@section('tailwind', '1')
 <div @class(['mx-auto grid overflow-hidden rounded-3xl border border-line bg-white md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)]', 'max-w-5xl' => $wide, 'max-w-4xl' => ! $wide])>
     {{-- bidang brand solid (PB-8), bukan gradasi --}}
     <aside class="hidden flex-col gap-6 bg-brand-strong p-8 text-white md:flex" aria-hidden="true">

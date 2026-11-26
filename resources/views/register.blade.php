@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @section('title', 'Daftar · '.config('rayarent.nama'))
 @section('content')
 <x-auth-shell title="Buat akun pelanggan" subtitle="Gratis dan hanya butuh satu menit." :wide="true">

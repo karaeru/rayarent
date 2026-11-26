@@ -34,7 +34,7 @@ class DesignSmokeTest extends TestCase
     public function test_guest_pages_render_with_the_shared_stylesheet(): void
     {
         $html = $this->get(route('login'))->assertOk()->assertSee('Masuk ke akun Anda')->getContent();
-        // Tailwind (hasil npm run build) atau CSS lama sebagai cadangan: salah satu harus termuat
+        // stylesheet hasil npm run build (atau server npm run dev) harus termuat
         $this->assertMatchesRegularExpression('#css/rayarent\.css|build/assets/app-[\w-]+\.css|resources/css/app\.css#', $html);
         $this->get(route('register'))->assertOk()->assertSee('Buat akun pelanggan');
     }
@@ -71,7 +71,9 @@ class DesignSmokeTest extends TestCase
             ->assertSee('is-active', false)
             ->assertSee('data-nav-toggle', false);
 
-        $this->assertStringNotContainsString('prefers-color-scheme: dark', file_get_contents(public_path('css/rayarent.css')));
+        foreach (glob(resource_path('css/{app.css,rayarent/*.css}'), GLOB_BRACE) as $file) {
+            $this->assertStringNotContainsString('prefers-color-scheme: dark', file_get_contents($file), basename($file));
+        }
     }
 
     public function test_footer_shows_only_the_contact_details_that_are_configured(): void

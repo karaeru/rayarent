@@ -1,7 +1,7 @@
 @extends('app')
 @section('title', $vehicle->name.' · '.config('rayarent.nama'))
 @section('content')
-<p class="mb-2"><a href="{{ route('pelanggan.katalog') }}">← Kembali ke katalog</a></p>
+<p class="mb-4"><a href="{{ route('pelanggan.katalog') }}">← Kembali ke katalog</a></p>
 
 <div class="two-col">
     <div>
@@ -24,7 +24,7 @@
             <div class="spec"><div class="spec__val">{{ $vehicle->units->where('status', '!=', 'perawatan')->count() }}</div><div class="spec__lbl">Unit Aktif</div></div>
         </div>
 
-        <h3 class="mt-3">Paket layanan</h3>
+        <h3 class="mt-6">Paket layanan</h3>
         @foreach ($vehicle->packages->groupBy('service') as $service => $pkgs)
             <div class="group-title">{{ $pkgs->first()->service_label }}</div>
             @foreach ($pkgs as $p)
@@ -42,9 +42,9 @@
         @endforeach
     </div>
 
-    <aside class="card sticky"><div class="card-body">
+    <aside class="card rr-sticky"><div class="card-body">
         <div class="price"><small>Mulai dari</small>Rp{{ number_format($vehicle->packages->min('price'), 0, ',', '.') }}</div>
-        <p class="muted small mt-1">Pilih paket, tanggal, dan unit di langkah berikutnya. Ketersediaan dicek otomatis.</p>
+        <p class="muted small mt-2">Pilih paket, tanggal, dan unit di langkah berikutnya. Ketersediaan dicek otomatis.</p>
         <a class="btn btn-lg btn-block" href="{{ route('pelanggan.pesan', $vehicle) }}">Pesan sekarang</a>
     </div></aside>
 </div>

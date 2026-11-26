@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @php
     $nama = config('rayarent.nama');
     $kota = config('rayarent.kota');

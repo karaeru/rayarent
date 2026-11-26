@@ -1,0 +1,154 @@
+/* RAYARENT · Kerangka halaman: header, menu, footer, tombol WhatsApp
+ * Dipindah dari public/css/rayarent.css (v1.2 paket 3). Dimuat di layer "legacy" lewat app.css,
+ * jadi kelas Tailwind di halaman selalu menang. */
+
+/* ---------- Layout ---------- */
+.rr-container{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
+.site-main{min-height:60vh;padding:28px 0 56px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.page-sub{color:var(--muted);margin:4px 0 0}
+/* ---------- Header ---------- */
+.site-header{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+.site-header__inner{display:flex;align-items:center;gap:20px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:800;font-size:1.15rem;letter-spacing:.01em}
+.brand:hover{text-decoration:none}
+.brand__logo{display:block;height:36px;width:auto}
+.brand__mark{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--brand);color:var(--on-brand);font-weight:800}
+.nav{display:flex;gap:4px;flex:1}
+.nav a{padding:8px 12px;border-radius:var(--radius-sm);color:var(--ink-2);font-weight:600;font-size:.95rem}
+.nav a:hover{background:var(--bg);text-decoration:none}
+.nav a.is-active{background:var(--brand-soft);color:var(--brand)}
+.user-box{display:flex;align-items:center;gap:12px}
+.user-box__name{font-size:.9rem;line-height:1.2;text-align:right}
+.user-box__role{display:block;color:var(--muted);font-size:.75rem;text-transform:capitalize}
+.nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:8px 14px;font-weight:600;cursor:pointer;color:var(--ink)}
+@media(max-width:900px){
+  .nav-toggle{display:block}
+  .nav,.user-box{display:none}
+  .site-header.is-open .site-header__inner{flex-wrap:wrap;padding-bottom:14px}
+  .site-header.is-open .nav{display:flex;flex-direction:column;width:100%;order:3}
+  .site-header.is-open .nav a{padding:12px}
+  .site-header.is-open .user-box{display:flex;width:100%;order:4;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px}
+  .rr-container{padding:0 16px}
+  .site-main{padding-top:20px}
+}
+/* ---------- Footer ---------- */
+.site-footer{background:var(--surface);border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem}
+.site-footer__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.site-footer strong{color:var(--ink)}
+.site-footer__copy{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:.8rem}
+/* ---------- Pagination ---------- */
+.pager{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:16px}
+/* ==========================================================================
+   Landing page (resources/views/home.blade.php)
+   ========================================================================== */
+.guest-nav{display:flex;gap:4px;flex:1;margin-left:12px}
+.guest-nav a{padding:8px 12px;border-radius:var(--radius-sm);color:var(--ink-2);font-weight:600;font-size:.95rem}
+.guest-nav a:hover{background:var(--bg);text-decoration:none}
+.guest-actions{display:flex;gap:8px;margin-left:auto}
+@media(max-width:900px){
+  .guest-nav{display:none}
+}
+/* ==========================================================================
+   Tentang & Kontak
+   ========================================================================== */
+.guest-nav a.is-active{background:var(--brand-soft);color:var(--brand)}
+.site-footer__links{display:flex;gap:20px;flex-wrap:wrap;margin-top:20px}
+.site-footer__links a{color:var(--ink-2);font-weight:600}
+/* ==========================================================================
+   Menu pengunjung: penanda bergeser + scroll halus
+   ========================================================================== */
+.guest-nav{position:relative}
+.guest-nav a{position:relative;z-index:1;transition:color .25s}
+.guest-nav a:hover{background:none}
+.guest-nav a.is-active,.guest-nav a.is-spy{background:none;color:var(--brand)}
+.guest-nav__pill{position:absolute;left:0;top:0;bottom:0;z-index:0;width:0;border-radius:var(--radius-sm);background:var(--brand-soft);
+  opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.3,.8,.25,1),width .45s cubic-bezier(.3,.8,.25,1),opacity .25s}
+.guest-nav__pill::after{content:"";position:absolute;left:12px;right:12px;bottom:3px;height:2px;border-radius:2px;background:var(--brand)}
+/* --- footer --- */
+.site-footer{padding:56px 0 24px;background:#0c1c2c;color:#a9b8c6;border-top:0}
+.ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:32px}
+.ft-brand .brand{color:#fff}
+.ft-brand p{margin:12px 0 18px;max-width:32ch}
+.ft-social{display:flex;gap:8px}
+.ft-social a{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;transition:background .2s,transform .2s}
+.ft-social a:hover{background:var(--brand);transform:translateY(-2px)}
+.social-icon{width:18px;height:18px}
+.ft-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ft-col h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:#fff;margin-bottom:6px}
+.ft-col a{color:#a9b8c6;width:fit-content}
+.ft-col a:hover{color:#fff;text-decoration:none}
+.ft-hours{color:#fff;font-weight:600}
+.site-footer .site-footer__copy{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);color:#7d8ea0}
+.site-footer__copy a{color:#7d8ea0}
+.site-footer__copy a:hover{color:#fff}
+@media(max-width:900px){
+  .ft-grid{grid-template-columns:1fr 1fr}
+  .ft-brand{grid-column:1/-1}
+}
+@media(max-width:480px){
+  .ft-grid{grid-template-columns:1fr}
+}
+/* --- tombol WhatsApp melayang --- */
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:45;display:flex;align-items:center;gap:0;height:56px;padding:0 16px;border-radius:999px;
+  background:#0e7a40;color:#fff;box-shadow:0 8px 24px rgba(18,140,70,.35);text-decoration:none;
+  animation:wa-in .6s cubic-bezier(.2,.8,.2,1) 1.2s both;transition:gap .3s,bottom .3s cubic-bezier(.2,.7,.2,1),background .2s}
+.wa-float .social-icon{width:26px;height:26px;flex:none}
+.wa-float__label{max-width:0;overflow:hidden;white-space:nowrap;font-weight:700;transition:max-width .35s cubic-bezier(.2,.7,.2,1)}
+.wa-float:hover{gap:10px;background:#0b6634;color:#fff;text-decoration:none}
+.wa-float:hover .wa-float__label{max-width:160px}
+.wa-float::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid #0e7a40;animation:wa-ring 2.4s ease-out 2s 3}
+@media(max-width:560px){
+  .wa-float{right:14px;bottom:14px;height:52px;padding:0 13px}
+}
+/* --- menu pengunjung di HP --- */
+.guest-nav__auth{display:none}
+.nav-toggle--icon{width:42px;height:42px;padding:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.nav-toggle--icon span{display:block;width:18px;height:2px;border-radius:2px;background:var(--ink);transition:transform .3s,opacity .2s}
+.site-header.is-open .nav-toggle--icon span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.site-header.is-open .nav-toggle--icon span:nth-child(2){opacity:0}
+.site-header.is-open .nav-toggle--icon span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:900px){
+  .site-header .nav-toggle--icon{display:flex;margin-left:8px}
+  .guest-actions{margin-left:auto}
+  .site-header .guest-nav{display:flex;position:absolute;left:0;right:0;top:100%;margin:0;flex-direction:column;gap:2px;padding:12px 16px 20px;
+    background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 16px 32px rgba(16,24,40,.12);
+    opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .3s cubic-bezier(.2,.7,.2,1),visibility 0s .3s}
+  .site-header.is-open .guest-nav{opacity:1;visibility:visible;transform:none;transition:opacity .25s,transform .3s cubic-bezier(.2,.7,.2,1)}
+  .site-header.is-open .site-header__inner:has(.guest-nav){flex-wrap:nowrap;padding-bottom:0}
+  .guest-nav__pill{display:none}
+  .guest-nav>a{padding:14px 8px;font-size:1.05rem;border-bottom:1px solid var(--line);opacity:0;transform:translateX(-10px);transition:opacity .3s,transform .3s}
+  .site-header.is-open .guest-nav>a{opacity:1;transform:none}
+  .site-header.is-open .guest-nav>a:nth-of-type(2){transition-delay:.04s}
+  .site-header.is-open .guest-nav>a:nth-of-type(3){transition-delay:.08s}
+  .site-header.is-open .guest-nav>a:nth-of-type(4){transition-delay:.12s}
+  .guest-nav a.is-active,.guest-nav a.is-spy{color:var(--brand)}
+}
+@media(max-width:560px){
+  .guest-actions{display:none}
+  .site-header .nav-toggle--icon{margin-left:auto}
+  .guest-nav__auth{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .wa-float,.wa-float::before{animation:none}
+  .site-header .guest-nav,.guest-nav>a{transition:none}
+}
+/* menu Syarat & Ketentuan: animasi menu HP untuk link ke-5,dan jarak menu desktop sedikit dirapatkan */
+@media(max-width:900px){
+  .site-header.is-open .guest-nav>a:nth-of-type(5){transition-delay:.16s}
+}
+@media(min-width:901px) and (max-width:1100px){
+  .guest-nav a{padding:8px 9px;font-size:.9rem}
+}
+.guest-nav a,.nav a{white-space:nowrap}
+/* ---------- Admin · perbaikan tabel pesanan v2 ---------- */
+.site-main--wide .rr-container{max-width:1360px}
+/* cetak: hanya isi laporan */
+@media print{
+  .site-header,.site-footer,.wa-float,.rp-filter,.dsh-head .row,.pager,.ot-icon{display:none!important}
+  .site-main{padding:0}
+}
+.page-sub a,.hint a,.au-legal a,.agree a{text-decoration:underline;text-underline-offset:2px}
+.brand__logo{height:36px;width:auto}
+.guest-nav__pill::after{background:var(--brand)}
+.wa-float::before{display:none}

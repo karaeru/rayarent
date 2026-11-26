@@ -10,16 +10,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     @stack('head')
     @php
-        // Halaman yang sudah dimigrasi ke Tailwind memberi tanda @section('tailwind', '1').
-        // Tailwind dipakai bila hasil build (npm run build) atau server dev (npm run dev) tersedia;
-        // bila belum, halaman tetap tampil dengan CSS lama supaya tidak error.
-        $twWanted = $__env->hasSection('tailwind');
-        $twReady = $twWanted && (file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json')));
+        // Tampilan dibangun dengan Vite: npm run build (sekali per perubahan) atau npm run dev (selama mengedit).
+        $twReady = file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
     @endphp
     @if ($twReady)
         @vite('resources/css/app.css')
-    @else
-        <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
     @endif
 </head>
 @php
@@ -46,11 +41,11 @@
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
 @endphp
 <body>
-@if ($twWanted && ! $twReady && app()->environment('local'))
-    <div class="alert alert-warn" role="status" style="margin:0;border-radius:0">Tampilan baru belum dibangun. Jalankan <code>npm install</code> lalu <code>npm run build</code> di folder proyek.</div>
+@if (! $twReady)
+    <div role="status" style="margin:0;padding:12px 20px;background:#fef3c7;color:#92400e;font:600 15px/1.5 system-ui,sans-serif">Tampilan baru belum dibangun. Jalankan <code>npm install</code> lalu <code>npm run build</code> di folder proyek.</div>
 @endif
 <header class="site-header" data-site-header>
-    <div class="container site-header__inner">
+    <div class="rr-container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">
             @if ($logo)
                 <img class="brand__logo" src="{{ asset('images/logo.'.$logo) }}" alt="" aria-hidden="true" width="36" height="36">
@@ -99,7 +94,7 @@
 </header>
 
 <main @class(['site-main', 'site-main--wide' => $user?->isAdmin()])>
-    <div class="container">
+    <div class="rr-container">
         @if (session('ok')) <div class="alert alert-success" role="status">✓ <span>{{ session('ok') }}</span></div> @endif
         @if (session('error')) <div class="alert alert-error" role="alert">! <span>{{ session('error') }}</span></div> @endif
         @yield('content')
@@ -114,7 +109,7 @@
     $waText = html_entity_decode(trim($__env->yieldContent('wa_text'))) ?: 'Halo '.config('rayarent.nama').', saya mau tanya sewa kendaraan.';
 @endphp
 <footer class="site-footer">
-    <div class="container">
+    <div class="rr-container">
         <div class="ft-grid">
             <div class="ft-brand">
                 <a class="brand" href="{{ $home }}">

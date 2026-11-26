@@ -1,5 +1,4 @@
 @extends('app')
-@section('tailwind', '1')
 @php
     $nama = config('rayarent.nama');
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');

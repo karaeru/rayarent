@@ -1,14 +1,17 @@
 /*
- * RAYARENT · Tailwind v4 (migrasi bertahap, lihat DESIGN.md dan PRD v1.2)
+ * RAYARENT · satu-satunya stylesheet (Tailwind v4, dibangun dengan `npm run build`). Lihat DESIGN.md.
  *
- * Urutan layer: gaya lama (public/css/rayarent.css) dimasukkan ke layer "legacy",
- * di antara base dan utilities. Hasilnya: halaman lama tetap tampil seperti biasa,
- * dan kelas Tailwind di halaman baru selalu menang atas gaya lama.
+ * Urutan layer: theme, base (preflight), legacy, components, utilities.
+ * Layer "legacy" berisi kelas komponen lama (header, tombol, badge, area admin) yang dipecah per area
+ * di folder rayarent/. Kelas Tailwind di halaman selalu menang atas layer ini.
  */
 @layer theme, base, legacy, components, utilities;
 
 @import 'tailwindcss';
-@import '../../public/css/rayarent.css' layer(legacy);
+@import './rayarent/base.css' layer(legacy);
+@import './rayarent/layout.css' layer(legacy);
+@import './rayarent/rekening.css' layer(legacy);
+@import './rayarent/admin.css' layer(legacy);
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
