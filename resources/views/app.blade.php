@@ -79,16 +79,24 @@
         @endguest
 
         @if ($user)
-            <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="menu-utama">Menu</button>
-            <nav class="nav" id="menu-utama" aria-label="Menu utama">
+            {{-- sama dengan menu pengunjung: penanda bergeser di layar lebar, panel turun + tombol ☰ di HP --}}
+            <nav class="guest-nav" id="menu-utama" aria-label="Menu utama" data-guest-nav>
+                <span class="guest-nav__pill" aria-hidden="true"></span>
                 @foreach ($menu as [$label, $url, $patterns])
                     <a href="{{ $url }}" @class(['is-active' => request()->routeIs(...$patterns)]) @if (request()->routeIs(...$patterns)) aria-current="page" @endif>{{ $label }}</a>
                 @endforeach
+                <div class="guest-nav__account">
+                    <span class="user-box__name">{{ $user->name }}<span class="user-box__role">{{ $user->role }}</span></span>
+                    <form method="POST" action="{{ route('logout') }}">@csrf <button class="btn btn-outline btn-sm">Keluar</button></form>
+                </div>
             </nav>
             <div class="user-box">
                 <span class="user-box__name">{{ $user->name }}<span class="user-box__role">{{ $user->role }}</span></span>
                 <form method="POST" action="{{ route('logout') }}">@csrf <button class="btn btn-outline btn-sm">Keluar</button></form>
             </div>
+            <button type="button" class="nav-toggle nav-toggle--icon" data-nav-toggle aria-expanded="false" aria-controls="menu-utama" aria-label="Buka menu">
+                <span></span><span></span><span></span>
+            </button>
         @endif
     </div>
 </header>

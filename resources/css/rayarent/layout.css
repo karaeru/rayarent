@@ -19,12 +19,7 @@
 .user-box__role{display:block;color:var(--muted);font-size:.75rem;text-transform:capitalize}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:8px 14px;font-weight:600;cursor:pointer;color:var(--ink)}
 @media(max-width:900px){
-  .nav-toggle{display:block}
-  .nav,.user-box{display:none}
   .site-header.is-open .site-header__inner{flex-wrap:wrap;padding-bottom:14px}
-  .site-header.is-open .nav{display:flex;flex-direction:column;width:100%;order:3}
-  .site-header.is-open .nav a{padding:12px}
-  .site-header.is-open .user-box{display:flex;width:100%;order:4;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px}
   .rr-container{padding:0 16px}
   .site-main{padding-top:20px}
 }
@@ -147,3 +142,14 @@
 .brand__logo{height:36px;width:auto}
 .guest-nav__pill::after{background:var(--brand)}
 .wa-float::before{display:none}
+
+/* Menu admin & pelanggan memakai pola yang sama dengan menu pengunjung (guest-nav).
+   Di HP: nama pengguna + Keluar pindah ke dalam panel menu, tombol ☰ di kanan. */
+.guest-nav__account{display:none}
+@media(max-width:900px){
+  .site-header .user-box,.site-header.is-open .user-box{display:none}
+  .site-header .user-box+.nav-toggle--icon{margin-left:auto}
+  .site-header .brand,.site-header .nav-toggle--icon{flex:none}
+  .guest-nav__account{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:2px}
+  .guest-nav__account .user-box__name{text-align:left}
+}
