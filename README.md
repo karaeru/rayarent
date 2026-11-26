@@ -50,7 +50,7 @@ menunggu_konfirmasi ──(bayar diverifikasi + dikonfirmasi)──► dikonfirm
 - PHP 8.3, **Laravel 13**
 - MySQL / MariaDB
 - Blade + **Tailwind CSS v4** (dibangun dengan Vite) dan JavaScript murni
-- Migrasi bertahap: halaman publik dan Masuk/Daftar sudah Tailwind; halaman pelanggan dan admin masih memakai `public/css/rayarent.css`
+- Migrasi bertahap: halaman publik, Masuk/Daftar, dan halaman pelanggan sudah Tailwind; halaman admin masih memakai `public/css/rayarent.css`
 - PHPUnit untuk test
 
 ---
@@ -238,7 +238,7 @@ resources/views/
 ├── invoice.blade.php
 └── admin/
 resources/css/app.css        Tailwind: token warna/font dari DESIGN.md + komponen bergerak
-resources/views/components/  vehicle-card, crumbs, section-head, auth-shell, car-icon
+resources/views/components/  vehicle-card, crumbs, section-head, page-head, auth-shell, car-icon
 public/css/rayarent.css      gaya lama untuk halaman yang belum dimigrasi (ikut dimuat lewat app.css)
 ```
 

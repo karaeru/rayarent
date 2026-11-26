@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @section('title', 'Pesan '.$vehicle->name)
 @php
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
@@ -10,153 +11,143 @@
 @endphp
 @section('content')
 
-<nav class="lp-crumbs" aria-label="Breadcrumb">
-    <a href="{{ route('pelanggan.katalog') }}">Katalog</a><span aria-hidden="true">/</span>
-    <a href="{{ route('pelanggan.kendaraan', $vehicle) }}">{{ $vehicle->name }}</a><span aria-hidden="true">/</span>
-    <span aria-current="page">Pesan</span>
-</nav>
+<x-crumbs :items="[['Katalog', route('pelanggan.katalog')], [$vehicle->name, route('pelanggan.kendaraan', $vehicle)], ['Pesan']]" />
 
-<div class="dsh-head">
-    <div>
-        <h1>Pesan {{ $vehicle->name }}</h1>
-        <p class="page-sub">Lengkapi 4 langkah di bawah. Unit yang kosong dicek otomatis setiap kali Anda mengubah jadwal.</p>
-    </div>
-</div>
+<x-page-head :title="'Pesan '.$vehicle->name" sub="Lengkapi 4 langkah di bawah. Unit yang kosong dicek otomatis setiap kali Anda mengubah jadwal." />
 
 @if ($errors->any())
-    <div class="alert alert-error" role="alert"><div>@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div></div>
+    <div class="mb-5 rounded-xl border border-bad/30 bg-bad-soft px-4 py-3 text-sm font-semibold text-bad" role="alert">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
 @endif
 
-<form method="POST" action="{{ route('pelanggan.pesan.simpan', $vehicle) }}" id="f" class="bk-layout">
+<form method="POST" action="{{ route('pelanggan.pesan.simpan', $vehicle) }}" id="f" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
     @csrf
-    <div class="bk-main">
+    <div class="flex flex-col gap-5">
 
         {{-- 1. PAKET --}}
-        <section class="dsh-card bk-step">
-            <header class="bk-step__head">
-                <span class="bk-step__no">1</span>
-                <div><h3>Paket layanan</h3><p>Harga per periode sewa.</p></div>
+        <section class="rr-card p-5">
+            <header class="mb-4 flex items-start gap-3">
+                <span class="grid size-8 flex-none place-items-center rounded-full bg-brand-strong text-sm font-bold text-white">1</span>
+                <div><h2 class="m-0 text-lg font-bold">Paket layanan</h2><p class="m-0 text-sm text-muted">Harga per periode sewa.</p></div>
             </header>
-            <div class="bk-options" role="radiogroup" aria-label="Paket layanan">
+            <div class="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Paket layanan">
                 @foreach ($paket as $p)
-                    <label class="bk-opt">
+                    <label class="rr-choice">
                         <input type="radio" name="rental_package_id" value="{{ $p->id }}" @checked($dipilih === $p->id)
                                data-hours="{{ $p->duration_hours }}" data-price="{{ $p->price }}" data-label="{{ $p->service_label }} · {{ $p->duration_hours }} jam">
-                        <span class="bk-opt__title">{{ $p->service_label }}</span>
-                        <span class="bk-opt__sub">{{ $p->duration_hours }} jam per periode</span>
-                        <span class="bk-opt__price">{{ $rp($p->price) }}</span>
+                        <span class="font-bold">{{ $p->service_label }}</span>
+                        <span class="text-sm text-muted">{{ $p->duration_hours }} jam per periode</span>
+                        <span class="mt-1 text-lg font-extrabold tabular-nums">{{ $rp($p->price) }}</span>
                     </label>
                 @endforeach
             </div>
-            @error('rental_package_id') <p class="err">{{ $message }}</p> @enderror
+            @error('rental_package_id') <p class="rr-err">{{ $message }}</p> @enderror
         </section>
 
         {{-- 2. JADWAL --}}
-        <section class="dsh-card bk-step">
-            <header class="bk-step__head">
-                <span class="bk-step__no">2</span>
-                <div><h3>Jadwal sewa</h3><p>Waktu mulai dan lama sewa.</p></div>
+        <section class="rr-card p-5">
+            <header class="mb-4 flex items-start gap-3">
+                <span class="grid size-8 flex-none place-items-center rounded-full bg-brand-strong text-sm font-bold text-white">2</span>
+                <div><h2 class="m-0 text-lg font-bold">Jadwal sewa</h2><p class="m-0 text-sm text-muted">Waktu mulai dan lama sewa.</p></div>
             </header>
-            <div class="bk-grid">
-                <div class="field">
-                    <label for="start">Mulai sewa</label>
-                    <input id="start" type="datetime-local" name="start_at" min="{{ $minStart }}" value="{{ old('start_at', now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')) }}" required>
-                    @error('start_at') <p class="err">{{ $message }}</p> @enderror
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="start" class="rr-label">Mulai sewa</label>
+                    <input id="start" type="datetime-local" name="start_at" min="{{ $minStart }}" value="{{ old('start_at', now()->addDay()->setTime(8, 0)->format('Y-m-d\TH:i')) }}" required class="rr-input">
+                    @error('start_at') <p class="rr-err">{{ $message }}</p> @enderror
                 </div>
-                <div class="field">
-                    <label for="qty">Jumlah periode</label>
-                    <div class="bk-qty">
-                        <button type="button" data-qty="-1" aria-label="Kurangi">−</button>
-                        <input id="qty" type="number" name="quantity" min="1" max="30" value="{{ old('quantity', 1) }}" required>
-                        <button type="button" data-qty="1" aria-label="Tambah">+</button>
+                <div>
+                    <label for="qty" class="rr-label">Jumlah periode</label>
+                    <div class="flex overflow-hidden rounded-lg border border-line-strong bg-white">
+                        <button type="button" data-qty="-1" aria-label="Kurangi" class="w-12 flex-none border-0 bg-canvas text-xl font-bold text-ink-2 hover:bg-line">−</button>
+                        <input id="qty" type="number" name="quantity" min="1" max="30" value="{{ old('quantity', 1) }}" required class="min-w-0 flex-1 border-x border-y-0 border-line bg-white px-2 py-2.5 text-center text-base font-bold tabular-nums">
+                        <button type="button" data-qty="1" aria-label="Tambah" class="w-12 flex-none border-0 bg-canvas text-xl font-bold text-ink-2 hover:bg-line">+</button>
                     </div>
-                    <p class="hint" id="qty-hint"></p>
-                    @error('quantity') <p class="err">{{ $message }}</p> @enderror
+                    <p class="rr-hint" id="qty-hint"></p>
+                    @error('quantity') <p class="rr-err">{{ $message }}</p> @enderror
                 </div>
             </div>
-            <p class="bk-end">Selesai sewa: <b id="end-text">–</b></p>
+            <p class="mb-0 mt-4 rounded-lg bg-canvas px-3.5 py-2.5 text-sm text-ink-2">Selesai sewa: <b id="end-text" class="text-ink">–</b></p>
         </section>
 
         {{-- 3. UNIT & LOKASI --}}
-        <section class="dsh-card bk-step">
-            <header class="bk-step__head">
-                <span class="bk-step__no">3</span>
-                <div><h3>Unit &amp; lokasi</h3><p>Biarkan otomatis bila tidak punya pilihan plat tertentu.</p></div>
+        <section class="rr-card p-5">
+            <header class="mb-4 flex items-start gap-3">
+                <span class="grid size-8 flex-none place-items-center rounded-full bg-brand-strong text-sm font-bold text-white">3</span>
+                <div><h2 class="m-0 text-lg font-bold">Unit &amp; lokasi</h2><p class="m-0 text-sm text-muted">Biarkan otomatis bila tidak punya pilihan plat tertentu.</p></div>
             </header>
-            <div class="bk-grid">
-                <div class="field">
-                    <label for="unit">Pilih unit</label>
-                    <select id="unit" name="vehicle_unit_id">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="unit" class="rr-label">Pilih unit</label>
+                    <select id="unit" name="vehicle_unit_id" class="rr-input">
                         <option value="">Otomatis (unit kosong mana saja)</option>
                     </select>
-                    @error('vehicle_unit_id') <p class="err">{{ $message }}</p> @enderror
+                    @error('vehicle_unit_id') <p class="rr-err">{{ $message }}</p> @enderror
                 </div>
-                <div class="field">
-                    <label for="loc">Lokasi jemput / penggunaan</label>
-                    <input id="loc" name="pickup_location" value="{{ old('pickup_location') }}" maxlength="200" placeholder="Contoh: Stasiun Tugu">
+                <div>
+                    <label for="loc" class="rr-label">Lokasi jemput / penggunaan</label>
+                    <input id="loc" name="pickup_location" value="{{ old('pickup_location') }}" maxlength="200" placeholder="Contoh: Stasiun Tugu" class="rr-input">
                 </div>
             </div>
         </section>
 
         {{-- 4. PEMBAYARAN --}}
-        <section class="dsh-card bk-step">
-            <header class="bk-step__head">
-                <span class="bk-step__no">4</span>
-                <div><h3>Pembayaran</h3><p>Transfer ke rekening resmi, lalu unggah bukti di halaman pesanan.</p></div>
+        <section class="rr-card p-5">
+            <header class="mb-4 flex items-start gap-3">
+                <span class="grid size-8 flex-none place-items-center rounded-full bg-brand-strong text-sm font-bold text-white">4</span>
+                <div><h2 class="m-0 text-lg font-bold">Pembayaran</h2><p class="m-0 text-sm text-muted">Transfer ke rekening resmi, lalu unggah bukti di halaman pesanan.</p></div>
             </header>
-            <div class="bk-options bk-options--2" role="radiogroup" aria-label="Cara bayar">
-                <label class="bk-opt">
+            <div class="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Cara bayar">
+                <label class="rr-choice">
                     <input type="radio" name="pay_mode" value="dp" @checked($mode === 'dp')>
-                    <span class="bk-opt__title">Bayar DP {{ $dpPercent }}%</span>
-                    <span class="bk-opt__sub">Sisanya dilunasi saat serah terima</span>
-                    <span class="bk-opt__price" data-pay="dp">–</span>
+                    <span class="font-bold">Bayar DP {{ $dpPercent }}%</span>
+                    <span class="text-sm text-muted">Sisanya dilunasi saat serah terima</span>
+                    <span class="mt-1 text-lg font-extrabold tabular-nums" data-pay="dp">–</span>
                 </label>
-                <label class="bk-opt">
+                <label class="rr-choice">
                     <input type="radio" name="pay_mode" value="lunas" @checked($mode === 'lunas')>
-                    <span class="bk-opt__title">Bayar lunas</span>
-                    <span class="bk-opt__sub">Tidak ada tagihan saat serah terima</span>
-                    <span class="bk-opt__price" data-pay="lunas">–</span>
+                    <span class="font-bold">Bayar lunas</span>
+                    <span class="text-sm text-muted">Tidak ada tagihan saat serah terima</span>
+                    <span class="mt-1 text-lg font-extrabold tabular-nums" data-pay="lunas">–</span>
                 </label>
             </div>
         </section>
     </div>
 
-    {{-- RINGKASAN --}}
-    <aside class="bk-side">
-        <div class="dsh-card bk-summary">
-            <div class="bk-car">
-                <span class="fl-thumb bk-car__thumb">
-                    @if ($vehicle->photo_url) <img src="{{ $vehicle->photo_url }}" alt="" width="168" height="108"> @else <x-car-icon :type="$vehicle->icon" /> @endif
+    {{-- RINGKASAN: menempel saat di-scroll di layar lebar --}}
+    <aside class="lg:sticky lg:top-24">
+        <div class="rr-card p-5">
+            <div class="flex items-center gap-3 border-b border-line pb-4">
+                <span class="flex aspect-[14/9] w-20 flex-none items-center justify-center overflow-hidden rounded-lg border border-line bg-white text-brand [&>svg]:w-4/5 [&>svg]:opacity-50">
+                    @if ($vehicle->photo_url) <img src="{{ $vehicle->photo_url }}" alt="" width="168" height="108" class="h-full w-full object-contain p-1"> @else <x-car-icon :type="$vehicle->icon" /> @endif
                 </span>
-                <span>
-                    <b>{{ $vehicle->name }}</b>
-                    <span class="bk-car__meta">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</span>
+                <span class="min-w-0">
+                    <b class="block">{{ $vehicle->name }}</b>
+                    <span class="text-sm text-muted">{{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }}</span>
                 </span>
             </div>
 
-            <div id="avail" class="bk-avail" aria-live="polite">Mengecek ketersediaan…</div>
+            <div id="avail" class="my-4 flex flex-col gap-px rounded-lg bg-canvas px-3 py-2.5 text-sm text-muted" aria-live="polite">Mengecek ketersediaan…</div>
 
-            <dl class="bk-lines">
-                <div><dt>Paket</dt><dd id="s-pkg">–</dd></div>
-                <div><dt>Mulai</dt><dd id="s-start">–</dd></div>
-                <div><dt>Selesai</dt><dd id="s-end">–</dd></div>
-                <div><dt>Lama sewa</dt><dd id="s-dur">–</dd></div>
+            <dl class="m-0 flex flex-col gap-2 text-sm">
+                @foreach (['s-pkg' => 'Paket', 's-start' => 'Mulai', 's-end' => 'Selesai', 's-dur' => 'Lama sewa'] as $id => $dt)
+                    <div class="flex justify-between gap-4"><dt class="text-muted">{{ $dt }}</dt><dd class="m-0 text-right font-semibold" id="{{ $id }}">–</dd></div>
+                @endforeach
             </dl>
-            <div class="bk-total"><span>Total sewa</span><b id="s-total">–</b></div>
-            <div class="bk-now"><span>Bayar sekarang</span><b id="s-now">–</b></div>
+            <div class="mt-4 flex items-baseline justify-between border-t border-line pt-4"><span class="text-ink-2">Total sewa</span><b id="s-total" class="text-xl font-extrabold tabular-nums">–</b></div>
+            <div class="mt-2 flex items-baseline justify-between rounded-lg bg-brand-soft px-3 py-2.5 text-brand-strong"><span class="font-semibold">Bayar sekarang</span><b id="s-now" class="text-lg font-extrabold tabular-nums">–</b></div>
 
-            <div class="field agree">
-                <label class="check">
-                    <input type="checkbox" id="agree" name="setuju" value="1" @checked(old('setuju')) required>
-                    <span>Saya sudah membaca dan menyetujui <a href="{{ route('syarat') }}" target="_blank" rel="noopener">Syarat &amp; Ketentuan sewa</a>, termasuk denda keterlambatan dan tanggung jawab atas kerusakan.</span>
+            <div class="mt-4">
+                <label class="flex cursor-pointer items-start gap-2.5 text-sm leading-relaxed text-ink-2">
+                    <input type="checkbox" id="agree" name="setuju" value="1" @checked(old('setuju')) required class="mt-1 size-4 flex-none accent-brand-strong">
+                    <span>Saya sudah membaca dan menyetujui <a href="{{ route('syarat') }}" target="_blank" rel="noopener" class="font-semibold text-brand-strong underline underline-offset-2">Syarat &amp; Ketentuan sewa</a>, termasuk denda keterlambatan dan tanggung jawab atas kerusakan.</span>
                 </label>
-                @error('setuju') <p class="err">{{ $message }}</p> @enderror
+                @error('setuju') <p class="rr-err">{{ $message }}</p> @enderror
             </div>
 
-            <button class="btn btn-lg btn-block" id="go" disabled>Buat pesanan</button>
-            <a class="btn btn-outline btn-block bk-cancel" href="{{ route('pelanggan.kendaraan', $vehicle) }}">Batal</a>
+            <button class="btn btn-lg btn-block mt-4" id="go" disabled>Buat pesanan</button>
+            <a class="mt-2 flex min-h-11 items-center justify-center rounded-lg text-sm font-semibold text-ink-2 underline underline-offset-2 hover:bg-canvas hover:text-ink" href="{{ route('pelanggan.kendaraan', $vehicle) }}">Batal</a>
             @if ($batasBayar)
-                <p class="hint bk-note">Setelah pesanan dibuat, unggah bukti transfer dalam {{ $batasBayar }} jam supaya tidak batal otomatis.</p>
+                <p class="rr-hint text-center">Setelah pesanan dibuat, unggah bukti transfer dalam {{ $batasBayar }} jam supaya tidak batal otomatis.</p>
             @endif
         </div>
     </aside>
@@ -200,7 +191,13 @@
         $('s-now').textContent = rp(mode() === 'dp' ? dp : total);
     };
 
-    const tampilkan = (cls, html) => { const a = $('avail'); a.className = 'bk-avail ' + cls; a.innerHTML = html; };
+    // warna kotak ketersediaan (kelas Tailwind ditulis lengkap supaya ikut terbangun)
+    const nada = {
+        'is-loading': 'bg-canvas text-muted opacity-75',
+        'is-ok': 'bg-ok-soft text-ok',
+        'is-bad': 'bg-bad-soft text-bad',
+    };
+    const tampilkan = (cls, html) => { const a = $('avail'); a.className = 'my-4 flex flex-col gap-px rounded-lg px-3 py-2.5 text-sm leading-snug [&_b]:font-semibold [&_span]:text-xs ' + nada[cls]; a.innerHTML = html; };
 
     async function cek() {
         const p = paket();

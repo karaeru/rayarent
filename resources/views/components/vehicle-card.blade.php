@@ -51,7 +51,11 @@
                 <span class="block text-[0.7rem] font-semibold uppercase tracking-wide text-muted">Mulai dari</span>
                 <span class="text-lg font-extrabold tabular-nums text-ink">Rp{{ number_format($price, 0, ',', '.') }}</span>
             </p>
-            <a href="{{ $href }}" class="btn btn-sm btn-outline">Detail</a>
+            @isset($actions)
+                <div class="flex gap-1.5">{{ $actions }}</div>
+            @else
+                <a href="{{ $href }}" class="btn btn-sm btn-outline">Detail</a>
+            @endisset
         </div>
     </div>
 </article>

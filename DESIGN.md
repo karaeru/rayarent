@@ -98,3 +98,4 @@ Dihapus karena hanya hiasan: mobil melaju di garis jalan, angka berputar seperti
 - v1.0: draf awal.
 - v1.1: dial 3 / 3 / 3, gradasi diganti warna solid, Fase 4 (merapikan CSS) ditunda.
 - v1.2: pindah ke Tailwind v4 bertahap (Fase 4 digabung ke migrasi), foto pelanggan berizin, tanpa pedoman merek resmi.
+- v1.2 paket 2: halaman pelanggan (katalog, detail, pesan, pesanan saya, detail pesanan) pindah ke Tailwind; 169 kelas lama dihapus dari `rayarent.css` (118 KB jadi 68 KB). Badge status, plat nomor, dan daftar rekening masih gaya lama karena dipakai admin.
