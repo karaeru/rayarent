@@ -21,7 +21,7 @@ class RegistrationLoginTest extends TestCase
             'phone' => '08123456789',
             'password' => $password,
             'password_confirmation' => $password,
-        ])->assertRedirect(route('pelanggan.katalog'));
+        ])->assertRedirect(route('pelanggan.beranda'));
 
         $user = User::query()->where('email', 'customer@example.test')->firstOrFail();
 
@@ -32,7 +32,7 @@ class RegistrationLoginTest extends TestCase
         $this->post('/masuk', [
             'email' => 'customer@example.test',
             'password' => $password,
-        ])->assertRedirect(route('pelanggan.katalog'));
+        ])->assertRedirect(route('pelanggan.beranda'));
 
         $this->assertAuthenticatedAs($user);
     }

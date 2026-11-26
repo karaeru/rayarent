@@ -20,7 +20,7 @@
 @php
     $user = auth()->user();
     $logo = collect(['svg', 'png', 'webp'])->first(fn ($ext) => file_exists(public_path("images/logo.$ext")));
-    $home = $user ? ($user->isAdmin() ? route('admin.dashboard') : route('pelanggan.katalog')) : route('home');
+    $home = $user ? ($user->isAdmin() ? route('admin.dashboard') : route('pelanggan.beranda')) : route('home');
 
     $menu = [];
     if ($user?->isAdmin()) {
@@ -33,8 +33,10 @@
         ];
     } elseif ($user?->isPelanggan()) {
         $menu = [
+            ['Beranda', route('pelanggan.beranda'), ['pelanggan.beranda']],
             ['Katalog', route('pelanggan.katalog'), ['pelanggan.katalog', 'pelanggan.kendaraan', 'pelanggan.pesan', 'pelanggan.pesan.*', 'pelanggan.ketersediaan']],
             ['Pesanan saya', route('pelanggan.pesanan'), ['pelanggan.pesanan', 'pelanggan.pesanan.*']],
+            ['Akun', route('pelanggan.akun'), ['pelanggan.akun', 'pelanggan.akun.*']],
             ['Syarat & Ketentuan', route('syarat'), ['syarat']],
         ];
     }

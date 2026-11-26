@@ -109,6 +109,37 @@ class Order extends Model
         return 'RR-' . str_pad((string) ((static::max('id') ?? 0) + 1), 4, '0', STR_PAD_LEFT);
     }
 
+    /** Pesanan yang masih berjalan dari sisi pelanggan (belum selesai dan tidak batal). */
+    public const AKTIF = ['menunggu_konfirmasi', 'dikonfirmasi', 'sedang_disewa'];
+
+    /**
+     * Langkah berikutnya untuk pelanggan: [nada, teks].
+     * Nada: warn / danger = pelanggan harus bertindak, info / ok = sedang berjalan, muted = selesai atau batal.
+     * Dipakai Beranda dan Pesanan saya supaya teksnya selalu sama.
+     */
+    public function langkahBerikutnya(): array
+    {
+        $rp = fn ($n) => 'Rp' . number_format($n, 0, ',', '.');
+
+        if ($this->status === 'dibatalkan') return ['muted', $this->cancel_reason ?: 'Pesanan dibatalkan'];
+        if ($this->pay_deadline) {
+            return $this->payments->where('status', 'ditolak')->isNotEmpty()
+                ? ['warn', 'Bukti bayar ditolak. Unggah ulang sebelum ' . $this->pay_deadline->translatedFormat('d M, H:i')]
+                : ['warn', 'Unggah bukti bayar sebelum ' . $this->pay_deadline->translatedFormat('d M, H:i')];
+        }
+        if ($this->hasPendingPayment()) return ['info', 'Bukti bayar sedang dicek admin'];
+        if ($this->status === 'menunggu_konfirmasi') return ['info', 'Menunggu konfirmasi admin'];
+        if ($this->status === 'dikonfirmasi') return ['ok', 'Siap diambil ' . $this->start_at->translatedFormat('d M, H:i')];
+        if ($this->status === 'sedang_disewa' && ! $this->returned_at) {
+            return $this->end_at->isPast()
+                ? ['danger', 'Lewat jadwal kembali ' . $this->end_at->translatedFormat('d M, H:i')]
+                : ['ok', 'Kembalikan sebelum ' . $this->end_at->translatedFormat('d M, H:i')];
+        }
+        if ($this->due_amount > 0) return ['warn', 'Sisa tagihan ' . $rp($this->due_amount)];
+
+        return ['muted', 'Selesai ' . ($this->returned_at ?? $this->end_at)->translatedFormat('d M Y')];
+    }
+
     public function hasPendingPayment(): bool
     {
         return $this->payments->where('status', 'menunggu')->isNotEmpty();

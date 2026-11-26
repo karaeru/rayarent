@@ -6,21 +6,8 @@
     $hitung = $orders->groupBy($grup)->map->count();
     $awal = ($hitung['aktif'] ?? 0) ? 'aktif' : 'semua';
 
-    // langkah berikutnya untuk pelanggan: [nada, teks]
-    $langkah = function ($o) use ($rp) {
-        if ($o->status === 'dibatalkan') return ['muted', $o->cancel_reason ?: 'Pesanan dibatalkan'];
-        if ($o->pay_deadline) return ['warn', 'Unggah bukti bayar sebelum '.$o->pay_deadline->translatedFormat('d M, H:i')];
-        if ($o->hasPendingPayment()) return ['info', 'Bukti bayar sedang dicek admin'];
-        if ($o->status === 'menunggu_konfirmasi') return ['info', 'Menunggu konfirmasi admin'];
-        if ($o->status === 'dikonfirmasi') return ['ok', 'Siap diambil '.$o->start_at->translatedFormat('d M, H:i')];
-        if ($o->status === 'sedang_disewa' && ! $o->returned_at) {
-            return $o->end_at->isPast()
-                ? ['danger', 'Lewat jadwal kembali '.$o->end_at->translatedFormat('d M, H:i')]
-                : ['ok', 'Kembalikan sebelum '.$o->end_at->translatedFormat('d M, H:i')];
-        }
-        if ($o->due_amount > 0) return ['warn', 'Sisa tagihan '.$rp($o->due_amount)];
-        return ['muted', 'Selesai '.($o->returned_at ?? $o->end_at)->translatedFormat('d M Y')];
-    };
+    // langkah berikutnya: Order::langkahBerikutnya() (sama dengan Beranda)
+    $langkah = fn ($o) => $o->langkahBerikutnya();
 @endphp
 @php
     // warna baris "langkah berikutnya"

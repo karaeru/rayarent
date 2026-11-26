@@ -75,6 +75,6 @@ class AuthController extends Controller
 
     private function home(User $user): string
     {
-        return $user->isAdmin() ? route('admin.dashboard') : route('pelanggan.katalog');
+        return $user->isAdmin() ? route('admin.dashboard') : route('pelanggan.beranda');
     }
 }

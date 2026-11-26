@@ -226,6 +226,8 @@ app/
 ├── Console/Commands/        admin:buat, armada:impor, armada:foto, pesanan:batal-kedaluwarsa
 ├── Http/Controllers/
 │   ├── HomeController       landing, detail armada publik, tentang, kontak, S&K
+│   ├── CustomerHomeController  beranda pelanggan setelah masuk
+│   ├── AccountController   akun pelanggan: data diri dan password
 │   ├── BookingController    form pesan + cek ketersediaan
 │   ├── OrderController      pesanan pelanggan, bayar, invoice, bukti
 │   ├── AdminController      dashboard, pesanan, laporan

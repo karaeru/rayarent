@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminVehicleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CustomerHomeController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PasswordResetController;
@@ -42,6 +44,11 @@ Route::get('/invoice/{order}', [OrderController::class, 'invoice'])->middleware(
 
 // Pelanggan
 Route::middleware(['auth', 'role:pelanggan'])->group(function () {
+    Route::get('/beranda', [CustomerHomeController::class, 'index'])->name('pelanggan.beranda');
+    Route::get('/akun', [AccountController::class, 'edit'])->name('pelanggan.akun');
+    Route::put('/akun', [AccountController::class, 'update'])->name('pelanggan.akun.simpan');
+    Route::put('/akun/password', [AccountController::class, 'password'])->middleware('throttle:5,1')->name('pelanggan.akun.password');
+
     Route::get('/katalog', [CatalogController::class, 'index'])->name('pelanggan.katalog');
     Route::get('/kendaraan/{vehicle}', [CatalogController::class, 'show'])->name('pelanggan.kendaraan');
 
