@@ -213,68 +213,6 @@
     });
     rrCollapse();
 
-    // Panggung foto di pembuka: ganti otomatis, berhenti saat disentuh kursor / tab tidak terlihat
-    const stage = document.querySelector('[data-stage]');
-    const slides = stage ? [...stage.querySelectorAll('[data-slide]')] : [];
-    if (slides.length > 1) {
-        const dots = [...stage.querySelectorAll('[data-dot]')];
-        let cur = 0, timer = null;
-        // slide kontak tampil lebih lama supaya sempat dibaca
-        const dur = (i) => slides[i].dataset.type === 'contact' ? 9000 : 4500;
-        const restartBar = () => {
-            const d = dots[cur]; if (!d) return;
-            d.style.setProperty('--dur', dur(cur) + 'ms');
-            d.classList.remove('is-active'); void d.offsetWidth; d.classList.add('is-active');
-        };
-        const show = (n) => {
-            const prev = cur;
-            cur = (n + slides.length) % slides.length;
-            if (prev === cur) return;
-            slides[prev].classList.remove('is-active');
-            slides[prev].classList.add('is-leaving');
-            setTimeout(() => slides[prev].classList.remove('is-leaving'), 700);
-            slides.forEach((s, i) => { s.inert = i !== cur; });
-            slides[cur].classList.add('is-active');
-            dots.forEach((d, i) => { d.classList.toggle('is-active', i === cur); i === cur ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'); });
-            restartBar();
-        };
-        const pauseBtn = stage.querySelector('[data-pause]');
-        let paused = reduce;   // reduced motion: mulai dalam keadaan dijeda
-        const play = () => {
-            if (paused) return;
-            clearTimeout(timer);
-            stage.classList.add('is-playing');
-            restartBar();
-            timer = setTimeout(() => { show(cur + 1); play(); }, dur(cur));
-        };
-        const stop = () => { clearTimeout(timer); stage.classList.remove('is-playing'); };
-        dots.forEach((d, i) => d.addEventListener('click', () => { show(i); play(); }));
-        const setPaused = (v) => {
-            paused = v;
-            if (!pauseBtn) return;
-            pauseBtn.setAttribute('aria-pressed', String(v));
-            pauseBtn.setAttribute('aria-label', v ? 'Putar slide otomatis' : 'Jeda slide otomatis');
-            pauseBtn.querySelector('[data-icon-pause]').classList.toggle('hidden', v);
-            pauseBtn.querySelector('[data-icon-play]').classList.toggle('hidden', !v);
-            v ? stop() : play();
-        };
-        pauseBtn?.addEventListener('click', () => setPaused(!paused));
-        if (reduce) setPaused(true);
-        stage.addEventListener('pointerenter', stop);
-        stage.addEventListener('pointerleave', play);
-        stage.addEventListener('focusin', (e) => { if (e.target !== pauseBtn) stop(); });
-        document.addEventListener('visibilitychange', () => document.hidden ? stop() : play());
-        // geser di HP
-        let x0 = null;
-        stage.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-        stage.addEventListener('touchend', (e) => {
-            if (x0 === null) return;
-            const dx = e.changedTouches[0].clientX - x0; x0 = null;
-            if (Math.abs(dx) > 40) { show(cur + (dx < 0 ? 1 : -1)); play(); }
-        });
-        play();
-    }
-
     // Tombol pesan menempel (HP) muncul setelah tombol utama lewat dari layar
     const sticky = document.querySelector('[data-sticky-buy]');
     const buy = document.querySelector('[data-buy]');

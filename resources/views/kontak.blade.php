@@ -23,12 +23,18 @@
 @endpush
 @section('content')
 
-<x-crumbs :items="[['Beranda', route('home')], ['Kontak']]" />
-
-<div class="mb-8 max-w-2xl" data-reveal>
-    <h1 class="m-0 text-4xl font-extrabold tracking-tight sm:text-5xl">Kontak</h1>
-    <p class="mb-0 mt-3 text-lg text-ink-2">Tanya ketersediaan, minta penawaran rombongan, atau datang langsung ke kantor kami.</p>
-</div>
+{{-- pembuka biru tua seperti landing --}}
+<section class="rr-bleed rr-on-dark rr-under-header text-white [--bleed:var(--color-brand-strong)] mb-10 pb-14">
+    <div class="max-w-2xl" data-reveal>
+        <x-crumbs dark :items="[['Beranda', route('home')], ['Kontak']]" />
+        <h1 class="m-0 text-[clamp(2.2rem,5vw,3.8rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-white">Kontak</h1>
+        <p class="mb-0 mt-4 text-lg leading-relaxed text-white/85">Tanya ketersediaan, minta penawaran rombongan, atau datang langsung ke kantor kami.</p>
+        <div class="mt-7 flex flex-wrap gap-3">
+            @if ($wa) <a href="https://wa.me/{{ $wa }}" rel="noopener" class="btn btn-lg bg-white text-brand-strong hover:bg-brand-soft hover:text-brand-strong">Chat WhatsApp</a> @endif
+            @if ($mapRoute) <a href="{{ $mapRoute }}" target="_blank" rel="noopener" class="btn btn-lg border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white">Petunjuk arah</a> @endif
+        </div>
+    </div>
+</section>
 
 <div class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
     <div class="flex flex-col gap-6">

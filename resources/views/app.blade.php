@@ -28,6 +28,7 @@
             ['Dashboard', route('admin.dashboard'), ['admin.dashboard']],
             ['Pesanan', route('admin.pesanan'), ['admin.pesanan']],
             ['Laporan', route('admin.laporan'), ['admin.laporan', 'admin.laporan.*']],
+            ['Ulasan', route('admin.ulasan'), ['admin.ulasan', 'admin.ulasan.*']],
             ['Kendaraan', route('admin.kendaraan'), ['admin.kendaraan', 'admin.kendaraan.*', 'admin.paket.*', 'admin.unit.*', 'admin.foto.*']],
             ['Pengaturan', route('admin.pengaturan'), ['admin.pengaturan', 'admin.pengaturan.*']],
         ];

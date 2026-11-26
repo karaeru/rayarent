@@ -56,20 +56,6 @@
     /* judul bagian menyala sebentar saat dituju dari menu */
     .is-arrived [data-arrive] { animation: rr-arrive .9s var(--ease-soft); }
 
-    /* panggung slide pembuka */
-    .rr-slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s .6s; }
-    .rr-slide.is-active { opacity: 1; visibility: visible; transition: opacity .6s ease; }
-    .rr-slide.is-leaving { opacity: 0; visibility: visible; }
-    .rr-slide [data-slide-media] { transform: translateX(6%) scale(1.03); transition: transform .9s var(--ease-soft); }
-    .rr-slide.is-active [data-slide-media] { transform: none; }
-    .rr-slide.is-leaving [data-slide-media] { transform: translateX(-6%) scale(1.03); }
-    .rr-slide [data-slide-cap] { opacity: 0; transform: translateY(10px); transition: opacity .5s .3s, transform .5s .3s; }
-    .rr-slide.is-active [data-slide-cap] { opacity: 1; transform: none; }
-    .rr-dot { display: flex; align-items: center; width: 2rem; height: 1.25rem; padding: 0; border: 0; background: none; cursor: pointer; transition: width .3s; }
-    .rr-dot span { position: relative; display: block; width: 100%; height: 4px; border-radius: 4px; background: var(--color-line-strong); overflow: hidden; }
-    .rr-dot.is-active { width: 3rem; }
-    .rr-dot.is-active span::after { content: ''; position: absolute; inset: 0; background: var(--color-brand-strong); transform-origin: left; }
-    [data-stage].is-playing .rr-dot.is-active span::after { animation: rr-progress var(--dur, 4.5s) linear; }
 
     /* armada: filter kategori dan "lihat semua" */
     [data-fleet].is-limited:not(.is-filtered) .is-extra, [data-fleet] .is-hidden { display: none; }
@@ -99,14 +85,13 @@
     [data-toc].is-current { color: var(--color-brand-strong); border-color: var(--color-brand-strong); font-weight: 600; }
 
     @keyframes rr-arrive { 0% { transform: translateY(10px); opacity: .4; } 55% { transform: none; opacity: 1; color: var(--color-brand-strong); } }
-    @keyframes rr-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     @keyframes rr-pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
     @keyframes rr-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
     @media (prefers-reduced-motion: reduce) {
         .lp-js [data-reveal], .lp-js .rr-steps > li { opacity: 1; transform: none; transition: none; }
-        .rr-slide, .rr-slide [data-slide-media], .rr-slide [data-slide-cap], [data-sticky-buy], .rr-steps::before { transition: none; }
-        .is-arrived [data-arrive], .is-pop, .is-tabbed [data-pane]:not([hidden]) ol, .is-tabbed [data-pane]:not([hidden]) tbody, [data-stage].is-playing .rr-dot.is-active span::after { animation: none; }
+        [data-sticky-buy], .rr-steps::before { transition: none; }
+        .is-arrived [data-arrive], .is-pop, .is-tabbed [data-pane]:not([hidden]) ol, .is-tabbed [data-pane]:not([hidden]) tbody { animation: none; }
     }
 }
 
@@ -192,8 +177,6 @@
 /* Permukaan gelap (pembuka biru): ring fokus dan titik slide memakai putih supaya tetap terlihat */
 @layer components {
     .rr-on-dark :focus-visible { outline-color: #fff; }
-    .rr-on-dark .rr-dot span { background: rgb(255 255 255 / .3); }
-    .rr-on-dark .rr-dot.is-active span::after { background: #fff; }
 }
 
 /*
@@ -220,4 +203,25 @@
     .rr-under-header { margin-top: calc(-1 * (var(--rr-header-h) + 20px)); padding-top: calc(var(--rr-header-h) + 2rem); }
     @media (min-width: 901px) { .rr-under-header { margin-top: calc(-1 * (var(--rr-header-h) + 28px)); } }
     @media (min-width: 1024px) { .rr-under-header { padding-top: calc(var(--rr-header-h) + 3.5rem); } }
+}
+
+/*
+ * Input bintang ulasan. Radio asli tetap ada (bisa dipilih dengan Tab + panah kiri/kanan).
+ * Urutan di HTML 5..1 lalu dibalik dengan row-reverse, supaya "~" bisa mewarnai bintang di sebelah kirinya.
+ */
+@layer components {
+    .rr-stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: .25rem; }
+    .rr-stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .rr-stars label { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: .6rem; color: var(--color-line-strong); cursor: pointer; transition: color .15s, transform .15s; }
+    .rr-stars label svg { width: 2rem; height: 2rem; }
+    .rr-stars input:checked ~ label, .rr-stars label:hover, .rr-stars label:hover ~ label { color: #d97706; }
+    .rr-stars label:hover { transform: scale(1.08); }
+    .rr-stars input:focus-visible + label { outline: 2px solid var(--color-brand-strong); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .rr-stars label { transition: none; } .rr-stars label:hover { transform: none; } }
+}
+
+/* Cetak S&K: semua bab langsung tampil (tanpa animasi muncul), teks di blok biru jadi gelap */
+@media print {
+    .lp-js [data-reveal] { opacity: 1 !important; transform: none !important; }
+    .rr-on-dark, .rr-on-dark * { color: var(--color-ink) !important; background: transparent !important; box-shadow: none !important; }
 }

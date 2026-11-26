@@ -12,30 +12,30 @@
 @endpush
 @section('content')
 
-<x-crumbs :items="[['Beranda', route('home')], ['Tentang']]" />
-
-<section class="grid items-center gap-10 pb-14 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-    <div data-reveal>
-        <h1 class="m-0 max-w-[22ch] text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl">Rental kendaraan{{ $kota ? ' di '.$kota : '' }} yang mengurus semuanya lewat jadwal, bukan tebak-tebakan.</h1>
+{{-- pembuka biru tua seperti landing, header putih mengambang di atasnya --}}
+<section class="rr-bleed rr-on-dark rr-under-header text-white [--bleed:var(--color-brand-strong)] grid items-center gap-10 pb-16 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <div class="min-w-0" data-reveal>
+        <x-crumbs dark :items="[['Beranda', route('home')], ['Tentang']]" />
+        <h1 class="m-0 max-w-[22ch] text-[clamp(2.1rem,4.6vw,3.6rem)] font-extrabold leading-[1.06] tracking-[-0.03em] text-white">Rental kendaraan{{ $kota ? ' di '.$kota : '' }} yang mengurus semuanya lewat jadwal, bukan tebak-tebakan.</h1>
         {{-- Ganti paragraf ini dengan cerita singkat usaha Anda --}}
-        <p class="mb-0 mt-5 max-w-[56ch] text-lg leading-relaxed text-ink-2">
+        <p class="mb-0 mt-5 max-w-[56ch] text-lg leading-relaxed text-white/85">
             {{ $nama }} menyewakan mobil dan minibus untuk keperluan harian, perjalanan keluarga, sampai rombongan.
             Setiap unit tercatat di sistem, jadi saat Anda memesan, yang tampil memang unit yang benar-benar kosong di jam itu.
         </p>
     </div>
-    <div class="flex flex-col items-center gap-6" data-reveal>
-        <div class="grid aspect-square w-[min(220px,60%)] place-items-center rounded-full bg-brand-soft" aria-hidden="true">
+    <div class="flex min-w-0 flex-col items-center gap-6" data-reveal>
+        <div class="grid aspect-square w-[min(200px,55%)] place-items-center rounded-full bg-white" aria-hidden="true">
             @if ($logo)
                 <img src="{{ asset('images/logo.'.$logo) }}" alt="" width="260" height="260" fetchpriority="high" class="h-auto w-[62%]">
             @else
                 <span class="text-6xl font-extrabold text-brand-strong">R</span>
             @endif
         </div>
-        <dl class="m-0 grid w-full grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line">
-            @if ($sejak) <div class="bg-white px-4 py-3"><dt class="text-sm text-muted">Beroperasi sejak</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $sejak }}</dd></div> @endif
-            <div class="bg-white px-4 py-3"><dt class="text-sm text-muted">Jenis kendaraan</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $jenis }}</dd></div>
-            <div class="bg-white px-4 py-3"><dt class="text-sm text-muted">Total unit</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $totalUnit }}</dd></div>
-            <div class="bg-white px-4 py-3"><dt class="text-sm text-muted">Kapasitas</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $kursiMin }}–{{ $kursiMax }} <small class="text-sm font-medium text-muted">kursi</small></dd></div>
+        <dl class="m-0 grid w-full grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/20">
+            @if ($sejak) <div class="bg-brand-strong px-4 py-3"><dt class="text-sm text-white/75">Beroperasi sejak</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $sejak }}</dd></div> @endif
+            <div class="bg-brand-strong px-4 py-3"><dt class="text-sm text-white/75">Jenis kendaraan</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $jenis }}</dd></div>
+            <div class="bg-brand-strong px-4 py-3"><dt class="text-sm text-white/75">Total unit</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $totalUnit }}</dd></div>
+            <div class="bg-brand-strong px-4 py-3"><dt class="text-sm text-white/75">Kapasitas</dt><dd class="m-0 text-2xl font-extrabold tabular-nums">{{ $kursiMin }}–{{ $kursiMax }} <small class="text-sm font-medium text-white/75">kursi</small></dd></div>
         </dl>
     </div>
 </section>

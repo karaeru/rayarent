@@ -27,6 +27,6 @@ class DatabaseSeederTest extends TestCase
 
         $this->post('/masuk', ['email' => 'admin@rayarent.id', 'password' => 'admin123'])->assertRedirect(route('admin.dashboard'));
         $this->post('/keluar');
-        $this->post('/masuk', ['email' => 'siti@mail.com', 'password' => 'demo123'])->assertRedirect(route('pelanggan.katalog'));
+        $this->post('/masuk', ['email' => 'siti@mail.com', 'password' => 'demo123'])->assertRedirect(route('pelanggan.beranda'));
     }
 }

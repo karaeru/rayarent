@@ -177,6 +177,43 @@
         </section>
     @endif
 
+    {{-- ============ ULASAN (setelah sewa selesai) ============ --}}
+    @if ($order->status === 'selesai')
+        @if ($order->review)
+            <section class="rr-card p-5">
+                <h2 class="m-0 text-lg font-bold">Ulasan Anda</h2>
+                <p class="m-0 mt-2 flex items-center gap-2"><x-stars :value="$order->review->rating" size="size-5" /> <span class="text-sm text-muted">{{ $order->review->created_at->translatedFormat('d M Y') }}</span></p>
+                @if ($order->review->comment) <p class="mb-0 mt-2 leading-relaxed text-ink-2">{{ $order->review->comment }}</p> @endif
+                @unless ($order->review->is_visible) <p class="mb-0 mt-2 text-sm text-muted">Ulasan ini tidak ditampilkan di halaman publik.</p> @endunless
+            </section>
+        @else
+            <form method="POST" action="{{ route('pelanggan.ulasan.simpan', $order) }}" class="rr-card p-5" id="ulasan">
+                @csrf
+                <h2 class="m-0 text-lg font-bold">Bagaimana sewa {{ $order->unit->vehicle->name }}?</h2>
+                <p class="mb-0 mt-1 text-sm text-muted">Ulasan membantu pelanggan lain memilih. Nama tampil disingkat, misalnya "{{ \App\Models\Review::namaPublik($order->user->name) }}".</p>
+                <fieldset class="m-0 mt-4 border-0 p-0">
+                    <legend class="rr-label">Nilai</legend>
+                    <div class="rr-stars" role="radiogroup" aria-label="Nilai 1 sampai 5 bintang">
+                        @for ($i = 5; $i >= 1; $i--)
+                            <input type="radio" name="rating" id="rating-{{ $i }}" value="{{ $i }}" @checked((int) old('rating') === $i) required>
+                            <label for="rating-{{ $i }}" title="{{ $i }} bintang">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 3.2 2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.6l-5.3 2.9 1.1-5.9L3.4 9.5l6-.8Z"/></svg>
+                                <span class="sr-only">{{ $i }} bintang</span>
+                            </label>
+                        @endfor
+                    </div>
+                    @error('rating') <p class="rr-err">{{ $message }}</p> @enderror
+                </fieldset>
+                <div class="mt-4">
+                    <label for="comment" class="rr-label">Komentar <span class="font-normal text-muted">(opsional)</span></label>
+                    <textarea id="comment" name="comment" rows="3" maxlength="500" class="rr-input" placeholder="Contoh: mobil bersih, serah terima tepat waktu.">{{ old('comment') }}</textarea>
+                    @error('comment') <p class="rr-err">{{ $message }}</p> @enderror
+                </div>
+                <button class="btn mt-4">Kirim ulasan</button>
+            </form>
+        @endif
+    @endif
+
     {{-- ============ DETAIL ============ --}}
     <section class="rr-card">
         <header class="rr-card-head"><h2>Detail sewa</h2></header>

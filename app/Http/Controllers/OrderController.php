@@ -25,7 +25,7 @@ class OrderController extends Controller
 
         // saat hitung mundur habis halaman dimuat ulang; batalkan yang kedaluwarsa supaya statusnya langsung benar
         rescue(fn () => Order::cancelExpired(), 0);
-        $order->refresh()->load('unit.vehicle', 'package', 'payments');
+        $order->refresh()->load('unit.vehicle', 'package', 'payments', 'review');
 
         return view('show', compact('order'));
     }

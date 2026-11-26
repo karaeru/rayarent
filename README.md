@@ -168,6 +168,21 @@ kendaraan di seeder tanpa mengunggah ulang fotonya.
 
 ---
 
+## Ulasan pelanggan
+
+Pelanggan memberi bintang 1–5 dan komentar setelah pesanannya **selesai** (sekali per pesanan). Ulasan tampil di landing dan halaman kendaraan dengan nama disingkat ("Budi S."). Admin bisa menyembunyikan ulasan di menu **Ulasan**.
+
+Untuk demo, isi ulasan contoh ke pesanan demo yang sudah selesai:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=DemoReviewSeeder
+```
+
+Ulasan contoh ini karangan, jadi jangan dipakai untuk data asli.
+
+---
+
 ## Perintah artisan
 
 | Perintah | Fungsi |

@@ -54,6 +54,28 @@
 </section>
 @endif
 
+{{-- ============ BELUM DIULAS ============ --}}
+@if ($belumUlas->isNotEmpty())
+<section class="mb-8" aria-labelledby="judul-ulas">
+    <h2 id="judul-ulas" class="m-0 mb-3 text-lg font-bold">Beri ulasan</h2>
+    <div class="grid gap-3 md:grid-cols-2">
+        @foreach ($belumUlas as $o)
+            <a href="{{ route('pelanggan.pesanan.show', $o) }}#ulasan" class="rr-card group flex items-center gap-4 p-4 text-ink transition-colors hover:border-line-strong hover:no-underline">
+                <span class="{{ $thumb }}">
+                    @if ($o->unit->vehicle->photo_url) <img src="{{ $o->unit->vehicle->photo_url }}" alt="" width="168" height="108" loading="lazy" class="h-full w-full object-contain p-1"> @else <x-car-icon :type="$o->unit->vehicle->icon" /> @endif
+                </span>
+                <span class="min-w-0 flex-1">
+                    <b class="block">{{ $o->unit->vehicle->name }}</b>
+                    <span class="mt-0.5 block text-sm text-muted">Selesai {{ ($o->returned_at ?? $o->end_at)->translatedFormat('d M Y') }} · {{ $o->code }}</span>
+                    <x-stars :value="0" class="mt-1.5" />
+                </span>
+                <span class="flex-none text-sm font-semibold text-brand-strong group-hover:underline">Beri nilai</span>
+            </a>
+        @endforeach
+    </div>
+</section>
+@endif
+
 {{-- ============ SEDANG BERJALAN ============ --}}
 @if ($berjalan->isNotEmpty())
 <section class="mb-8" aria-labelledby="judul-berjalan">

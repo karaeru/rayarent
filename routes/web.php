@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminReviewController;
 use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AdminVehicleController;
 use App\Http\Controllers\AuthController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -60,6 +62,7 @@ Route::middleware(['auth', 'role:pelanggan'])->group(function () {
     Route::get('/pesanan/{order}', [OrderController::class, 'show'])->name('pelanggan.pesanan.show');
     Route::post('/pesanan/{order}/bayar', [OrderController::class, 'pay'])->name('pelanggan.pesanan.bayar');
     Route::delete('/pesanan/{order}', [OrderController::class, 'cancel'])->name('pelanggan.pesanan.batal');
+    Route::post('/pesanan/{order}/ulasan', [ReviewController::class, 'store'])->middleware('throttle:10,1')->name('pelanggan.ulasan.simpan');
 });
 
 // Admin
@@ -92,6 +95,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/kendaraan/{vehicle}/unit', [AdminVehicleController::class, 'storeUnit'])->name('admin.unit.simpan');
     Route::patch('/unit/{unit}/status', [AdminVehicleController::class, 'updateUnitStatus'])->name('admin.unit.status');
     Route::delete('/unit/{unit}', [AdminVehicleController::class, 'destroyUnit'])->name('admin.unit.hapus');
+
+    // Ulasan pelanggan
+    Route::get('/ulasan', [AdminReviewController::class, 'index'])->name('admin.ulasan');
+    Route::patch('/ulasan/{review}', [AdminReviewController::class, 'toggle'])->name('admin.ulasan.toggle');
 
     // Pengaturan
     Route::get('/pengaturan', [AdminSettingController::class, 'edit'])->name('admin.pengaturan');

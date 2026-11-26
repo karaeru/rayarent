@@ -235,6 +235,25 @@
     </ol>
 </section>
 
+{{-- ============ ULASAN PELANGGAN: hanya ulasan asli dari pesanan selesai ============ --}}
+@if ($ulasan->isNotEmpty())
+<section id="ulasan" class="pb-14 pt-2" aria-labelledby="judul-ulasan">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2" data-reveal>
+        <h2 id="judul-ulasan" class="m-0 text-3xl font-extrabold tracking-tight" data-arrive>Kata pelanggan setelah sewa</h2>
+        <p class="m-0 flex items-center gap-2 text-ink-2"><x-stars :value="$nilai['rata']" /> <b class="tabular-nums text-ink">{{ number_format($nilai['rata'], 1, ',', '') }}</b> dari {{ $nilai['jumlah'] }} ulasan</p>
+    </div>
+    <div class="grid gap-4 md:grid-cols-3">
+        @foreach ($ulasan as $u)
+            <figure class="rr-card m-0 flex flex-col gap-3 p-5" data-reveal>
+                <x-stars :value="$u->rating" />
+                <blockquote class="m-0 flex-1 leading-relaxed text-ink">{{ $u->comment }}</blockquote>
+                <figcaption class="border-t border-line pt-3 text-sm text-muted"><b class="text-ink">{{ $u->public_name }}</b> · {{ $u->vehicle?->name }} · {{ $u->created_at->translatedFormat('M Y') }}</figcaption>
+            </figure>
+        @endforeach
+    </div>
+</section>
+@endif
+
 {{-- ============ KETENTUAN (pita toska muda, ringkas) ============ --}}
 <section id="ketentuan" class="rr-bleed py-14 [--bleed:var(--color-brand-soft)]" data-reveal>
     <div class="mb-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">

@@ -20,7 +20,7 @@ class CustomerHomeController extends Controller
         rescue(fn () => Order::cancelExpired(), 0, false);
 
         $orders = $request->user()->orders()
-            ->with('unit.vehicle.packages', 'package', 'payments')
+            ->with('unit.vehicle.packages', 'package', 'payments', 'review')
             ->latest()->get();
 
         $aktif = $orders->whereIn('status', Order::AKTIF)
@@ -40,6 +40,9 @@ class CustomerHomeController extends Controller
             ->filter(fn ($x) => $x['vehicle']->is_active && $x['vehicle']->packages->isNotEmpty())
             ->take(3)->values();
 
+        // pesanan selesai yang belum diulas (paling baru dulu)
+        $belumUlas = $orders->filter(fn ($o) => $o->bisaDiulas())->take(2)->values();
+
         $tidakBatal = $orders->where('status', '!=', 'dibatalkan');
         $ringkas = [
             'selesai' => $orders->where('status', 'selesai')->count(),
@@ -55,6 +58,7 @@ class CustomerHomeController extends Controller
             'tindakan' => $tindakan,
             'berjalan' => $berjalan,
             'pernah' => $pernah,
+            'belumUlas' => $belumUlas,
             'ringkas' => $ringkas,
             'adaPesanan' => $orders->isNotEmpty(),
             'cek' => $cek,

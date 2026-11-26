@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\RentalPackage;
+use App\Models\Review;
 use App\Models\Setting;
 use App\Models\Vehicle;
 use App\Support\Armada;
@@ -56,9 +57,15 @@ class HomeController extends Controller
         // Kotak "Cek unit kosong": cari unit yang tidak bentrok jadwal untuk paket terpendek tiap kendaraan
         $cek = Armada::cekUnitKosong($request, $models);
 
+        // ulasan asli dari pesanan selesai (yang tidak disembunyikan admin), hanya yang ada komentarnya
+        $ulasan = rescue(fn () => Review::visible()->whereNotNull('comment')->with('user', 'vehicle')->latest()->take(3)->get(), collect(), false);
+        $nilai = rescue(fn () => Review::ringkasan(), ['rata' => 0, 'jumlah' => 0], false);
+
         return view('home', [
             'models' => $models,
             'kolase' => $kolase,
+            'ulasan' => $ulasan,
+            'nilai' => $nilai,
             'logoUrl' => $logo ? asset('images/logo.' . $logo) : null,
             'populer' => $populer,
             'populerAsli' => $adaData,
@@ -89,8 +96,16 @@ class HomeController extends Controller
             ->sortBy(fn ($v) => abs($v->capacity - $vehicle->capacity) * 10_000_000 + $v->min_price)
             ->take(3)->values();
 
+        // ulasan untuk model ini (Matic & Manual digabung)
+        $kembar = Vehicle::get()->filter(fn ($v) => Vehicle::baseName($v->name) === Vehicle::baseName($vehicle->name))->pluck('id');
+        $qUlasan = Review::whereIn('vehicle_id', $kembar);
+        $ulasan = rescue(fn () => $qUlasan->clone()->visible()->whereNotNull('comment')->with('user')->latest()->take(3)->get(), collect(), false);
+        $nilai = rescue(fn () => Review::ringkasan($qUlasan), ['rata' => 0, 'jumlah' => 0], false);
+
         return view('armada', [
             'vehicle' => $vehicle,
+            'ulasan' => $ulasan,
+            'nilai' => $nilai,
             'unitAktif' => $unitAktif,
             'lainnya' => $lainnya,
             'dpPercent' => (int) Setting::get('dp_percent', 30),
