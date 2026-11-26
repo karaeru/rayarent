@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @section('title', 'Lupa password · '.config('rayarent.nama'))
 @section('content')
 <x-auth-shell title="Lupa password" subtitle="Masukkan email akun Anda. Kami kirim link untuk membuat password baru.">

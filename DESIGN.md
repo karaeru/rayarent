@@ -63,6 +63,9 @@ Diputuskan pemilik: **3 / 3 / 3**.
 | Pergantian slide pembuka | Satu kotak menampilkan logo, foto, dan kontak tanpa memanjangkan halaman; bisa dihentikan dengan kursor dan tombol |
 | Scroll halus ke bagian | Memberi tahu pengunjung bahwa ia tetap di halaman yang sama |
 | Hitung mundur batas bayar | Informasi waktu nyata yang menentukan pesanan batal atau tidak |
+| Garis urutan Cara sewa | Garis terisi lalu langkah 01–04 muncul berurutan, menegaskan urutan |
+| Kartu armada saat filter | Kartu yang lolos filter muncul ulang, jadi pengunjung tahu daftar berubah |
+| Judul bagian yang dituju | Judul menyala sebentar setelah scroll dari menu, menandai tempat tiba |
 | Bar dan grafik dasbor | Tidak dianimasikan; angka langsung tampil |
 
 Dihapus karena hanya hiasan: mobil melaju di garis jalan, angka berputar seperti odometer, kartu miring mengikuti kursor, cahaya mengikuti kursor, riak di sekitar logo, denyut tombol WhatsApp, titik berdenyut di dasbor.
@@ -82,12 +85,16 @@ Dihapus karena hanya hiasan: mobil melaju di garis jalan, angka berputar seperti
 - Semua `img` punya `width` dan `height`; gambar dekoratif `alt=""`.
 - Area sentuh minimal 44 px di layar sentuh.
 
-## 9. Masih terbuka
+## 9. Keputusan (sebelumnya terbuka)
 
-1. Apakah ada pedoman merek resmi Ragil Raya Trans (warna, font, gaya foto)?
-2. Sudah ada foto pelanggan berizin untuk slide pembuka? Sampai ada, slide memakai foto armada.
+1. Pedoman merek resmi: **tidak ada**. Warna dari logo dan Plus Jakarta Sans seperti di dokumen ini.
+2. Foto pelanggan: **sudah berizin**. Berkas di `public/images/pelanggan/`, nama file menjadi keterangan slide.
+3. Stack: **Tailwind CSS v4**, dimigrasi bertahap: (1) publik + Masuk/Daftar, (2) pelanggan, (3) admin.
+   Token di `resources/css/app.css` (`@theme`), dipakai sebagai kelas `bg-brand-strong`, `text-muted`, `border-line`, dan seterusnya.
+   Gaya lama dimuat di layer `legacy` sehingga kelas Tailwind selalu menang. Bagian lama dihapus per paket setelah halamannya pindah.
 
 ## 10. Riwayat
 
 - v1.0: draf awal.
 - v1.1: dial 3 / 3 / 3, gradasi diganti warna solid, Fase 4 (merapikan CSS) ditunda.
+- v1.2: pindah ke Tailwind v4 bertahap (Fase 4 digabung ke migrasi), foto pelanggan berizin, tanpa pedoman merek resmi.

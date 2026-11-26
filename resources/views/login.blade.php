@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @section('title', 'Masuk · '.config('rayarent.nama'))
 @section('content')
 <x-auth-shell title="Masuk ke akun Anda" subtitle="Pesan kendaraan dan pantau pesanan Anda.">

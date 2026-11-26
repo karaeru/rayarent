@@ -1,9 +1,107 @@
+/*
+ * RAYARENT · Tailwind v4 (migrasi bertahap, lihat DESIGN.md dan PRD v1.2)
+ *
+ * Urutan layer: gaya lama (public/css/rayarent.css) dimasukkan ke layer "legacy",
+ * di antara base dan utilities. Hasilnya: halaman lama tetap tampil seperti biasa,
+ * dan kelas Tailwind di halaman baru selalu menang atas gaya lama.
+ */
+@layer theme, base, legacy, components, utilities;
+
 @import 'tailwindcss';
+@import '../../public/css/rayarent.css' layer(legacy);
 
+@source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
 
+/* Token dari DESIGN.md. Satu warna brand, warna status, tanpa gradasi. */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+    --color-brand: #0077b6;          /* 4,87:1 di putih */
+    --color-brand-strong: #005b8c;   /* 7,3:1 di putih, 6,5:1 di brand-soft */
+    --color-brand-soft: #e2f6fa;
+    --color-ink: #111827;
+    --color-ink-2: #374151;
+    --color-muted: #4b5563;          /* 7,6:1 di putih */
+    --color-line: #e5e7eb;
+    --color-line-strong: #cfd5dd;
+    --color-canvas: #f5f7fa;
+    --color-plate: #f4c20d;
+    --color-wa: #0e7a40;             /* 5,4:1 dengan teks putih */
+    --color-ok: #166534;
+    --color-ok-soft: #dcfce7;
+    --color-warn: #92400e;
+    --color-warn-soft: #fef3c7;
+    --color-bad: #b91c1c;
+    --color-bad-soft: #fee2e2;
+
+    --ease-soft: cubic-bezier(.2, .7, .2, 1);
+}
+
+/*
+ * Komponen yang dikendalikan JavaScript (landing-motion.blade.php menambah/menghapus kelas status).
+ * Gerak sesuai MOTION 3: muncul berurutan, transisi slide, umpan balik filter. Semua berhenti di reduced motion.
+ */
+@layer components {
+    /* pita selebar layar di dalam .container tanpa scroll horizontal */
+    .rr-bleed { background: var(--bleed, #fff); box-shadow: 0 0 0 100vmax var(--bleed, #fff); clip-path: inset(0 -100vmax); }
+
+    /* muncul saat di-scroll (hanya bila JS aktif) */
+    .lp-js [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease-soft) var(--d, 0ms), transform .7s var(--ease-soft) var(--d, 0ms); }
+    .lp-js [data-reveal].is-in { opacity: 1; transform: none; }
+
+    /* judul bagian menyala sebentar saat dituju dari menu */
+    .is-arrived [data-arrive] { animation: rr-arrive .9s var(--ease-soft); }
+
+    /* panggung slide pembuka */
+    .rr-slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s .6s; }
+    .rr-slide.is-active { opacity: 1; visibility: visible; transition: opacity .6s ease; }
+    .rr-slide.is-leaving { opacity: 0; visibility: visible; }
+    .rr-slide [data-slide-media] { transform: translateX(6%) scale(1.03); transition: transform .9s var(--ease-soft); }
+    .rr-slide.is-active [data-slide-media] { transform: none; }
+    .rr-slide.is-leaving [data-slide-media] { transform: translateX(-6%) scale(1.03); }
+    .rr-slide [data-slide-cap] { opacity: 0; transform: translateY(10px); transition: opacity .5s .3s, transform .5s .3s; }
+    .rr-slide.is-active [data-slide-cap] { opacity: 1; transform: none; }
+    .rr-dot { display: flex; align-items: center; width: 2rem; height: 1.25rem; padding: 0; border: 0; background: none; cursor: pointer; transition: width .3s; }
+    .rr-dot span { position: relative; display: block; width: 100%; height: 4px; border-radius: 4px; background: var(--color-line-strong); overflow: hidden; }
+    .rr-dot.is-active { width: 3rem; }
+    .rr-dot.is-active span::after { content: ''; position: absolute; inset: 0; background: var(--color-brand-strong); transform-origin: left; }
+    [data-stage].is-playing .rr-dot.is-active span::after { animation: rr-progress var(--dur, 4.5s) linear; }
+
+    /* armada: filter kategori dan "lihat semua" */
+    [data-fleet].is-limited:not(.is-filtered) .is-extra, [data-fleet] .is-hidden { display: none; }
+    .is-pop { animation: rr-pop .45s var(--ease-soft) var(--d, 0ms) both; }
+
+    /* daftar harga: tab layanan */
+    [data-pricetabs]:not(.is-tabbed) [role='tablist'], [data-pricetabs]:not(.is-tabbed) [data-more], .is-tabbed [data-pane-title] { display: none; }
+    .is-tabbed [data-pane]:not(.is-open) .is-extra { display: none; }
+    .is-tabbed [data-pane]:not([hidden]) ol { animation: rr-rise .35s var(--ease-soft) both; }
+
+    /* cara sewa: garis urutan terisi saat terlihat */
+    .rr-steps { position: relative; }
+    .rr-steps::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: var(--color-brand); transform: scaleX(0); transform-origin: left; transition: transform 1.2s var(--ease-soft) .15s; }
+    .rr-steps.is-in::before, html:not(.lp-js) .rr-steps::before { transform: none; }
+    .lp-js .rr-steps > li { opacity: 0; transform: translateY(12px); transition: opacity .5s, transform .5s; }
+    .rr-steps.is-in > li { opacity: 1; transform: none; }
+    .rr-steps.is-in > li:nth-child(2) { transition-delay: .2s; }
+    .rr-steps.is-in > li:nth-child(3) { transition-delay: .4s; }
+    .rr-steps.is-in > li:nth-child(4) { transition-delay: .6s; }
+
+    /* tombol pesan menempel di HP (halaman detail armada) */
+    [data-sticky-buy] { transform: translateY(110%); transition: transform .3s var(--ease-soft); }
+    [data-sticky-buy].is-on { transform: none; }
+
+    /* daftar isi Syarat & Ketentuan */
+    [data-toc].is-current { color: var(--color-brand-strong); border-color: var(--color-brand-strong); font-weight: 600; }
+
+    @keyframes rr-arrive { 0% { transform: translateY(10px); opacity: .4; } 55% { transform: none; opacity: 1; color: var(--color-brand-strong); } }
+    @keyframes rr-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes rr-pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes rr-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+        .lp-js [data-reveal], .lp-js .rr-steps > li { opacity: 1; transform: none; transition: none; }
+        .rr-slide, .rr-slide [data-slide-media], .rr-slide [data-slide-cap], [data-sticky-buy], .rr-steps::before { transition: none; }
+        .is-arrived [data-arrive], .is-pop, .is-tabbed [data-pane]:not([hidden]) ol, [data-stage].is-playing .rr-dot.is-active span::after { animation: none; }
+    }
 }

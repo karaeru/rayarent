@@ -49,7 +49,8 @@ menunggu_konfirmasi ──(bayar diverifikasi + dikonfirmasi)──► dikonfirm
 ## Teknologi
 - PHP 8.3, **Laravel 13**
 - MySQL / MariaDB
-- Blade + CSS dan JavaScript murni (tanpa framework front-end, tanpa build step)
+- Blade + **Tailwind CSS v4** (dibangun dengan Vite) dan JavaScript murni
+- Migrasi bertahap: halaman publik dan Masuk/Daftar sudah Tailwind; halaman pelanggan dan admin masih memakai `public/css/rayarent.css`
 - PHPUnit untuk test
 
 ---
@@ -62,7 +63,12 @@ cd rayarent
 composer install
 cp .env.example .env          # Windows: copy .env.example .env
 php artisan key:generate
+npm install                   # sekali saja, butuh Node.js (sudah ada di Laragon)
+npm run build                 # wajib: membangun tampilan Tailwind ke public/build
 ```
+
+> Saat sedang mengubah tampilan, jalankan `npm run dev` dan biarkan terminalnya terbuka, supaya perubahan langsung terlihat.
+> Bila halaman publik menampilkan pita kuning "Tampilan baru belum dibangun", jalankan `npm run build`.
 
 1. Buat database **`rayarent`** (untuk aplikasi) dan **`rayarent_test`** (untuk test) di phpMyAdmin.
 2. Sesuaikan `DB_USERNAME` / `DB_PASSWORD` di `.env` bila perlu.
@@ -195,6 +201,8 @@ git pull origin main
 composer install
 php artisan migrate
 php artisan armada:foto
+npm install
+npm run build
 php artisan optimize:clear
 ```
 
@@ -204,6 +212,7 @@ php artisan optimize:clear
 | Logo, foto pelanggan, foto kendaraan + `peta-foto.json` | Isi database: akun & pesanan buatan sendiri (export/import `.sql` lewat phpMyAdmin) |
 | | Bukti transfer pelanggan |
 | | Database `rayarent_test` (buat kosong untuk menjalankan test) |
+| | `node_modules/` dan `public/build/` (dibuat ulang dengan `npm install` + `npm run build`) |
 
 Bila `git pull` menolak karena *"local changes would be overwritten"*, backup file yang disebut,
 lalu jalankan `git restore <file>` atau `git stash`, baru `git pull` lagi.
@@ -228,7 +237,9 @@ resources/views/
 ├── armada / tentang / kontak / syarat.blade.php
 ├── invoice.blade.php
 └── admin/
-public/css/rayarent.css      semua gaya tampilan (warna brand di blok :root paling atas)
+resources/css/app.css        Tailwind: token warna/font dari DESIGN.md + komponen bergerak
+resources/views/components/  vehicle-card, crumbs, section-head, auth-shell, car-icon
+public/css/rayarent.css      gaya lama untuk halaman yang belum dimigrasi (ikut dimuat lewat app.css)
 ```
 
 ---

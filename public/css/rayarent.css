@@ -1753,3 +1753,7 @@ img{height:auto}
 .lp-cta::before{display:none}
 .wa-float::before{display:none}
 .db-dot.is-danger{animation:none}
+
+/* PB-8 (PRD v1.1): gradasi logo diganti warna solid di seluruh halaman lama */
+:root{--brand-gradient:var(--brand-strong)}
+.lp-eyebrow{background:none;-webkit-background-clip:initial;background-clip:initial;color:var(--brand-strong)}

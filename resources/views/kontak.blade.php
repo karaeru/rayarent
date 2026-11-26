@@ -1,8 +1,10 @@
 @extends('app')
+@section('tailwind', '1')
 @php
     $nama = config('rayarent.nama');
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
     $ig = ltrim((string) config('rayarent.instagram'), '@');
+    $field = 'block w-full rounded-lg border border-line-strong bg-white px-3.5 py-2.5 text-base text-ink';
 @endphp
 @section('title', 'Kontak · '.$nama)
 @push('head')
@@ -22,68 +24,61 @@
 @endpush
 @section('content')
 
-<nav class="lp-crumbs" aria-label="Breadcrumb">
-    <a href="{{ route('home') }}">Beranda</a><span aria-hidden="true">/</span><span aria-current="page">Kontak</span>
-</nav>
+<x-crumbs :items="[['Beranda', route('home')], ['Kontak']]" />
 
-<div class="kt-head lp-hero__text">
-    <h1>Kontak</h1>
-    <p class="lp-lead">Tanya ketersediaan, minta penawaran rombongan, atau datang langsung ke kantor kami.</p>
+<div class="mb-8 max-w-2xl" data-reveal>
+    <h1 class="m-0 text-4xl font-extrabold tracking-tight sm:text-5xl">Kontak</h1>
+    <p class="mb-0 mt-3 text-lg text-ink-2">Tanya ketersediaan, minta penawaran rombongan, atau datang langsung ke kantor kami.</p>
 </div>
 
-<div class="kt-grid">
-    <div class="stack">
-        <dl class="kt-list" data-reveal>
-            @if ($wa)
-                <div><dt>WhatsApp</dt><dd><a href="https://wa.me/{{ $wa }}" rel="noopener">+{{ $wa }}</a></dd></div>
-            @endif
-            @if (config('rayarent.email'))
-                <div><dt>Email</dt><dd><a href="mailto:{{ config('rayarent.email') }}">{{ config('rayarent.email') }}</a></dd></div>
-            @endif
-            @if ($ig)
-                <div><dt>Instagram</dt><dd><a href="https://instagram.com/{{ $ig }}" rel="noopener">{{ '@'.$ig }}</a></dd></div>
-            @endif
-            @if (config('rayarent.alamat'))
-                <div><dt>Alamat</dt><dd>{{ config('rayarent.alamat') }}@if ($mapLink)<br><a href="{{ $mapLink }}" target="_blank" rel="noopener" class="small">Buka di Google Maps</a>@endif</dd></div>
-            @endif
-            @if (config('rayarent.jam_operasional'))
-                <div><dt>Jam buka</dt><dd>{{ config('rayarent.jam_operasional') }}</dd></div>
-            @endif
+<div class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+    <div class="flex flex-col gap-6">
+        <dl class="m-0 divide-y divide-line rounded-xl border border-line bg-white" data-reveal>
+            @foreach (array_filter([
+                $wa ? ['WhatsApp', '<a href="https://wa.me/'.$wa.'" rel="noopener">+'.e($wa).'</a>'] : null,
+                config('rayarent.email') ? ['Email', '<a href="mailto:'.e(config('rayarent.email')).'">'.e(config('rayarent.email')).'</a>'] : null,
+                $ig ? ['Instagram', '<a href="https://instagram.com/'.e($ig).'" rel="noopener">@'.e($ig).'</a>'] : null,
+                config('rayarent.alamat') ? ['Alamat', e(config('rayarent.alamat')).($mapLink ? '<br><a href="'.e($mapLink).'" target="_blank" rel="noopener" class="text-sm">Buka di Google Maps</a>' : '')] : null,
+                config('rayarent.jam_operasional') ? ['Jam buka', e(config('rayarent.jam_operasional'))] : null,
+            ]) as [$dt, $dd])
+                <div class="grid gap-0.5 px-5 py-3.5 sm:grid-cols-[110px_1fr] sm:gap-4">
+                    <dt class="text-sm font-semibold text-muted">{{ $dt }}</dt>
+                    <dd class="m-0 font-semibold [&_a]:text-brand-strong [&_a]:underline [&_a]:underline-offset-2">{!! $dd !!}</dd>
+                </div>
+            @endforeach
         </dl>
 
         @if ($wa)
         {{-- Form ini tidak menyimpan apa pun: isinya dirangkai jadi pesan WhatsApp --}}
-        <form class="card kt-form" data-wa-form data-wa="{{ $wa }}" data-reveal>
-            <div class="card-body">
-                <h2 class="card-title" style="font-size:1.15rem">Tanya lewat WhatsApp</h2>
-                <div class="grid-2">
-                    <div class="field">
-                        <label for="kt-nama">Nama</label>
-                        <input id="kt-nama" name="nama" required autocomplete="name">
-                    </div>
-                    <div class="field">
-                        <label for="kt-tgl">Tanggal sewa</label>
-                        <input id="kt-tgl" name="tanggal" type="date" min="{{ now()->toDateString() }}">
-                    </div>
+        <form class="rounded-xl border border-line bg-white p-5 sm:p-6" data-wa-form data-wa="{{ $wa }}" data-reveal>
+            <h2 class="m-0 mb-4 text-xl font-bold">Tanya lewat WhatsApp</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="kt-nama" class="mb-1.5 block text-sm font-semibold">Nama</label>
+                    <input id="kt-nama" name="nama" required autocomplete="name" class="{{ $field }}">
                 </div>
-                <div class="field">
-                    <label for="kt-mobil">Kendaraan</label>
-                    <select id="kt-mobil" name="kendaraan">
+                <div>
+                    <label for="kt-tgl" class="mb-1.5 block text-sm font-semibold">Tanggal sewa</label>
+                    <input id="kt-tgl" name="tanggal" type="date" min="{{ now()->toDateString() }}" class="{{ $field }}">
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="kt-mobil" class="mb-1.5 block text-sm font-semibold">Kendaraan</label>
+                    <select id="kt-mobil" name="kendaraan" class="{{ $field }}">
                         <option value="">Belum tahu, minta saran</option>
                         @foreach ($vehicles as $v) <option>{{ $v }}</option> @endforeach
                     </select>
                 </div>
-                <div class="field">
-                    <label for="kt-pesan">Pesan</label>
-                    <textarea id="kt-pesan" name="pesan" rows="3" placeholder="Contoh: 2 hari, jemput di stasiun, 6 orang"></textarea>
+                <div class="sm:col-span-2">
+                    <label for="kt-pesan" class="mb-1.5 block text-sm font-semibold">Pesan</label>
+                    <textarea id="kt-pesan" name="pesan" rows="3" placeholder="Contoh: 2 hari, jemput di stasiun, 6 orang" class="{{ $field }}"></textarea>
                 </div>
-                <button class="btn btn-block">Kirim ke WhatsApp</button>
             </div>
+            <button class="btn btn-block mt-5">Kirim ke WhatsApp</button>
         </form>
         @endif
     </div>
 
-    <div>@include('partials.map')</div>
+    <div class="lg:sticky lg:top-24">@include('partials.map')</div>
 </div>
 
 <script>

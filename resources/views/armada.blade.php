@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @php
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
     $nama = config('rayarent.nama');
@@ -9,6 +10,8 @@
     $desc = 'Sewa '.$vehicle->name.($kota ? ' di '.$kota : '').' mulai '.$rp($vehicle->min_price).'. '
         .$vehicle->seat_label.' kursi'.($vehicle->transmission ? ', '.$vehicle->transmission : '').'. '
         .$layanan->implode(', ').'. Cek unit kosong dan pesan online.';
+    $bisaPesan = ! auth()->check() || auth()->user()->isPelanggan();
+    $catatan = ['lepas_kunci' => 'Anda menyetir sendiri.', 'driver' => 'Termasuk driver, BBM ditanggung penyewa.', 'driver_bbm' => 'Termasuk driver dan BBM.'];
 @endphp
 @section('wa_text', 'Halo '.config('rayarent.nama').', saya mau tanya sewa '.$vehicle->name.'.')
 @section('title', 'Sewa '.$vehicle->name.($kota ? ' '.$kota : '').' · '.$nama)
@@ -39,121 +42,91 @@
 @endpush
 @section('content')
 
-<nav class="lp-crumbs" aria-label="Breadcrumb">
-    <a href="{{ route('home') }}">Beranda</a>
-    <span aria-hidden="true">/</span>
-    <a href="{{ route('home') }}#armada">Armada</a>
-    <span aria-hidden="true">/</span>
-    <span aria-current="page">{{ $vehicle->name }}</span>
-</nav>
+<x-crumbs :items="[['Beranda', route('home')], ['Armada', route('home').'#armada'], [$vehicle->name]]" />
 
-<div class="ar-top">
-    <div class="ar-media" data-hero>
+{{-- foto besar sebagai titik fokus, info dan tombol di samping --}}
+<div class="grid items-start gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-12">
+    <div class="aspect-[16/10] overflow-hidden rounded-3xl border border-line bg-white" data-reveal>
         @if ($vehicle->photo_url)
-            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1000" fetchpriority="high">
+            <img src="{{ $vehicle->photo_url }}" alt="{{ $vehicle->name }}" width="1600" height="1000" fetchpriority="high" class="h-full w-full object-contain p-[5%]">
         @else
-            <span class="media-placeholder"><x-car-icon :type="$vehicle->icon" /></span>
+            <span class="flex h-full items-center justify-center text-brand opacity-50 [&>svg]:w-1/2"><x-car-icon :type="$vehicle->icon" /></span>
         @endif
     </div>
 
-    <div class="ar-info">
-        <h1>{{ $vehicle->name }}</h1>
-        <p class="lp-lead" style="margin-top:8px">
+    <div data-reveal>
+        <h1 class="m-0 text-4xl font-extrabold leading-tight tracking-tight">{{ $vehicle->name }}</h1>
+        <p class="mb-0 mt-2 text-lg text-ink-2">
             {{ $vehicle->seat_label }} kursi{{ $vehicle->transmission ? ' · '.$vehicle->transmission : '' }} · {{ $layanan->implode(' · ') }}
         </p>
 
-        <dl class="ar-specs">
-            <div><dt>Kapasitas</dt><dd>{{ $vehicle->seat_label }} <small>kursi</small></dd></div>
-            <div><dt>Transmisi</dt><dd>{{ $vehicle->transmission ?? 'Sesuai unit' }}</dd></div>
-            <div><dt>Unit siap jalan</dt><dd>{{ $unitAktif }}</dd></div>
+        <dl class="m-0 mt-6 grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-white">
+            <div class="px-4 py-3"><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Kapasitas</dt><dd class="m-0 mt-0.5 text-lg font-bold">{{ $vehicle->seat_label }} <small class="font-medium text-muted">kursi</small></dd></div>
+            <div class="px-4 py-3"><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Transmisi</dt><dd class="m-0 mt-0.5 text-lg font-bold">{{ $vehicle->transmission ?? 'Sesuai unit' }}</dd></div>
+            <div class="px-4 py-3"><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Unit siap jalan</dt><dd class="m-0 mt-0.5 text-lg font-bold tabular-nums">{{ $unitAktif }}</dd></div>
         </dl>
 
-        <div class="ar-buy">
-            <div class="price"><small>Mulai dari</small>{{ $rp($vehicle->min_price) }}</div>
-            @auth
-                @if (auth()->user()->isPelanggan())
-                    <a class="btn btn-lg" href="{{ route('pelanggan.pesan', $vehicle) }}">Pesan sekarang</a>
-                @endif
-            @else
-                <a class="btn btn-lg" href="{{ route('pelanggan.pesan', $vehicle) }}">Pesan sekarang</a>
-            @endauth
+        <div class="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-6" data-buy>
+            <p class="m-0 mr-auto leading-tight">
+                <span class="block text-xs font-semibold uppercase tracking-wide text-muted">Mulai dari</span>
+                <span class="text-3xl font-extrabold tabular-nums">{{ $rp($vehicle->min_price) }}</span>
+            </p>
+            @if ($bisaPesan) <a class="btn btn-lg" href="{{ route('pelanggan.pesan', $vehicle) }}">Cek jadwal &amp; pesan</a> @endif
             @if ($waLink) <a class="btn btn-lg btn-outline" href="{{ $waLink }}" rel="noopener">WhatsApp</a> @endif
         </div>
-        @guest <p class="small muted" style="margin:8px 0 0">Anda akan diminta masuk atau daftar dulu, lalu langsung ke form pesanan.</p> @endguest
+        @guest <p class="mb-0 mt-2 text-sm text-muted">Anda akan diminta masuk atau daftar dulu, lalu langsung ke form pesanan.</p> @endguest
     </div>
 </div>
 
-<section class="lp-section">
-    <div class="lp-head" data-reveal>
-        <h2>Paket &amp; harga</h2>
-        <p class="muted">Sewa lebih lama dihitung kelipatan paket. Contoh: 3 hari = 3 × paket 24 jam.</p>
-    </div>
-    <div class="ar-pkgs">
+<section class="py-14">
+    <x-section-head title="Paket & harga" sub="Sewa lebih lama dihitung kelipatan paket. Contoh: 3 hari = 3 × paket 24 jam." />
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @foreach ($vehicle->packages as $p)
-            <div class="ar-pkg" data-reveal>
-                <span class="ar-pkg__svc">{{ $p->service_label }}</span>
-                <span class="ar-pkg__dur">{{ $p->duration_hours }} jam</span>
-                <b class="ar-pkg__price">{{ $rp($p->price) }}</b>
-                <span class="small muted">
-                    @switch($p->service)
-                        @case('lepas_kunci') Anda menyetir sendiri. @break
-                        @case('driver') Termasuk driver, BBM ditanggung penyewa. @break
-                        @case('driver_bbm') Termasuk driver dan BBM. @break
-                    @endswitch
-                </span>
+            <div class="flex flex-col gap-1 rounded-xl border border-line bg-white p-5" data-reveal>
+                <span class="text-sm font-bold text-brand-strong">{{ $p->service_label }}</span>
+                <span class="text-sm text-muted">{{ $p->duration_hours }} jam</span>
+                <b class="my-1 text-2xl font-extrabold tabular-nums">{{ $rp($p->price) }}</b>
+                <span class="text-sm text-ink-2">{{ $catatan[$p->service] ?? '' }}</span>
             </div>
         @endforeach
     </div>
 </section>
 
-<section class="lp-section lp-terms" data-reveal>
-    <div class="lp-head">
-        <h2>Ketentuan singkat</h2>
-        <a href="{{ route('syarat') }}">Syarat &amp; Ketentuan lengkap</a>
-    </div>
-    <dl>
-        <div><dt>Uang muka</dt><dd>{{ $dpPercent }}% dari total sewa, atau langsung lunas.</dd></div>
-        <div><dt>Keterlambatan</dt><dd>{{ $rp($lateFee) }} per jam, dibulatkan ke atas.</dd></div>
-        <div><dt>Ketersediaan</dt><dd>{{ $unitAktif }} unit. Unit kosong dicek otomatis saat Anda memilih tanggal.</dd></div>
-        <div><dt>Pembatalan</dt><dd>Gratis selama belum ada pembayaran.</dd></div>
+<section class="rr-bleed py-12 [--bleed:var(--color-brand-soft)]" data-reveal>
+    <x-section-head title="Ketentuan singkat" :link="route('syarat')" link-text="Syarat & Ketentuan lengkap" />
+    <dl class="m-0 grid gap-x-10 md:grid-cols-2">
+        @foreach ([
+            ['Uang muka', $dpPercent.'% dari total sewa, atau langsung lunas.'],
+            ['Keterlambatan', $rp($lateFee).' per jam, dibulatkan ke atas.'],
+            ['Ketersediaan', $unitAktif.' unit. Unit kosong dicek otomatis saat Anda memilih tanggal.'],
+            ['Pembatalan', 'Gratis selama belum ada pembayaran.'],
+        ] as [$dt, $dd])
+            <div class="grid gap-1 border-t border-brand-strong/20 py-3.5 sm:grid-cols-[140px_1fr] sm:gap-4">
+                <dt class="font-bold">{{ $dt }}</dt><dd class="m-0 text-ink-2">{{ $dd }}</dd>
+            </div>
+        @endforeach
     </dl>
 </section>
 
 @if ($lainnya->isNotEmpty())
-<section class="lp-section">
-    <div class="lp-head" data-reveal><h2>Kendaraan serupa</h2></div>
-    <div class="vgrid">
+<section class="py-14">
+    <x-section-head title="Kendaraan serupa" />
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         @foreach ($lainnya as $v)
-            <article class="vcard" data-reveal>
-                <a class="vcard__media" href="{{ route('armada', $v->slug) }}" tabindex="-1" aria-hidden="true">
-                    @if ($v->photo_url)
-                        <img src="{{ $v->photo_url }}" alt="" width="800" height="500" loading="lazy">
-                    @else
-                        <span class="media-placeholder"><x-car-icon :type="$v->icon" /></span>
-                    @endif
-                </a>
-                <div class="vcard__body">
-                    <h3><a class="vcard__title" href="{{ route('armada', $v->slug) }}">{{ $v->name }}</a></h3>
-                    <div class="vcard__chips">
-                        <span class="chip">{{ $v->seat_label }} kursi</span>
-                        @if ($v->transmission) <span class="chip">{{ $v->transmission }}</span> @endif
-                    </div>
-                    <div class="vcard__foot">
-                        <div class="price"><small>Mulai dari</small>{{ $rp($v->min_price) }}</div>
-                        <a class="btn btn-sm btn-outline" href="{{ route('armada', $v->slug) }}">Detail</a>
-                    </div>
-                </div>
-            </article>
+            <x-vehicle-card :href="route('armada', $v->slug)" :name="$v->name" :photo="$v->photo_url" :icon="$v->icon"
+                :chips="array_filter([$v->seat_label.' kursi', $v->transmission])" :price="$v->min_price" />
         @endforeach
     </div>
 </section>
 @endif
 
-{{-- tombol pesan menempel di bawah layar HP --}}
-<div class="ar-sticky" data-sticky-buy>
-    <div class="price"><small>Mulai dari</small>{{ $rp($vehicle->min_price) }}</div>
+@if ($bisaPesan)
+{{-- tombol pesan menempel di bawah layar HP, muncul setelah tombol utama lewat --}}
+<div class="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line bg-white px-4 py-3 md:hidden" data-sticky-buy>
+    <p class="m-0 leading-tight"><span class="block text-xs text-muted">Mulai dari</span><span class="text-lg font-extrabold tabular-nums">{{ $rp($vehicle->min_price) }}</span></p>
     <a class="btn" href="{{ route('pelanggan.pesan', $vehicle) }}">Pesan</a>
 </div>
+@endif
 
 @include('partials.landing-motion')
 @endsection

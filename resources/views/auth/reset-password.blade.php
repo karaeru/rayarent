@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @section('title', 'Password baru · '.config('rayarent.nama'))
 @section('content')
 <x-auth-shell title="Buat password baru" subtitle="Minimal 6 karakter. Setelah disimpan, masuk dengan password baru.">

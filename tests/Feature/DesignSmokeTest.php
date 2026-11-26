@@ -33,7 +33,9 @@ class DesignSmokeTest extends TestCase
 
     public function test_guest_pages_render_with_the_shared_stylesheet(): void
     {
-        $this->get(route('login'))->assertOk()->assertSee('css/rayarent.css', false)->assertSee('Masuk ke akun Anda');
+        $html = $this->get(route('login'))->assertOk()->assertSee('Masuk ke akun Anda')->getContent();
+        // Tailwind (hasil npm run build) atau CSS lama sebagai cadangan: salah satu harus termuat
+        $this->assertMatchesRegularExpression('#css/rayarent\.css|build/assets/app-[\w-]+\.css|resources/css/app\.css#', $html);
         $this->get(route('register'))->assertOk()->assertSee('Buat akun pelanggan');
     }
 

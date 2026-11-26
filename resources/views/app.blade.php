@@ -9,7 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
     @stack('head')
-    <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
+    @php
+        // Halaman yang sudah dimigrasi ke Tailwind memberi tanda @section('tailwind', '1').
+        // Tailwind dipakai bila hasil build (npm run build) atau server dev (npm run dev) tersedia;
+        // bila belum, halaman tetap tampil dengan CSS lama supaya tidak error.
+        $twWanted = $__env->hasSection('tailwind');
+        $twReady = $twWanted && (file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json')));
+    @endphp
+    @if ($twReady)
+        @vite('resources/css/app.css')
+    @else
+        <link rel="stylesheet" href="{{ asset('css/rayarent.css') }}?v={{ @filemtime(public_path('css/rayarent.css')) }}">
+    @endif
 </head>
 @php
     $user = auth()->user();
@@ -35,6 +46,9 @@
     $wa = preg_replace('/\D/', '', (string) config('rayarent.whatsapp'));
 @endphp
 <body>
+@if ($twWanted && ! $twReady && app()->environment('local'))
+    <div class="alert alert-warn" role="status" style="margin:0;border-radius:0">Tampilan baru belum dibangun. Jalankan <code>npm install</code> lalu <code>npm run build</code> di folder proyek.</div>
+@endif
 <header class="site-header" data-site-header>
     <div class="container site-header__inner">
         <a class="brand" href="{{ $home }}" aria-label="{{ config('rayarent.nama') }}">

@@ -1,4 +1,5 @@
 @extends('app')
+@section('tailwind', '1')
 @php
     $nama = config('rayarent.nama');
     $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
@@ -25,30 +26,28 @@
 @endpush
 @section('content')
 
-<nav class="lp-crumbs" aria-label="Breadcrumb">
-    <a href="{{ route('home') }}">Beranda</a><span aria-hidden="true">/</span><span aria-current="page">Syarat &amp; Ketentuan</span>
-</nav>
+<x-crumbs :items="[['Beranda', route('home')], ['Syarat & Ketentuan']]" />
 
-<header class="sk-head">
-    <h1>Syarat &amp; Ketentuan Sewa</h1>
-    <p class="lp-lead">Ketentuan ini berlaku untuk setiap pesanan di {{ $nama }}. Saat memesan, Anda diminta menyetujuinya, dan versi yang Anda setujui tercatat di pesanan.</p>
-    <p class="small muted">Versi {{ $versi->translatedFormat('d F Y') }}</p>
+<header class="mb-6 max-w-3xl">
+    <h1 class="m-0 text-4xl font-extrabold tracking-tight sm:text-5xl">Syarat &amp; Ketentuan Sewa</h1>
+    <p class="mb-0 mt-3 text-lg leading-relaxed text-ink-2">Ketentuan ini berlaku untuk setiap pesanan di {{ $nama }}. Saat memesan, Anda diminta menyetujuinya, dan versi yang Anda setujui tercatat di pesanan.</p>
+    <p class="mb-0 mt-2 text-sm text-muted">Versi {{ $versi->translatedFormat('d F Y') }}</p>
 </header>
 
 {{-- Ringkasan angka: diambil dari Admin → Pengaturan, jadi selalu sama dengan yang ditagihkan sistem --}}
-<dl class="sk-key">
+<dl class="m-0 mb-10 grid gap-3 sm:grid-cols-3 [&>div]:rounded-xl [&>div]:border [&>div]:border-line [&>div]:bg-white [&>div]:px-5 [&>div]:py-4 [&_dt]:text-sm [&_dt]:text-muted [&_dd]:m-0 [&_dd]:mt-1 [&_dd]:text-2xl [&_dd]:font-extrabold [&_dd]:tabular-nums [&_small]:ml-0.5 [&_small]:text-sm [&_small]:font-medium [&_small]:text-muted">
     <div><dt>Uang muka</dt><dd>{{ $dpPercent }}%</dd></div>
     @if ($batasBayar) <div><dt>Batas unggah bukti bayar</dt><dd>{{ $batasBayar }} jam</dd></div> @endif
     <div><dt>Denda telat</dt><dd>{{ $rp($lateFee) }}<small>/jam</small></dd></div>
 </dl>
 
-<div class="sk-layout">
-    <aside class="sk-toc">
+<div class="grid items-start gap-5 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
+    <aside class="lg:sticky lg:top-24">
         <nav aria-label="Daftar isi" data-sk-toc>
-            <p class="sk-toc__title">Daftar isi</p>
-            <ol>
+            <p class="m-0 mb-2 text-xs font-bold uppercase tracking-widest text-muted">Daftar isi</p>
+            <ol class="m-0 list-none border-l-2 border-line p-0">
                 @foreach ($bab as $i => [$id, $judul])
-                    <li><a href="#{{ $id }}" data-toc="{{ $id }}"><span>{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>{{ $judul }}</a></li>
+                    <li><a href="#{{ $id }}" data-toc="{{ $id }}" class="-ml-0.5 flex gap-2.5 border-l-2 border-transparent py-1.5 pl-3.5 text-sm text-ink-2 transition-colors hover:text-brand-strong hover:no-underline"><span class="pt-px text-xs tabular-nums text-muted">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>{{ $judul }}</a></li>
                 @endforeach
             </ol>
         </nav>
@@ -58,7 +57,7 @@
         Isi di bawah adalah ketentuan umum rental. SESUAIKAN dengan aturan RAYARENT sebelum dipakai,
         terutama bagian yang diberi komentar "SESUAIKAN". Setelah mengubah isi, ganti RAYARENT_SK_VERSI di .env.
     --}}
-    <article class="sk-body">
+    <article class="max-w-3xl [&_section]:mb-7 [&_section]:scroll-mt-24 [&_section]:border-b [&_section]:border-line [&_section]:pb-7 [&_section:last-child]:border-0 [&_h2]:mb-3.5 [&_h2]:flex [&_h2]:items-baseline [&_h2]:gap-3 [&_h2]:text-2xl [&_h2]:font-bold [&_h2_span]:text-sm [&_h2_span]:font-extrabold [&_h2_span]:tabular-nums [&_h2_span]:text-brand-strong [&_ol]:m-0 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-2 [&_li]:leading-relaxed [&_li]:text-ink-2 [&_b]:text-ink [&_a]:text-brand-strong [&_a]:underline [&_a]:underline-offset-2">
         <section id="penyewa">
             <h2><span>01</span>Syarat penyewa</h2>
             <ol>

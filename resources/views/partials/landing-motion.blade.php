@@ -3,6 +3,9 @@
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.documentElement.classList.add('lp-js');
 
+    // Gerak (MOTION 3, DESIGN.md §6): tiap animasi memberi tahu sesuatu: urutan baca, slide berganti,
+    // hasil filter, atau bagian yang dituju. Semua mati bila pengguna memilih reduced motion.
+
     // 1. Muncul saat di-scroll, berurutan per kelompok
     const items = document.querySelectorAll('[data-reveal]');
     if (reduce || !('IntersectionObserver' in window)) {
@@ -183,7 +186,7 @@
         const dots = [...stage.querySelectorAll('[data-dot]')];
         let cur = 0, timer = null;
         // slide kontak tampil lebih lama supaya sempat dibaca
-        const dur = (i) => slides[i].classList.contains('lp-slide--contact') ? 7000 : 4500;
+        const dur = (i) => slides[i].dataset.type === 'contact' ? 7000 : 4500;
         const restartBar = () => {
             const d = dots[cur]; if (!d) return;
             d.style.setProperty('--dur', dur(cur) + 'ms');
@@ -195,7 +198,7 @@
             if (prev === cur) return;
             slides[prev].classList.remove('is-active');
             slides[prev].classList.add('is-leaving');
-            setTimeout(() => slides[prev].classList.remove('is-leaving'), 900);
+            setTimeout(() => slides[prev].classList.remove('is-leaving'), 700);
             slides.forEach((s, i) => { s.inert = i !== cur; });
             slides[cur].classList.add('is-active');
             dots.forEach((d, i) => { d.classList.toggle('is-active', i === cur); i === cur ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'); });
@@ -227,7 +230,7 @@
 
     // Tombol pesan menempel (HP) muncul setelah tombol utama lewat dari layar
     const sticky = document.querySelector('[data-sticky-buy]');
-    const buy = document.querySelector('.ar-buy');
+    const buy = document.querySelector('[data-buy]');
     if (sticky && buy && 'IntersectionObserver' in window) {
         new IntersectionObserver(([e]) => {
             const on = !e.isIntersecting && e.boundingClientRect.top < 0;
@@ -235,8 +238,6 @@
             document.body.classList.toggle('has-sticky-buy', on);
         }).observe(buy);
     }
-
-    if (reduce || !matchMedia('(hover: hover)').matches) return;
 
 })();
 </script>
