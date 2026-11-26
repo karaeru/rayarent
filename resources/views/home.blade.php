@@ -97,7 +97,7 @@
 @include('partials.cek-unit-form', ['aksi' => route('home').'#armada', 'kelas' => 'relative z-10 -mt-16 shadow-xl'])
 
 {{-- ============ PALING SERING DISEWA / HASIL CEK (arah A) ============ --}}
-<section id="armada" class="scroll-mt-24 py-14">
+<section id="armada" class="scroll-mt-24 py-14" data-swap="cek-hasil">
     @if ($cek)
         @php $daftar = $cek['hasil']; @endphp
         <div class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2" data-reveal>
@@ -111,7 +111,7 @@
                 </p>
             </div>
             {{-- Reset memakai form GET, bukan link: klik link #… dicegat skrip scroll halus, sedangkan form selalu memuat ulang halaman tanpa ?mulai=… --}}
-            <form method="GET" action="{{ route('home') }}#cek-unit">
+            <form method="GET" action="{{ route('home') }}#cek-unit" data-cek-ajax>
                 <button class="inline-flex min-h-11 items-center border-0 bg-transparent px-0 font-semibold text-brand-strong underline underline-offset-2 hover:text-ink">Reset pencarian</button>
             </form>
         </div>
@@ -257,4 +257,5 @@
 </section>
 
 @include('partials.landing-motion')
+@include('partials.cek-unit-ajax')
 @endsection

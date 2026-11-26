@@ -130,4 +130,17 @@ class CustomerHomeTest extends TestCase
             ->assertSee(route('pelanggan.akun'), false)
             ->assertSee('Ganti password');
     }
+
+    public function test_check_form_and_results_can_be_swapped_without_reload(): void
+    {
+        foreach ([[null, '/'], [User::factory()->create(['role' => 'pelanggan']), route('pelanggan.beranda')]] as [$user, $url]) {
+            $res = $user ? $this->actingAs($user)->get($url) : $this->get($url);
+            $res->assertOk()
+                ->assertSee('data-cek-ajax', false)
+                ->assertSee('data-swap="cek-form"', false)
+                ->assertSee('data-swap="cek-hasil"', false)
+                ->assertSee('data-cek-status', false);
+            auth()->logout();
+        }
+    }
 }

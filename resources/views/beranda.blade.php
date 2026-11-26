@@ -102,27 +102,30 @@
     <h2 id="judul-cek" class="m-0 mb-3 text-lg font-bold">{{ $adaPesanan ? 'Sewa lagi? Cek unit kosong' : 'Cek unit kosong' }}</h2>
     @include('partials.cek-unit-form', ['aksi' => route('pelanggan.beranda').'#hasil-cek'])
 
-    @if ($cek)
-        @php $daftar = $cek['hasil']; @endphp
-        <div id="hasil-cek" class="scroll-mt-24 pt-6">
-            <div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-                <div>
-                    <h3 class="m-0 text-xl font-extrabold tracking-tight">{{ $daftar->count() ? $daftar->count().' kendaraan punya unit kosong' : 'Belum ada unit kosong' }}</h3>
-                    <p class="mb-0 mt-1 text-sm text-ink-2">
-                        Mulai {{ $cek['mulai']->translatedFormat('l, d M Y · H.i') }}{{ $cek['layanan'] ? ' · '.$services[$cek['layanan']] : '' }}{{ $cek['orang'] ? ' · minimal '.$cek['orang'].' kursi' : '' }}.
-                        Dicek untuk paket terpendek tiap kendaraan.
-                    </p>
+    {{-- area hasil selalu ada supaya bisa ditukar tanpa memuat ulang halaman --}}
+    <div data-swap="cek-hasil" class="scroll-mt-24">
+        @if ($cek)
+            @php $daftar = $cek['hasil']; @endphp
+            <div id="hasil-cek" class="scroll-mt-24 pt-6">
+                <div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+                    <div>
+                        <h3 class="m-0 text-xl font-extrabold tracking-tight">{{ $daftar->count() ? $daftar->count().' kendaraan punya unit kosong' : 'Belum ada unit kosong' }}</h3>
+                        <p class="mb-0 mt-1 text-sm text-ink-2">
+                            Mulai {{ $cek['mulai']->translatedFormat('l, d M Y · H.i') }}{{ $cek['layanan'] ? ' · '.$services[$cek['layanan']] : '' }}{{ $cek['orang'] ? ' · minimal '.$cek['orang'].' kursi' : '' }}.
+                            Dicek untuk paket terpendek tiap kendaraan.
+                        </p>
+                    </div>
+                    <form method="GET" action="{{ route('pelanggan.beranda') }}#cek-unit" data-cek-ajax>
+                        <button class="inline-flex min-h-11 items-center border-0 bg-transparent px-0 font-semibold text-brand-strong underline underline-offset-2 hover:text-ink">Reset pencarian</button>
+                    </form>
                 </div>
-                <form method="GET" action="{{ route('pelanggan.beranda') }}#cek-unit">
-                    <button class="inline-flex min-h-11 items-center border-0 bg-transparent px-0 font-semibold text-brand-strong underline underline-offset-2 hover:text-ink">Reset pencarian</button>
-                </form>
+                @if ($daftar->isEmpty())
+                    <div class="rr-card px-5 py-10 text-center text-ink-2"><strong class="mb-1 block text-ink">Semua unit sudah terpesan di jam itu</strong>Coba jam lain, layanan lain, atau lihat <a href="{{ route('pelanggan.katalog') }}" class="font-semibold text-brand-strong underline underline-offset-2">katalog</a>.</div>
+                @endif
+                @include('partials.kartu-kendaraan', ['daftar' => $daftar, 'cek' => $cek])
             </div>
-            @if ($daftar->isEmpty())
-                <div class="rr-card px-5 py-10 text-center text-ink-2"><strong class="mb-1 block text-ink">Semua unit sudah terpesan di jam itu</strong>Coba jam lain, layanan lain, atau lihat <a href="{{ route('pelanggan.katalog') }}" class="font-semibold text-brand-strong underline underline-offset-2">katalog</a>.</div>
-            @endif
-            @include('partials.kartu-kendaraan', ['daftar' => $daftar, 'cek' => $cek])
+        @endif
         </div>
-    @endif
 </section>
 
 {{-- ============ SEWA LAGI ============ --}}
@@ -175,4 +178,5 @@
 })();
 </script>
 @include('partials.landing-motion')
+@include('partials.cek-unit-ajax')
 @endsection

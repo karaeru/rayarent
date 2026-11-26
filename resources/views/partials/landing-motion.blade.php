@@ -194,9 +194,11 @@
     });
 
     // Daftar kartu panjang (hasil cek unit kosong): 6 kartu dulu, tombol buka/tutup
-    document.querySelectorAll('[data-collapse]').forEach((box) => {
+    // dipanggil ulang setelah hasil cek ditukar tanpa memuat ulang halaman (partials/cek-unit-ajax)
+    window.rrCollapse = (root = document) => root.querySelectorAll('[data-collapse]').forEach((box) => {
         const btn = box.querySelector('[data-collapse-toggle]');
-        if (!btn) return;
+        if (!btn || box.dataset.bound) return;
+        box.dataset.bound = '1';
         box.classList.add('is-limited');
         btn.addEventListener('click', () => {
             const open = box.classList.toggle('is-limited') === false;
@@ -209,6 +211,7 @@
             }
         });
     });
+    rrCollapse();
 
     // Panggung foto di pembuka: ganti otomatis, berhenti saat disentuh kursor / tab tidak terlihat
     const stage = document.querySelector('[data-stage]');
