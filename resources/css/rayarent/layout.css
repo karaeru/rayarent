@@ -1,6 +1,6 @@
 /* ---------- Layout ---------- */
 .rr-container{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
-.site-main{min-height:60vh;padding:28px 0 56px}
+.site-main{min-height:60vh;padding:28px 0 56px;overflow-x:clip}
 
 /* ---------- Header ---------- */
 .site-header{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}

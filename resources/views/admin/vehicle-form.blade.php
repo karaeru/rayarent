@@ -63,6 +63,16 @@
                     <span class="relative h-6 w-11 flex-none rounded-full bg-line-strong transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:bg-brand-strong peer-checked:after:translate-x-5 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-strong motion-reduce:after:transition-none" aria-hidden="true"></span>
                     <span>Tampilkan di katalog</span>
                 </label>
+                @if ($vehicle->exists && $pesananAktif->isNotEmpty())
+                    {{-- mematikan katalog hanya menyembunyikan kendaraan, pesanan yang sudah ada tetap berjalan --}}
+                    <div class="mt-2 rounded-lg border border-warn/30 bg-warn-soft px-3 py-2.5 text-sm text-warn" role="note">
+                        <b>{{ $pesananAktif->count() }} pesanan aktif</b> tetap berjalan walau katalog dimatikan:
+                        @foreach ($pesananAktif as $o)
+                            <a href="{{ route('admin.pesanan', ['search' => $o->code]) }}" class="font-semibold text-warn underline underline-offset-2">{{ $o->code }}</a> ({{ $o->start_at->translatedFormat('d M') }}){{ $loop->last ? '.' : ',' }}
+                        @endforeach
+                        Batalkan atau selesaikan lewat halaman Pesanan.
+                    </div>
+                @endif
             </div>
         </div>
         <div class="mt-5 flex justify-end border-t border-line pt-4">

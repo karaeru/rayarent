@@ -32,7 +32,9 @@ class TailwindMigrationTest extends TestCase
         $this->assertStringContainsString('--color-brand-strong: #005b8c', $css);
         $this->assertStringContainsString("layer(legacy)", $css);
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
-        $this->assertStringNotContainsString('gradient(', $css);
+        // gradasi hanya boleh di latar pembuka biru
+        preg_match_all('/gradient\(/', preg_replace('/\.rr-under-header::before\s*\{.*?\n    \}/s', '', $css), $sisa);
+        $this->assertCount(0, $sisa[0], 'gradasi hanya untuk .rr-under-header::before');
     }
 
     public function test_customer_pages_are_migrated_and_keep_their_key_text(): void

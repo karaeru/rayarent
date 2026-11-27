@@ -17,10 +17,14 @@
 @endphp
 <section class="rr-bleed rr-on-dark rr-under-header grid items-center gap-x-12 gap-y-10 pb-28 text-white [--bleed:var(--color-brand-strong)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pb-32">
     <div class="min-w-0" data-reveal>
-        <h1 class="m-0 max-w-[12ch] text-[clamp(2.4rem,6vw,4.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">Mau ke mana hari ini? Mobilnya sudah siap.</h1>
-        <p class="mb-0 mt-6 max-w-[44ch] text-lg leading-relaxed text-white/85">
-            {{ $totalUnit }} unit, setir sendiri atau pakai driver, per 12 atau 24 jam.
-            Pilih tanggal dan lihat unit yang masih kosong sebelum membayar DP {{ $dpPercent }}%.
+        {{-- dua kalimat, dua bobot: pertanyaan tebal, jawaban lebih ringan --}}
+        <h1 class="m-0 max-w-[14ch] text-[clamp(2.5rem,5.6vw,4.5rem)] leading-[1] tracking-[-0.045em] text-white">
+            <span class="block font-extrabold">Mau ke mana hari ini?</span>
+            <span class="mt-1 block font-medium text-white/90">Mobilnya sudah siap.</span>
+        </h1>
+        <p class="mb-0 mt-7 max-w-[42ch] text-[1.15rem] leading-[1.7] text-white/80">
+            <b class="font-semibold text-white">{{ $totalUnit }} unit</b>, setir sendiri atau pakai driver, per <b class="font-semibold text-white">12 atau 24 jam</b>.
+            Pilih tanggal dan lihat unit yang masih kosong sebelum membayar <b class="font-semibold text-white">DP {{ $dpPercent }}%</b>.
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3">

@@ -16,7 +16,7 @@
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-/* Token dari DESIGN.md. Satu warna brand, warna status, tanpa gradasi. */
+/* Token dari DESIGN.md. Satu warna brand dan warna status. Gradasi hanya di latar pembuka biru (lihat .rr-under-header). */
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 
@@ -83,7 +83,7 @@
     /* daftar isi Syarat & Ketentuan */
     [data-toc].is-current { color: var(--color-brand-strong); border-color: var(--color-brand-strong); font-weight: 600; }
 
-    @keyframes rr-arrive { 0% { transform: translateY(10px); opacity: .4; } 55% { transform: none; opacity: 1; color: var(--color-brand-strong); } }
+    @keyframes rr-arrive { 0% { transform: translateY(10px); opacity: .4; } 55% { transform: none; opacity: 1; } }
     @keyframes rr-pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
     @keyframes rr-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
@@ -223,4 +223,30 @@
 @media print {
     .lp-js [data-reveal] { opacity: 1 !important; transform: none !important; }
     .rr-on-dark, .rr-on-dark * { color: var(--color-ink) !important; background: transparent !important; box-shadow: none !important; }
+}
+
+/*
+ * Latar pembuka biru: cahaya warna di keempat sudut, dari palet logo, di atas biru brand.
+ * Sudut yang sering berisi teks (kiri atas: breadcrumb, kiri bawah: paragraf & tombol) memakai biru tua
+ * (teks putih 75% tetap >= 4,9:1). Sudut kanan yang biasanya berisi foto memakai cyan dan teal yang terang.
+ * Halaman yang teksnya di kanan (detail armada) cukup menukar warna lewat variabel --rr-tr / --rr-bl.
+ */
+@layer components {
+    .rr-under-header { position: relative; isolation: isolate; --rr-tl: #2b45a8; --rr-tr: #00a3c4; --rr-br: #0d8f8a; --rr-bl: #1e4fb5; }
+    .rr-under-header::before {
+        content: ''; position: absolute; z-index: -1; inset: 0 calc(50% - 50vw); pointer-events: none;
+        background:
+            radial-gradient(ellipse 55% 80% at 0% 0%, var(--rr-tl) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 85% at 100% 0%, var(--rr-tr) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 80% at 100% 100%, var(--rr-br) 0%, transparent 70%),
+            radial-gradient(ellipse 55% 80% at 0% 100%, var(--rr-bl) 0%, transparent 70%),
+            linear-gradient(165deg, #00456b 0%, var(--color-brand-strong) 50%, #004e78 100%);
+    }
+    @media print { .rr-under-header::before { display: none; } }
+}
+
+/* Tipografi: judul seimbang per baris, paragraf tanpa kata yatim di baris terakhir */
+@layer base {
+    h1, h2, h3 { text-wrap: balance; }
+    p, li, dd, blockquote { text-wrap: pretty; }
 }

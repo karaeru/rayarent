@@ -77,4 +77,24 @@ class VehicleDeleteTest extends TestCase
             ->delete(route('admin.kendaraan.hapus', $v), ['konfirmasi' => 'Yaris Manual'])
             ->assertForbidden();
     }
+
+    public function test_admin_is_warned_about_active_orders_when_hiding_a_vehicle(): void
+    {
+        $v = $this->vehicle();
+        Order::create([
+            'code' => 'RR-0042', 'user_id' => User::factory()->create(['role' => 'pelanggan'])->id,
+            'vehicle_unit_id' => $v->units()->first()->id, 'rental_package_id' => $v->packages()->first()->id,
+            'quantity' => 1, 'start_at' => now()->addDay(), 'end_at' => now()->addDays(2),
+            'total_price' => 250000, 'pay_mode' => 'dp', 'status' => 'dikonfirmasi',
+        ]);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->get(route('admin.kendaraan.ubah', $v))->assertOk()
+            ->assertSee('1 pesanan aktif')->assertSee('RR-0042');
+
+        $this->actingAs($admin)->put(route('admin.kendaraan.perbarui', $v), ['name' => 'Yaris Manual', 'seat_label' => '4', 'capacity' => 4])
+            ->assertSessionHas('ok', fn ($m) => str_contains($m, 'RR-0042'));
+        $this->assertFalse($v->fresh()->is_active);
+        $this->assertSame('dikonfirmasi', Order::where('code', 'RR-0042')->value('status'), 'pesanan tidak ikut dibatalkan');
+    }
 }

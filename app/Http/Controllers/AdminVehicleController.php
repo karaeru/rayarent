@@ -50,6 +50,7 @@ class AdminVehicleController extends Controller
             'services' => RentalPackage::SERVICES,
             'variants' => $vehicle->variants(),
             'jumlahPesanan' => $jumlahPesanan,
+            'pesananAktif' => $this->activeOrders($vehicle),
             'usedPackageIds' => Order::whereIn('rental_package_id', $vehicle->packages->pluck('id'))
                 ->pluck('rental_package_id')->unique()->all(),
         ]);
@@ -61,7 +62,12 @@ class AdminVehicleController extends Controller
 
         $this->updatePhotoMap();   // nama bisa berubah, peta foto memakai nama
 
-        return back()->with('ok', 'Data kendaraan disimpan.');
+        // katalog dimatikan tidak membatalkan pesanan yang sudah ada: ingatkan admin
+        $aktif = $vehicle->is_active ? collect() : $this->activeOrders($vehicle);
+
+        return back()->with('ok', $aktif->isEmpty()
+            ? 'Data kendaraan disimpan.'
+            : 'Data kendaraan disimpan. Masih ada ' . $aktif->count() . ' pesanan aktif (' . $aktif->pluck('code')->implode(', ') . ') yang tetap berjalan.');
     }
 
     /**
@@ -284,6 +290,13 @@ class AdminVehicleController extends Controller
         if ($path && str_starts_with($path, 'vehicles/')) {
             Storage::disk('local')->delete($path);
         }
+    }
+
+    /** Pesanan yang masih berjalan untuk semua unit kendaraan ini (menunggu, dikonfirmasi, sedang disewa). */
+    private function activeOrders(Vehicle $vehicle)
+    {
+        return Order::whereIn('vehicle_unit_id', $vehicle->units()->select('id'))
+            ->whereIn('status', VehicleUnit::AKTIF)->orderBy('start_at')->get(['id', 'code', 'start_at', 'status']);
     }
 
     private function hasUpcomingOrders(VehicleUnit $unit): bool

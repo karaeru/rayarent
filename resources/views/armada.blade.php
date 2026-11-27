@@ -43,7 +43,7 @@
 @section('content')
 
 {{-- pembuka biru tua seperti landing: foto besar di kartu putih, info dan tombol di samping --}}
-<section class="rr-bleed rr-on-dark rr-under-header text-white [--bleed:var(--color-brand-strong)] grid items-start gap-8 pb-14 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-12 lg:pb-16">
+<section class="rr-bleed rr-on-dark rr-under-header text-white [--bleed:var(--color-brand-strong)] [--rr-tr:#2b45a8] [--rr-bl:#00a3c4] grid items-start gap-8 pb-14 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-12 lg:pb-16">
     <div class="min-w-0 lg:col-span-2"><x-crumbs dark :items="[['Beranda', route('home')], ['Armada', route('home').'#armada'], [$vehicle->name]]" /></div>
     <div class="-mt-2 aspect-[16/10] min-w-0 overflow-hidden rounded-3xl bg-white" data-reveal>
         @if ($vehicle->photo_url)
