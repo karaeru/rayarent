@@ -49,16 +49,9 @@ p{margin:0 0 .75rem}
 }
 
 .muted{color:var(--muted)}
-.small{font-size:.875rem}
 
 .text-right{text-align:right}
-.two-col{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
-.rr-sticky{position:sticky;top:88px}
 
-@media(max-width:900px){
-  .two-col{grid-template-columns:1fr}
-  .rr-sticky{position:static}
-}
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:9px 18px;border:1px solid transparent;border-radius:var(--radius-sm);background:var(--brand);color:var(--on-brand);font:600 .95rem var(--font);cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s}
 .btn:hover{background:var(--brand-strong);text-decoration:none;color:var(--on-brand)}
@@ -87,8 +80,6 @@ p{margin:0 0 .75rem}
 .check input{width:18px;height:18px;margin-top:2px;accent-color:var(--brand);flex:none}
 
 /* ---------- Cards,alerts,badges ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.card-body{padding:20px}
 
 .alert{display:flex;gap:10px;padding:12px 16px;border-radius:var(--radius-sm);border:1px solid;margin-bottom:16px;font-size:.95rem}
 .alert-success{background:var(--success-bg);border-color:#a7e3b9;color:var(--success)}
@@ -132,7 +123,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 }
 /* PB-1: gambar yang kini punya width/height tetap mengikuti ukuran tampilannya */
 img{height:auto}
-.card,.rek__item{box-shadow:none}
+.rek__item{box-shadow:none}
 
 /* animasi tombol WhatsApp melayang (dipakai di layout.css) */
 @keyframes wa-in{from{opacity:0;transform:translateY(24px) scale(.6)}to{opacity:1;transform:none}}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\RentalPackage;
 use App\Models\Setting;
+use App\Models\VehicleUnit;
 use App\Support\Armada;
 use Illuminate\Http\Request;
 
@@ -23,7 +24,7 @@ class CustomerHomeController extends Controller
             ->with('unit.vehicle.packages', 'package', 'payments', 'review')
             ->latest()->get();
 
-        $aktif = $orders->whereIn('status', Order::AKTIF)
+        $aktif = $orders->whereIn('status', VehicleUnit::AKTIF)
             ->map(fn ($o) => tap($o, fn ($o) => $o->langkah = $o->langkahBerikutnya()));
         // perlu tindakan: bayar, unggah ulang, lunasi, atau kembalikan kendaraan yang lewat jadwal
         $tindakan = $aktif->filter(fn ($o) => in_array($o->langkah[0], ['warn', 'danger'], true))

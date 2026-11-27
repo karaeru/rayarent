@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\RentalPackage;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;

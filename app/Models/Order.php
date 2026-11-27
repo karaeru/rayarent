@@ -115,15 +115,6 @@ class Order extends Model
             ->update(['status' => 'dibatalkan', 'cancel_reason' => 'Otomatis: tidak ada bukti bayar dalam ' . $jam . ' jam', 'updated_at' => now()]);
     }
 
-    /** Nomor pesanan berikutnya: RR-0001, RR-0002, ... */
-    public static function nextCode(): string
-    {
-        return 'RR-' . str_pad((string) ((static::max('id') ?? 0) + 1), 4, '0', STR_PAD_LEFT);
-    }
-
-    /** Pesanan yang masih berjalan dari sisi pelanggan (belum selesai dan tidak batal). */
-    public const AKTIF = ['menunggu_konfirmasi', 'dikonfirmasi', 'sedang_disewa'];
-
     /**
      * Langkah berikutnya untuk pelanggan: [nada, teks].
      * Nada: warn / danger = pelanggan harus bertindak, info / ok = sedang berjalan, muted = selesai atau batal.

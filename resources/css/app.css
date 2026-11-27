@@ -58,7 +58,6 @@
 
 
     /* armada: filter kategori dan "lihat semua" */
-    [data-fleet].is-limited:not(.is-filtered) .is-extra, [data-fleet] .is-hidden { display: none; }
     [data-collapse].is-limited .is-extra { display: none; }
     .is-pop { animation: rr-pop .45s var(--ease-soft) var(--d, 0ms) both; }
 

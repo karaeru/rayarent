@@ -1,7 +1,6 @@
 @extends('app')
 @section('title', ($vehicle->exists ? 'Kelola ' . $vehicle->name : 'Kendaraan baru') . ' · Admin ' . config('rayarent.nama'))
 @php
-    $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
     $unitStat = $vehicle->exists ? $vehicle->units->countBy('status') : collect();
 @endphp
 @section('content')

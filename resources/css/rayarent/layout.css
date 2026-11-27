@@ -2,7 +2,6 @@
 .rr-container{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
 .site-main{min-height:60vh;padding:28px 0 56px}
 
-.page-sub{color:var(--muted);margin:4px 0 0}
 /* ---------- Header ---------- */
 .site-header{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
 .site-header__inner{display:flex;align-items:center;gap:20px;min-height:64px}
@@ -10,10 +9,6 @@
 .brand:hover{text-decoration:none}
 .brand__logo{display:block;height:36px;width:auto}
 .brand__mark{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--brand);color:var(--on-brand);font-weight:800}
-.nav{display:flex;gap:4px;flex:1}
-.nav a{padding:8px 12px;border-radius:var(--radius-sm);color:var(--ink-2);font-weight:600;font-size:.95rem}
-.nav a:hover{background:var(--bg);text-decoration:none}
-.nav a.is-active{background:var(--brand-soft);color:var(--brand)}
 .user-box{display:flex;align-items:center;gap:12px}
 .user-box__name{font-size:.9rem;line-height:1.2;text-align:right}
 .user-box__role{display:block;color:var(--muted);font-size:.75rem;text-transform:capitalize}
@@ -130,7 +125,7 @@
 @media(min-width:901px) and (max-width:1100px){
   .guest-nav a{padding:8px 9px;font-size:.9rem}
 }
-.guest-nav a,.nav a{white-space:nowrap}
+.guest-nav a{white-space:nowrap}
 /* ---------- Admin · perbaikan tabel pesanan v2 ---------- */
 .site-main--wide .rr-container{max-width:1360px}
 /* cetak: hanya isi laporan */
@@ -138,7 +133,7 @@
   .site-header,.site-footer,.wa-float,.pager{display:none!important}
   .site-main{padding:0}
 }
-.page-sub a,.hint a,.au-legal a,.agree a{text-decoration:underline;text-underline-offset:2px}
+.hint a,.au-legal a,.agree a{text-decoration:underline;text-underline-offset:2px}
 .brand__logo{height:36px;width:auto}
 .guest-nav__pill::after{background:var(--brand)}
 .wa-float::before{display:none}

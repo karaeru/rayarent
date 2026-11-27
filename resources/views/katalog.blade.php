@@ -1,7 +1,6 @@
 @extends('app')
 @section('title', 'Katalog · '.config('rayarent.nama'))
 @php
-    $rp = fn ($n) => 'Rp'.number_format($n, 0, ',', '.');
     $f = array_filter(request()->only(['search', 'service', 'capacity']), fn ($v) => $v !== null && $v !== '');
     $link = fn (array $ubah) => route('pelanggan.katalog', array_filter(array_merge($f, $ubah), fn ($v) => $v !== null && $v !== ''));
     $kapasitas = ['' => 'Semua', 4 => '4+ kursi', 7 => '7+ kursi', 14 => '14+ kursi'];

@@ -229,12 +229,10 @@
             const dur = Math.min(1100, Math.max(450, Math.abs(dist) * 0.45));
             const t0 = performance.now();
             cancelAnimationFrame(anim);
-            document.documentElement.classList.add('is-autoscroll');
             const step = (now) => {
                 const p = Math.min(1, (now - t0) / dur);
                 window.scrollTo(0, from + dist * ease(p));
                 if (p < 1) { anim = requestAnimationFrame(step); return; }
-                document.documentElement.classList.remove('is-autoscroll');
                 el.classList.remove('is-arrived'); void el.offsetWidth; el.classList.add('is-arrived');
             };
             anim = requestAnimationFrame(step);
@@ -242,7 +240,6 @@
         // pengguna menggulir sendiri: hentikan animasi
         ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => {
             cancelAnimationFrame(anim);
-            document.documentElement.classList.remove('is-autoscroll');
         }, { passive: true }));
 
         // semua link ke #bagian di halaman yang sama (menu, tombol pembuka, footer)
@@ -250,7 +247,7 @@
             const a = e.target.closest('a[href*="#"]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
             const url = new URL(a.href, location.href);
-            if (url.pathname !== location.pathname || url.search !== location.search || !url.hash || a.hasAttribute('data-reload')) return;   // link yang mengubah query harus memuat ulang halaman
+            if (url.pathname !== location.pathname || url.search !== location.search || !url.hash) return;   // link yang mengubah query (mis. ?mulai=…) memuat ulang halaman
             const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
             if (!target) return;
             e.preventDefault();

@@ -136,9 +136,4 @@ class Vehicle extends Model
     {
         return (int) $this->packages->min('price');
     }
-
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
-    }
 }
